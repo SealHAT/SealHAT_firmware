@@ -412,7 +412,6 @@
       <Value>../usb/device</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
-  <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
   <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
   <armgcc.compiler.optimization.DebugLevel>Maximum (-g3)</armgcc.compiler.optimization.DebugLevel>
   <armgcc.compiler.warnings.AllWarnings>True</armgcc.compiler.warnings.AllWarnings>
@@ -877,6 +876,15 @@
     <Compile Include="hri\hri_wdt_l21.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="lsm303\LSM303AGR.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lsm303\LSM303AGR.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lsm303\LSM303AGRTypes.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1060,6 +1068,7 @@
     <Folder Include="hpl\usb\" />
     <Folder Include="hri\" />
     <Folder Include="max44009" />
+    <Folder Include="lsm303" />
     <Folder Include="si705x" />
     <Folder Include="sealInterface" />
     <Folder Include="thirdparty\" />
