@@ -4,3 +4,6 @@
 [submodule "SealHATv1.0.4/max44009"]
 	path = SealHATv1.0.4/max44009
 	url = https://github.com/SealHAT/MAX44009.git
+[submodule "SealHATv1.0.4/lsm303"]
+	path = SealHATv1.0.4/lsm303
+	url = https://github.com/SealHAT/LSM303C.git
