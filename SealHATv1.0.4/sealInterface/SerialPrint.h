@@ -12,6 +12,9 @@
 #include <atmel_start.h>	/* where the IO functions live */
 #include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdarg.h>
+#include <string.h>
 #include <math.h>
 
 #ifdef __cplusplus
@@ -26,6 +29,10 @@ size_t printFloat(double number, uint8_t digits);
 size_t print(void* string);
 
 size_t println(void* string);
+
+int sprintu(char *s, unsigned u);
+
+int sprintf(char *s, const char *fmt, ...);
 
 #ifdef __cplusplus
 }
