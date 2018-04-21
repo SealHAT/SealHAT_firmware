@@ -19,10 +19,43 @@ struct i2c_m_sync_desc I2C_ENV;
 
 struct i2c_m_sync_desc I2C_IMU;
 
+typedef enum {
+    I2C_STATE_UNKNOWN = 0x00,
+    I2C_STATE_IDLE    = 0x01,
+    I2C_STATE_OWNER   = 0x02,
+    I2C_STATE_BUSY    = 0x03
+} I2C_STATE_t;
+
+static void I2C_UNBLOCK_BUS(const uint8_t SDA, const uint8_t SCL)
+{
+    uint32_t i, count;
+
+	// Set pin SDA direction to input, pull off
+	gpio_set_pin_direction(SDA, GPIO_DIRECTION_IN);
+    gpio_set_pin_pull_mode(SDA, GPIO_PULL_OFF);
+    gpio_set_pin_function(SDA, GPIO_PIN_FUNCTION_OFF);
+
+    for(i = 0, count = 0; i < 50; i++) {
+        count += gpio_get_pin_level(SDA);
+    }
+
+    if(count < 10) {
+        // Set pin SCL direction to output, pull off
+        gpio_set_pin_direction(SCL, GPIO_DIRECTION_OUT);
+        gpio_set_pin_pull_mode(SCL, GPIO_PULL_OFF);
+        gpio_set_pin_function(SCL, GPIO_PIN_FUNCTION_OFF);
+
+        for(i = 0; i <= 32; i++) {
+            gpio_toggle_pin_level(SCL);
+        }
+    }
+
+}
+
 void I2C_GPS_PORT_init(void)
 {
 
-	gpio_set_pin_pull_mode(PA16,
+	gpio_set_pin_pull_mode(GPS_SDA,
 	                       // <y> Pull configuration
 	                       // <id> pad_pull_config
 	                       // <GPIO_PULL_OFF"> Off
@@ -30,9 +63,9 @@ void I2C_GPS_PORT_init(void)
 	                       // <GPIO_PULL_DOWN"> Pull-down
 	                       GPIO_PULL_OFF);
 
-	gpio_set_pin_function(PA16, PINMUX_PA16C_SERCOM1_PAD0);
+	gpio_set_pin_function(GPS_SDA, PINMUX_PA16C_SERCOM1_PAD0);
 
-	gpio_set_pin_pull_mode(PA17,
+	gpio_set_pin_pull_mode(GPS_SCL,
 	                       // <y> Pull configuration
 	                       // <id> pad_pull_config
 	                       // <GPIO_PULL_OFF"> Off
@@ -40,7 +73,7 @@ void I2C_GPS_PORT_init(void)
 	                       // <GPIO_PULL_DOWN"> Pull-down
 	                       GPIO_PULL_OFF);
 
-	gpio_set_pin_function(PA17, PINMUX_PA17C_SERCOM1_PAD1);
+	gpio_set_pin_function(GPS_SCL, PINMUX_PA17C_SERCOM1_PAD1);
 }
 
 void I2C_GPS_CLOCK_init(void)
@@ -61,7 +94,7 @@ void I2C_GPS_init(void)
 void I2C_ENV_PORT_init(void)
 {
 
-	gpio_set_pin_pull_mode(PA08,
+	gpio_set_pin_pull_mode(ENV_SDA,
 	                       // <y> Pull configuration
 	                       // <id> pad_pull_config
 	                       // <GPIO_PULL_OFF"> Off
@@ -69,9 +102,9 @@ void I2C_ENV_PORT_init(void)
 	                       // <GPIO_PULL_DOWN"> Pull-down
 	                       GPIO_PULL_OFF);
 
-	gpio_set_pin_function(PA08, PINMUX_PA08D_SERCOM2_PAD0);
+	gpio_set_pin_function(ENV_SDA, PINMUX_PA08D_SERCOM2_PAD0);
 
-	gpio_set_pin_pull_mode(PA09,
+	gpio_set_pin_pull_mode(ENV_SCL,
 	                       // <y> Pull configuration
 	                       // <id> pad_pull_config
 	                       // <GPIO_PULL_OFF"> Off
@@ -79,7 +112,7 @@ void I2C_ENV_PORT_init(void)
 	                       // <GPIO_PULL_DOWN"> Pull-down
 	                       GPIO_PULL_OFF);
 
-	gpio_set_pin_function(PA09, PINMUX_PA09D_SERCOM2_PAD1);
+	gpio_set_pin_function(ENV_SCL, PINMUX_PA09D_SERCOM2_PAD1);
 }
 
 void I2C_ENV_CLOCK_init(void)
@@ -93,14 +126,19 @@ void I2C_ENV_CLOCK_init(void)
 void I2C_ENV_init(void)
 {
 	I2C_ENV_CLOCK_init();
+
 	i2c_m_sync_init(&I2C_ENV, SERCOM2);
+
+    // unblock the bus if there was an unexpected reset
+    I2C_UNBLOCK_BUS(ENV_SDA, ENV_SCL);
+
 	I2C_ENV_PORT_init();
 }
 
 void I2C_IMU_PORT_init(void)
 {
 
-	gpio_set_pin_pull_mode(PA22,
+	gpio_set_pin_pull_mode(IMU_SDA,
 	                       // <y> Pull configuration
 	                       // <id> pad_pull_config
 	                       // <GPIO_PULL_OFF"> Off
@@ -108,9 +146,9 @@ void I2C_IMU_PORT_init(void)
 	                       // <GPIO_PULL_DOWN"> Pull-down
 	                       GPIO_PULL_OFF);
 
-	gpio_set_pin_function(PA22, PINMUX_PA22C_SERCOM3_PAD0);
+	gpio_set_pin_function(IMU_SDA, PINMUX_PA22C_SERCOM3_PAD0);
 
-	gpio_set_pin_pull_mode(PA23,
+	gpio_set_pin_pull_mode(IMU_SCL,
 	                       // <y> Pull configuration
 	                       // <id> pad_pull_config
 	                       // <GPIO_PULL_OFF"> Off
@@ -118,7 +156,7 @@ void I2C_IMU_PORT_init(void)
 	                       // <GPIO_PULL_DOWN"> Pull-down
 	                       GPIO_PULL_OFF);
 
-	gpio_set_pin_function(PA23, PINMUX_PA23C_SERCOM3_PAD1);
+	gpio_set_pin_function(IMU_SCL, PINMUX_PA23C_SERCOM3_PAD1);
 }
 
 void I2C_IMU_CLOCK_init(void)
@@ -133,16 +171,20 @@ void I2C_IMU_init(void)
 {
 	I2C_IMU_CLOCK_init();
 	i2c_m_sync_init(&I2C_IMU, SERCOM3);
-	I2C_IMU_PORT_init();
+
+    // unblock the bus if there was an unexpected reset
+    I2C_UNBLOCK_BUS(IMU_SDA, IMU_SCL);
+
+    I2C_IMU_PORT_init();
 }
 
 void SPI_MEMORY_PORT_init(void)
 {
 
 	// Set pin direction to input
-	gpio_set_pin_direction(PA12, GPIO_DIRECTION_IN);
+	gpio_set_pin_direction(MEM_MISO, GPIO_DIRECTION_IN);
 
-	gpio_set_pin_pull_mode(PA12,
+	gpio_set_pin_pull_mode(MEM_MISO,
 	                       // <y> Pull configuration
 	                       // <id> pad_pull_config
 	                       // <GPIO_PULL_OFF"> Off
@@ -150,31 +192,31 @@ void SPI_MEMORY_PORT_init(void)
 	                       // <GPIO_PULL_DOWN"> Pull-down
 	                       GPIO_PULL_OFF);
 
-	gpio_set_pin_function(PA12, PINMUX_PA12D_SERCOM4_PAD0);
+	gpio_set_pin_function(MEM_MISO, PINMUX_PA12D_SERCOM4_PAD0);
 
 	// Set pin direction to output
-	gpio_set_pin_direction(PA13, GPIO_DIRECTION_OUT);
+	gpio_set_pin_direction(MEM_SCK, GPIO_DIRECTION_OUT);
 
-	gpio_set_pin_level(PA13,
+	gpio_set_pin_level(MEM_SCK,
 	                   // <y> Initial level
 	                   // <id> pad_initial_level
 	                   // <false"> Low
 	                   // <true"> High
 	                   false);
 
-	gpio_set_pin_function(PA13, PINMUX_PA13D_SERCOM4_PAD1);
+	gpio_set_pin_function(MEM_SCK, PINMUX_PA13D_SERCOM4_PAD1);
 
 	// Set pin direction to output
-	gpio_set_pin_direction(PA15, GPIO_DIRECTION_OUT);
+	gpio_set_pin_direction(MEM_MOSI, GPIO_DIRECTION_OUT);
 
-	gpio_set_pin_level(PA15,
+	gpio_set_pin_level(MEM_MOSI,
 	                   // <y> Initial level
 	                   // <id> pad_initial_level
 	                   // <false"> Low
 	                   // <true"> High
 	                   false);
 
-	gpio_set_pin_function(PA15, PINMUX_PA15D_SERCOM4_PAD3);
+	gpio_set_pin_function(MEM_MOSI, PINMUX_PA15D_SERCOM4_PAD3);
 }
 
 void SPI_MEMORY_CLOCK_init(void)

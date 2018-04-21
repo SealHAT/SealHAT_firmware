@@ -817,17 +817,17 @@ pads:
     mode: Analog
     user_label: BATTERY_LEVEL
     configuration: null
-  PA08:
+  ENV_SDA:
     name: PA08
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PA08
     mode: I2C
-    user_label: PA08
+    user_label: ENV_SDA
     configuration: null
-  PA09:
+  ENV_SCL:
     name: PA09
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PA09
     mode: I2C
-    user_label: PA09
+    user_label: ENV_SCL
     configuration: null
   ENV_IRQ:
     name: PA10
@@ -854,17 +854,17 @@ pads:
     mode: Digital output
     user_label: MEM_CS1
     configuration: null
-  PA12:
+  MEM_MISO:
     name: PA12
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PA12
     mode: Digital input
-    user_label: PA12
+    user_label: MEM_MISO
     configuration: null
-  PA13:
+  MEM_SCK:
     name: PA13
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PA13
     mode: Digital output
-    user_label: PA13
+    user_label: MEM_SCK
     configuration: null
   MEM_CS2:
     name: PA14
@@ -872,23 +872,23 @@ pads:
     mode: Digital output
     user_label: MEM_CS2
     configuration: null
-  PA15:
+  MEM_MOSI:
     name: PA15
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PA15
     mode: Digital output
-    user_label: PA15
+    user_label: MEM_MOSI
     configuration: null
-  PA16:
+  GPS_SDA:
     name: PA16
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PA16
     mode: I2C
-    user_label: PA16
+    user_label: GPS_SDA
     configuration: null
-  PA17:
+  GPS_SCL:
     name: PA17
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PA17
     mode: I2C
-    user_label: PA17
+    user_label: GPS_SCL
     configuration: null
   GPS_TIMEPULSE:
     name: PA18
@@ -914,17 +914,17 @@ pads:
     mode: Digital input
     user_label: IMU_INT2_XL
     configuration: null
-  PA22:
+  IMU_SDA:
     name: PA22
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PA22
     mode: I2C
-    user_label: PA22
+    user_label: IMU_SDA
     configuration: null
-  PA23:
+  IMU_SCL:
     name: PA23
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PA23
     mode: I2C
-    user_label: PA23
+    user_label: IMU_SCL
     configuration: null
   PA24:
     name: PA24

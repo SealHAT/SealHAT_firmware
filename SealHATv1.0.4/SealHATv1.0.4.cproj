@@ -183,9 +183,9 @@
           <AcmeProjectActionInfo Action="File" Source="usb/usb_protocol.c" IsConfig="false" Hash="tWUcFFv/c8ipnv3J//bMIg" />
           <AcmeProjectActionInfo Action="File" Source="usb/usb_protocol.h" IsConfig="false" Hash="EIEORPtDPE5AsfEkRF09CQ" />
           <AcmeProjectActionInfo Action="File" Source="main.c" IsConfig="false" Hash="k0AH7j+BrmdFhBPzCCMptA" />
-          <AcmeProjectActionInfo Action="File" Source="driver_init.c" IsConfig="false" Hash="U0Dg10a6vDF4vik2QoQSkA" />
+          <AcmeProjectActionInfo Action="File" Source="driver_init.c" IsConfig="false" Hash="5SSxO0uXXYssdyBbXfUcXg" />
           <AcmeProjectActionInfo Action="File" Source="driver_init.h" IsConfig="false" Hash="aAqM/7DnlhjjzcHMup+ztQ" />
-          <AcmeProjectActionInfo Action="File" Source="atmel_start_pins.h" IsConfig="false" Hash="vy/fZKyg8HdOZCGmTd/5aw" />
+          <AcmeProjectActionInfo Action="File" Source="atmel_start_pins.h" IsConfig="false" Hash="dWCgcagC8pdr9f0oJmTWWQ" />
           <AcmeProjectActionInfo Action="File" Source="examples/driver_examples.h" IsConfig="false" Hash="SY1g6WgMWYGNDi0nTtfk8A" />
           <AcmeProjectActionInfo Action="File" Source="examples/driver_examples.c" IsConfig="false" Hash="K2epTRBebuQiDPfITdEUzQ" />
           <AcmeProjectActionInfo Action="File" Source="hal/include/hpl_missing_features.h" IsConfig="false" Hash="noI6DoZ4ysytTUo8vCjnOg" />
