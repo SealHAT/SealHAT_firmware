@@ -8,12 +8,9 @@
 #include "task.h"
 #include "semphr.h"
 
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
-
 #include "max44009/max44009.h"
 #include "si705x/si705x.h"
+#include "lsm303/LSM303AGR.h"
 
 #define TASK_LED_STACK_SIZE (400 / sizeof(portSTACK_TYPE))
 #define TASK_LED_STACK_PRIORITY (tskIDLE_PRIORITY + 1)
@@ -28,14 +25,21 @@ typedef struct __attribute__((__packed__)){
     uint8_t stop;
 } ENV_MSG_t;
 
+typedef struct __attribute__((__packed__)){
+    uint8_t start;
+    AxesSI_t axis;
+    uint8_t stop;
+} IMU_MSG_t;
+
 #define TASK_STACK_SIZE                 (500 / sizeof(portSTACK_TYPE))
 #define MSG_TASK_PRI                    (tskIDLE_PRIORITY + 1)
 #define ENV_TASK_PRI                    (tskIDLE_PRIORITY + 2)
 
 static SemaphoreHandle_t disp_mutex;
 static TaskHandle_t      xCreatedMonitorTask;
-static TaskHandle_t      xEnvTaskHandle;
-static TaskHandle_t      xMsgTaskHandle;
+static TaskHandle_t      xENV_th;
+static TaskHandle_t      xIMU_th;
+static TaskHandle_t      xMSG_th;
 static QueueHandle_t     msgQ;
 
 /**
@@ -56,12 +60,12 @@ static void disp_mutex_give(void)
     xSemaphoreGive(disp_mutex);
 }
 
-static void environmentTask(void* pvParameters)
+static void ENV_task(void* pvParameters)
 {
 //    UBaseType_t uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
     int32_t     err = 0;        // for catching API errors
-    ENV_MSG_t   message;        // reads the data
-    (void*)pvParameters;
+    ENV_MSG_t   msg;            // reads the data
+    (void)pvParameters;
 
     // initialize the temperature sensor
     si705x_init(&I2C_ENV);
@@ -70,8 +74,8 @@ static void environmentTask(void* pvParameters)
     max44009_init(&I2C_ENV, LIGHT_ADD_GND);
 
     // initialize the message header and stop byte
-    message.start = 0x03;
-    message.stop  = 0xFC;
+    msg.start = 0x03;
+    msg.stop  = 0xFC;
 
 //    uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
 
@@ -81,7 +85,7 @@ static void environmentTask(void* pvParameters)
         err = si705x_measure_asyncStart();
 
         //  read the light level in floating point lux
-        message.light = max44009_read_float();
+        msg.light = max44009_read_float();
 
 //        uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
 
@@ -89,21 +93,58 @@ static void environmentTask(void* pvParameters)
         os_sleep(portTICK_PERIOD_MS * 5);
 
         // get temp
-        message.temp  = si705x_celsius(si705x_measure_asyncGet(&err));
-        if(err < 0) { message.temp = 0.00; }
+        msg.temp  = si705x_celsius(si705x_measure_asyncGet(&err));
+        if(err < 0) { msg.temp = 0.00; }
 
         // send the data to the Queue
-        xQueueSend(msgQ, (void*)&message, 0);
+        xQueueSend(msgQ, (void*)&msg, 0);
 
         gpio_set_pin_level(LED_GREEN, false);
         os_sleep(portTICK_PERIOD_MS * 975);
     }
 }
 
-static void msgTask(void* pvParameters)
+static void IMU_task(void* pvParameters)
+{
+    //    UBaseType_t uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
+    int32_t     err = 0;        // for catching API errors
+    IMU_MSG_t   msg;            // reads the data
+    (void)pvParameters;
+
+    // initialize the temperature sensor
+    lsm303_init(&I2C_IMU);
+    lsm303_startAcc(ACC_SCALE_2G, ACC_HR_10_HZ);
+
+    // initialize the message header and stop byte
+    msg.start = 0x03;
+    msg.stop  = 0xFC;
+
+    //    uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
+
+    for(;;) {
+        // read the temp
+        gpio_set_pin_level(LED_RED, true);
+
+        err = lsm303_acc_dataready();
+        if(err > 0 ) {
+            // get new reading as floats
+            msg.axis = lsm303_getGravity();
+
+            if (disp_mutex_take()) {
+                usb_write(&msg, sizeof(IMU_MSG_t));
+                disp_mutex_give();
+            }
+        }        
+
+        gpio_set_pin_level(LED_RED, false);
+        os_sleep(portTICK_PERIOD_MS * 100);
+    }
+}
+
+static void MSG_task(void* pvParameters)
 {
     ENV_MSG_t msg;                              // hold the received messages
-    (void*)pvParameters;
+    (void)pvParameters;
 
     for(;;) {
 
@@ -125,30 +166,26 @@ static void msgTask(void* pvParameters)
 }
 
 /**
- * \brief Dump statistics to console
- */
-static void _os_show_statistics(void)
-{
-	static portCHAR szList[128];
-	sprintf(szList, "%c%c%c%c", 0x1B, '[', '2', 'J');
-	str_write(szList);
-	sprintf(szList, "--- Number of tasks: %u\r\n", (unsigned int)uxTaskGetNumberOfTasks());
-	str_write(szList);
-	str_write("> Tasks\tState\tPri\tStack\tNum\r\n");
-	str_write("***********************************\r\n");
-	vTaskList(szList);
-	str_write(szList);
-}
-
-/**
  * OS task that monitor system status and show statistics every 5 seconds
  */
-static void task_monitor(void *p)
+static void task_monitor(void* pvParameters)
 {
-	(void)p;
-	for (;;) {
+    static portCHAR szList[128];
+	(void)pvParameters;
+	
+    for (;;) {
 		if (disp_mutex_take()) {
-			_os_show_statistics();
+
+            // print RTOS stats to console
+			sprintf(szList, "%c%c%c%c", 0x1B, '[', '2', 'J');
+			str_write(szList);
+			sprintf(szList, "--- Number of tasks: %u\r\n", (unsigned int)uxTaskGetNumberOfTasks());
+			str_write(szList);
+			str_write("> Tasks\tState\tPri\tStack\tNum\r\n");
+			str_write("***********************************\r\n");
+			vTaskList(szList);
+			str_write(szList);
+
 			disp_mutex_give();
 		}
 
@@ -165,7 +202,7 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask, signed char *pcTaskName 
 {
     TaskHandle_t xHandle;
     TaskStatus_t xTaskDetails;
-    (void*)xTask;
+    (void)xTask;
 
     /* Obtain the handle of a task from its name. */
     xHandle = xTaskGetHandle((char*)pcTaskName);
@@ -219,11 +256,15 @@ int main(void)
     if(msgQ == NULL) { while(1){} }
     vQueueAddToRegistry(msgQ, "ENV_MSG");
 
-    if(xTaskCreate(environmentTask, "ENV", TASK_STACK_SIZE, NULL, ENV_TASK_PRI, xEnvTaskHandle) != pdPASS) {
+    if(xTaskCreate(ENV_task, "ENV", TASK_STACK_SIZE, NULL, ENV_TASK_PRI, xENV_th) != pdPASS) {
         while(1) { ; }
     }
 
-    if(xTaskCreate(msgTask, "MESSAGE", TASK_STACK_SIZE, NULL, MSG_TASK_PRI, xMsgTaskHandle) != pdPASS) {
+    if(xTaskCreate(IMU_task, "IMU", TASK_STACK_SIZE, NULL, ENV_TASK_PRI, xIMU_th) != pdPASS) {
+        while(1) { ; }
+    }
+
+    if(xTaskCreate(MSG_task, "MESSAGE", TASK_STACK_SIZE, NULL, MSG_TASK_PRI, xMSG_th) != pdPASS) {
         while(1) { ; }
     }
 
@@ -237,112 +278,3 @@ int main(void)
 	return 0;
 }
 
-#define _SPRINTF_OVERRIDE 1
-#if _SPRINTF_OVERRIDE
-/* Override sprintf implement to optimize */
-
-static const unsigned m_val[] = {1000000000u, 100000000u, 10000000u, 1000000u, 100000u, 10000u, 1000u, 100u, 10u, 1u};
-int sprintu(char *s, unsigned u)
-{
-	char tmp_buf[12];
-	int  i, n = 0;
-	int  m;
-
-	if (u == 0) {
-		*s = '0';
-		return 1;
-	}
-
-	for (i = 0; i < 10; i++) {
-		for (m = 0; m < 10; m++) {
-			if (u >= m_val[i]) {
-				u -= m_val[i];
-			} else {
-				break;
-			}
-		}
-		tmp_buf[i] = m + '0';
-	}
-	for (i = 0; i < 10; i++) {
-		if (tmp_buf[i] != '0') {
-			break;
-		}
-	}
-	for (; i < 10; i++) {
-		*s++ = tmp_buf[i];
-		n++;
-	}
-	return n;
-}
-
-int sprintf(char *s, const char *fmt, ...)
-{
-	int     n = 0;
-	va_list ap;
-	va_start(ap, fmt);
-	while (*fmt) {
-		if (*fmt != '%') {
-			*s = *fmt;
-			s++;
-			fmt++;
-			n++;
-		} else {
-			fmt++;
-			switch (*fmt) {
-			case 'c': {
-				char valch = va_arg(ap, int);
-				*s         = valch;
-				s++;
-				fmt++;
-				n++;
-				break;
-			}
-			case 'd': {
-				int vali = va_arg(ap, int);
-				int nc;
-
-				if (vali < 0) {
-					*s++ = '-';
-					n++;
-					nc = sprintu(s, -vali);
-				} else {
-					nc = sprintu(s, vali);
-				}
-
-				s += nc;
-				n += nc;
-				fmt++;
-				break;
-			}
-			case 'u': {
-				unsigned valu = va_arg(ap, unsigned);
-				int      nc   = sprintu(s, valu);
-				n += nc;
-				s += nc;
-				fmt++;
-				break;
-			}
-			case 's': {
-				char *vals = va_arg(ap, char *);
-				while (*vals) {
-					*s = *vals;
-					s++;
-					vals++;
-					n++;
-				}
-				fmt++;
-				break;
-			}
-			default:
-				*s = *fmt;
-				s++;
-				fmt++;
-				n++;
-			}
-		}
-	}
-	va_end(ap);
-	*s = 0;
-	return n;
-}
-#endif /* _SPRINTF_OVERRIDE */
