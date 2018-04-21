@@ -94,7 +94,7 @@ static void ENV_task(void* pvParameters)
 
         // get temp
         msg.temp  = si705x_celsius(si705x_measure_asyncGet(&err));
-        if(err < 0) { msg.temp = 0.00; }
+        if(err < 0) { msg.temp = (float)err; }
 
         // send the data to the Queue
         xQueueSend(msgQ, (void*)&msg, 0);
@@ -134,7 +134,7 @@ static void IMU_task(void* pvParameters)
                 usb_write(&msg, sizeof(IMU_MSG_t));
                 disp_mutex_give();
             }
-        }        
+        }
 
         gpio_set_pin_level(LED_RED, false);
         os_sleep(portTICK_PERIOD_MS * 100);
@@ -172,7 +172,7 @@ static void task_monitor(void* pvParameters)
 {
     static portCHAR szList[128];
 	(void)pvParameters;
-	
+
     for (;;) {
 		if (disp_mutex_take()) {
 
