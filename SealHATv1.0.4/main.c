@@ -1,4 +1,4 @@
-#include "atmel_start.h"
+#include "driver_init.h"
 #include "atmel_start_pins.h"
 
 #include "hal_io.h"
@@ -8,6 +8,9 @@
 #include "task.h"
 #include "semphr.h"
 
+#include "sealUtil.h"
+#include "sealUSB.h"
+#include "sealPrint.h"
 #include "max44009/max44009.h"
 #include "si705x/si705x.h"
 #include "lsm303/LSM303AGR.h"
@@ -227,9 +230,12 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask, signed char *pcTaskName 
 
 int main(void)
 {
-	//atmel_start_init();
-    system_init();
-    usb_init();
+    // TODO put all system init in a function in utils
+    i2c_unblock_bus(IMU_SDA, IMU_SCL);
+    i2c_unblock_bus(GPS_SDA, GPS_SCL);
+    i2c_unblock_bus(ENV_SDA, ENV_SCL);
+	system_init();
+    usb_start();
 
     // disable Brown Out Detector
     SUPC->BOD33.reg &= ~SUPC_BOD33_ENABLE;

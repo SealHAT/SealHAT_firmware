@@ -419,6 +419,127 @@ drivers:
     variant: null
     clocks:
       domain_group: null
+  EXTERNAL_IRQ:
+    user_label: EXTERNAL_IRQ
+    definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::EIC::driver_config_definition::Default::HAL:Driver:Ext.IRQ
+    functionality: External_IRQ
+    api: HAL:Driver:Ext_IRQ
+    configuration:
+      eic_arch_asynch0: false
+      eic_arch_asynch1: false
+      eic_arch_asynch10: false
+      eic_arch_asynch11: false
+      eic_arch_asynch12: false
+      eic_arch_asynch13: false
+      eic_arch_asynch14: false
+      eic_arch_asynch15: false
+      eic_arch_asynch2: false
+      eic_arch_asynch3: false
+      eic_arch_asynch4: false
+      eic_arch_asynch5: false
+      eic_arch_asynch6: false
+      eic_arch_asynch7: false
+      eic_arch_asynch8: false
+      eic_arch_asynch9: false
+      eic_arch_cksel: Clocked by ULPOSC32K
+      eic_arch_enable_irq_setting0: false
+      eic_arch_enable_irq_setting1: false
+      eic_arch_enable_irq_setting10: false
+      eic_arch_enable_irq_setting11: false
+      eic_arch_enable_irq_setting12: false
+      eic_arch_enable_irq_setting13: false
+      eic_arch_enable_irq_setting14: false
+      eic_arch_enable_irq_setting15: true
+      eic_arch_enable_irq_setting2: false
+      eic_arch_enable_irq_setting3: false
+      eic_arch_enable_irq_setting4: true
+      eic_arch_enable_irq_setting5: true
+      eic_arch_enable_irq_setting6: false
+      eic_arch_enable_irq_setting7: false
+      eic_arch_enable_irq_setting8: false
+      eic_arch_enable_irq_setting9: false
+      eic_arch_extinteo0: false
+      eic_arch_extinteo1: false
+      eic_arch_extinteo10: false
+      eic_arch_extinteo11: false
+      eic_arch_extinteo12: false
+      eic_arch_extinteo13: false
+      eic_arch_extinteo14: false
+      eic_arch_extinteo15: false
+      eic_arch_extinteo2: false
+      eic_arch_extinteo3: false
+      eic_arch_extinteo4: false
+      eic_arch_extinteo5: false
+      eic_arch_extinteo6: false
+      eic_arch_extinteo7: false
+      eic_arch_extinteo8: false
+      eic_arch_extinteo9: false
+      eic_arch_filten0: false
+      eic_arch_filten1: false
+      eic_arch_filten10: false
+      eic_arch_filten11: false
+      eic_arch_filten12: false
+      eic_arch_filten13: false
+      eic_arch_filten14: false
+      eic_arch_filten15: false
+      eic_arch_filten2: false
+      eic_arch_filten3: false
+      eic_arch_filten4: false
+      eic_arch_filten5: false
+      eic_arch_filten6: false
+      eic_arch_filten7: false
+      eic_arch_filten8: false
+      eic_arch_filten9: false
+      eic_arch_nmi_ctrl: false
+      eic_arch_nmiasynch: false
+      eic_arch_nmifilten: false
+      eic_arch_nmisense: No detection
+      eic_arch_sense0: No detection
+      eic_arch_sense1: No detection
+      eic_arch_sense10: No detection
+      eic_arch_sense11: No detection
+      eic_arch_sense12: No detection
+      eic_arch_sense13: No detection
+      eic_arch_sense14: No detection
+      eic_arch_sense15: High-level detection
+      eic_arch_sense2: No detection
+      eic_arch_sense3: No detection
+      eic_arch_sense4: High-level detection
+      eic_arch_sense5: High-level detection
+      eic_arch_sense6: No detection
+      eic_arch_sense7: No detection
+      eic_arch_sense8: No detection
+      eic_arch_sense9: No detection
+    optional_signals:
+    - identifier: EXTERNAL_IRQ:EXTINT/4
+      pad: PA20
+      mode: Enabled
+      configuration: null
+      definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::optional_signal_definition::EIC.EXTINT.4
+      name: EIC/EXTINT/4
+      label: EXTINT/4
+    - identifier: EXTERNAL_IRQ:EXTINT/5
+      pad: PA21
+      mode: Enabled
+      configuration: null
+      definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::optional_signal_definition::EIC.EXTINT.5
+      name: EIC/EXTINT/5
+      label: EXTINT/5
+    - identifier: EXTERNAL_IRQ:EXTINT/15
+      pad: PA27
+      mode: Enabled
+      configuration: null
+      definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::optional_signal_definition::EIC.EXTINT.15
+      name: EIC/EXTINT/15
+      label: EXTINT/15
+    variant: null
+    clocks:
+      domain_group:
+        nodes:
+        - name: EIC
+          input: Generic clock generator 0
+        configuration:
+          eic_gclk_selection: Generic clock generator 0
   GCLK:
     user_label: GCLK
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::GCLK::driver_config_definition::GCLK::HAL:HPL:GCLK
@@ -699,7 +820,7 @@ drivers:
     functionality: I2C
     api: HAL:Driver:I2C_Master_Sync
     configuration:
-      i2c_master_advanced: false
+      i2c_master_advanced: true
       i2c_master_arch_dbgstop: Keep running
       i2c_master_arch_inactout: Disabled
       i2c_master_arch_lowtout: false
@@ -817,6 +938,24 @@ pads:
     mode: Analog
     user_label: BATTERY_LEVEL
     configuration: null
+  MOD8:
+    name: PA03
+    definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PA03
+    mode: Digital output
+    user_label: MOD8
+    configuration: null
+  MOD9:
+    name: PB08
+    definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PB08
+    mode: Digital output
+    user_label: MOD9
+    configuration: null
+  MOD2:
+    name: PB09
+    definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PB09
+    mode: Digital output
+    user_label: MOD2
+    configuration: null
   ENV_SDA:
     name: PA08
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PA08
@@ -840,8 +979,7 @@ pads:
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PA11
     mode: Digital input
     user_label: VBUS_DETECT
-    configuration:
-      pad_pull_config: Pull-down
+    configuration: null
   MEM_CS0:
     name: PB10
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PB10

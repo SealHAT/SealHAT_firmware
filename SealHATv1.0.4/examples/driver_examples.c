@@ -10,6 +10,29 @@
 #include "driver_init.h"
 #include "utils.h"
 
+static void button_on_PA20_pressed(void)
+{
+}
+
+static void button_on_PA21_pressed(void)
+{
+}
+
+static void button_on_PA27_pressed(void)
+{
+}
+
+/**
+ * Example of using EXTERNAL_IRQ
+ */
+void EXTERNAL_IRQ_example(void)
+{
+
+	ext_irq_register(PIN_PA20, button_on_PA20_pressed);
+	ext_irq_register(PIN_PA21, button_on_PA21_pressed);
+	ext_irq_register(PIN_PA27, button_on_PA27_pressed);
+}
+
 void I2C_GPS_example(void)
 {
 	struct io_descriptor *I2C_GPS_io;
