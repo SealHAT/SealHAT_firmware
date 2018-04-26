@@ -501,11 +501,11 @@ drivers:
       eic_arch_sense12: No detection
       eic_arch_sense13: No detection
       eic_arch_sense14: No detection
-      eic_arch_sense15: High-level detection
+      eic_arch_sense15: Rising-edge detection
       eic_arch_sense2: No detection
       eic_arch_sense3: No detection
       eic_arch_sense4: High-level detection
-      eic_arch_sense5: High-level detection
+      eic_arch_sense5: Rising-edge detection
       eic_arch_sense6: No detection
       eic_arch_sense7: No detection
       eic_arch_sense8: No detection
@@ -537,9 +537,9 @@ drivers:
       domain_group:
         nodes:
         - name: EIC
-          input: Generic clock generator 0
+          input: Generic clock generator 3
         configuration:
-          eic_gclk_selection: Generic clock generator 0
+          eic_gclk_selection: Generic clock generator 3
   GCLK:
     user_label: GCLK
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::GCLK::driver_config_definition::GCLK::HAL:HPL:GCLK

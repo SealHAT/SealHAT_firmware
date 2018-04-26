@@ -30,13 +30,18 @@ typedef struct __attribute__((__packed__)){
 
 typedef struct __attribute__((__packed__)){
     uint8_t start;
-    AxesSI_t axis;
+    AxesRaw_t data[25];
     uint8_t stop;
 } IMU_MSG_t;
 
-#define TASK_STACK_SIZE                 (500 / sizeof(portSTACK_TYPE))
+#define MSG_STACK_SIZE                  (500 / sizeof(portSTACK_TYPE))
 #define MSG_TASK_PRI                    (tskIDLE_PRIORITY + 1)
+
+#define ENV_STACK_SIZE                 (500 / sizeof(portSTACK_TYPE))
 #define ENV_TASK_PRI                    (tskIDLE_PRIORITY + 2)
+
+#define IMU_STACK_SIZE                  (1000 / sizeof(portSTACK_TYPE))
+#define IMU_TASK_PRI                    (tskIDLE_PRIORITY + 2)
 
 static SemaphoreHandle_t disp_mutex;
 static TaskHandle_t      xCreatedMonitorTask;
@@ -107,41 +112,72 @@ static void ENV_task(void* pvParameters)
     }
 }
 
+static void AccelerometerDataReadyISR(void)
+{
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;  // will be set to true by notify if we are awakening a higher priority task
+
+    /* Notify the IMU task that the ACCEL FIFO is ready to read */
+    vTaskNotifyGiveFromISR(xIMU_th, &xHigherPriorityTaskWoken);
+
+    /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context switch
+    should be performed to ensure the interrupt returns directly to the highest
+    priority task.  The macro used for this purpose is dependent on the port in
+    use and may be called portEND_SWITCHING_ISR(). */
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+}
+
+static void MagnetometerDataReadyISR(void)
+{
+}
+
+static void AccelerometerInterrupt2(void) 
+{
+}
+
 static void IMU_task(void* pvParameters)
 {
-    //    UBaseType_t uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
-    int32_t     err = 0;        // for catching API errors
-    IMU_MSG_t   msg;            // reads the data
+    UBaseType_t uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
+    
+    int32_t     err = 0;                // for catching API errors
+    uint32_t    ulNotificationValue;    // mutex to indicate data is ready to read from IMU
+    IMU_MSG_t   msg;                    // reads the data
     (void)pvParameters;
 
     // initialize the temperature sensor
     lsm303_init(&I2C_IMU);
-    lsm303_startAcc(ACC_SCALE_2G, ACC_HR_10_HZ);
+    lsm303_acc_startFIFO(ACC_SCALE_2G, ACC_HR_10_HZ);
 
     // initialize the message header and stop byte
     msg.start = 0x03;
     msg.stop  = 0xFC;
 
-    //    uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
+    // enable the data ready interrupts
+    ext_irq_register(PIN_PA20, AccelerometerDataReadyISR);
+    ext_irq_register(PIN_PA21, AccelerometerInterrupt2);
+    ext_irq_register(PIN_PA27, MagnetometerDataReadyISR);
+
+    uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
 
     for(;;) {
         // read the temp
-        gpio_set_pin_level(LED_RED, true);
 
-        err = lsm303_acc_dataready();
-        if(err > 0 ) {
-            // get new reading as floats
-            msg.axis = lsm303_getGravity();
+        ulNotificationValue = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(1000));
 
-            if (disp_mutex_take()) {
+        if(1 == ulNotificationValue) {
+            err = lsm303_acc_FIFOread(&msg.data[0], 25, NULL);
+
+            if (disp_mutex_take() && err >= 0) {
                 usb_write(&msg, sizeof(IMU_MSG_t));
                 disp_mutex_give();
             }
         }
-
-        gpio_set_pin_level(LED_RED, false);
-        os_sleep(portTICK_PERIOD_MS * 100);
-    }
+        else {
+            if (disp_mutex_take()) {
+                usb_write("IMU: 1 sec timeout", 19);
+                disp_mutex_give();
+            }
+        }
+    } // END FOREVER LOOP
 }
 
 static void MSG_task(void* pvParameters)
@@ -262,15 +298,15 @@ int main(void)
     if(msgQ == NULL) { while(1){} }
     vQueueAddToRegistry(msgQ, "ENV_MSG");
 
-    if(xTaskCreate(ENV_task, "ENV", TASK_STACK_SIZE, NULL, ENV_TASK_PRI, xENV_th) != pdPASS) {
+    if(xTaskCreate(MSG_task, "MESSAGE", MSG_STACK_SIZE, NULL, MSG_TASK_PRI, &xMSG_th) != pdPASS) {
         while(1) { ; }
     }
 
-    if(xTaskCreate(IMU_task, "IMU", TASK_STACK_SIZE, NULL, ENV_TASK_PRI, xIMU_th) != pdPASS) {
+    if(xTaskCreate(ENV_task, "ENV", ENV_STACK_SIZE, NULL, ENV_TASK_PRI, &xENV_th) != pdPASS) {
         while(1) { ; }
     }
 
-    if(xTaskCreate(MSG_task, "MESSAGE", TASK_STACK_SIZE, NULL, MSG_TASK_PRI, xMSG_th) != pdPASS) {
+    if(xTaskCreate(IMU_task, "IMU", IMU_STACK_SIZE, NULL, IMU_TASK_PRI, &xIMU_th) != pdPASS) {
         while(1) { ; }
     }
 

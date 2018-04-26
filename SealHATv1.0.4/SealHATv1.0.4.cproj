@@ -218,14 +218,14 @@
           <AcmeProjectActionInfo Action="File" Source="atmel_start.h" IsConfig="false" Hash="yViQX5q7TiAXagxCyetVQw" />
           <AcmeProjectActionInfo Action="File" Source="atmel_start.c" IsConfig="false" Hash="+nmaruIqTOrYG/L+7//fEA" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_dmac_config.h" IsConfig="true" Hash="7aL46a4HpySQ8gZc8jgJ8w" />
-          <AcmeProjectActionInfo Action="File" Source="config/hpl_eic_config.h" IsConfig="true" Hash="h8euNKbj6xjhWwCEY1vrJw" />
+          <AcmeProjectActionInfo Action="File" Source="config/hpl_eic_config.h" IsConfig="true" Hash="PPkE43U+X6AQiEDP5tzScA" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_gclk_config.h" IsConfig="true" Hash="LAX7E50kOPBlFsZrpBGJkQ" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_mclk_config.h" IsConfig="true" Hash="ypj6b88E67yiUigfMMA65A" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_osc32kctrl_config.h" IsConfig="true" Hash="LS0FGXDP0naIceIjSHFfVQ" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_oscctrl_config.h" IsConfig="true" Hash="MKGvKc9RmoJlhPhTNyrG1A" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_sercom_config.h" IsConfig="true" Hash="apnPhtuV/TEhm3QG45zKcQ" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_usb_config.h" IsConfig="true" Hash="uZLCe76DdK7R4a/SyUOJow" />
-          <AcmeProjectActionInfo Action="File" Source="config/peripheral_clk_config.h" IsConfig="true" Hash="ny3x4d9PC0a8xxyaZkEU6Q" />
+          <AcmeProjectActionInfo Action="File" Source="config/peripheral_clk_config.h" IsConfig="true" Hash="bDGKSQ/EviAUmG7H5l6ipQ" />
           <AcmeProjectActionInfo Action="File" Source="config/FreeRTOSConfig.h" IsConfig="true" Hash="O4BU+uwi89/F4OepZ7JqHQ" />
           <AcmeProjectActionInfo Action="File" Source="config/usbd_config.h" IsConfig="true" Hash="5hu3FMReaMHKtbvCqMF89g" />
         </AcmeActionInfos>
@@ -393,6 +393,7 @@
     <ListValues>
       <Value>%24(PackRepoDir)\arm\cmsis\5.0.1\CMSIS\Include\</Value>
       <Value>%24(PackRepoDir)\atmel\SAML21_DFP\1.2.120\saml21b\include</Value>
+      <Value>../utilities</Value>
       <Value>../Config</Value>
       <Value>../</Value>
       <Value>../examples</Value>
@@ -419,7 +420,6 @@
       <Value>../usb/class/cdc</Value>
       <Value>../usb/class/cdc/device</Value>
       <Value>../usb/device</Value>
-      <Value>../utilities</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
   <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
@@ -1115,8 +1115,6 @@
     <Folder Include="hri\" />
     <Folder Include="max44009" />
     <Folder Include="lsm303" />
-    <Folder Include="utilities" />
-    <Folder Include="si705x" />
     <Folder Include="thirdparty\" />
     <Folder Include="thirdparty\RTOS\" />
     <Folder Include="thirdparty\RTOS\freertos\" />
@@ -1132,6 +1130,8 @@
     <Folder Include="usb\class\cdc\" />
     <Folder Include="usb\class\cdc\device\" />
     <Folder Include="usb\device\" />
+    <Folder Include="utilities" />
+    <Folder Include="si705x" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Device_Startup\saml21g18b_flash.ld">
