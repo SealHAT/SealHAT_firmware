@@ -41,7 +41,7 @@ typedef struct __attribute__((__packed__)){
 #define ENV_TASK_PRI                    (tskIDLE_PRIORITY + 2)
 
 #define IMU_STACK_SIZE                  (1000 / sizeof(portSTACK_TYPE))
-#define IMU_TASK_PRI                    (tskIDLE_PRIORITY + 2)
+#define IMU_TASK_PRI                    (tskIDLE_PRIORITY + 3)
 
 static SemaphoreHandle_t disp_mutex;
 static TaskHandle_t      xCreatedMonitorTask;
@@ -130,22 +130,22 @@ static void MagnetometerDataReadyISR(void)
 {
 }
 
-static void AccelerometerInterrupt2(void) 
+static void AccelerometerInterrupt2(void)
 {
 }
 
 static void IMU_task(void* pvParameters)
 {
-    UBaseType_t uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
-    
+//    UBaseType_t uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
+
     int32_t     err = 0;                // for catching API errors
-    uint32_t    ulNotificationValue;    // mutex to indicate data is ready to read from IMU
+//    uint32_t    ulNotificationValue;    // mutex to indicate data is ready to read from IMU
     IMU_MSG_t   msg;                    // reads the data
     (void)pvParameters;
 
     // initialize the temperature sensor
     lsm303_init(&I2C_IMU);
-    lsm303_acc_startFIFO(ACC_SCALE_2G, ACC_HR_10_HZ);
+    lsm303_acc_startFIFO(ACC_SCALE_2G, ACC_HR_50_HZ);
 
     // initialize the message header and stop byte
     msg.start = 0x03;
@@ -153,18 +153,20 @@ static void IMU_task(void* pvParameters)
 
     // enable the data ready interrupts
     ext_irq_register(PIN_PA20, AccelerometerDataReadyISR);
-    ext_irq_register(PIN_PA21, AccelerometerInterrupt2);
-    ext_irq_register(PIN_PA27, MagnetometerDataReadyISR);
+//     ext_irq_register(PIN_PA21, AccelerometerInterrupt2);
+//     ext_irq_register(PIN_PA27, MagnetometerDataReadyISR);
 
-    uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
+//    uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
 
     for(;;) {
         // read the temp
 
-        ulNotificationValue = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(1000));
+//        ulNotificationValue = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(1000));
 
-        if(1 == ulNotificationValue) {
+        if( ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(3000)) ) {
+            portENTER_CRITICAL();
             err = lsm303_acc_FIFOread(&msg.data[0], 25, NULL);
+            portEXIT_CRITICAL();
 
             if (disp_mutex_take() && err >= 0) {
                 usb_write(&msg, sizeof(IMU_MSG_t));

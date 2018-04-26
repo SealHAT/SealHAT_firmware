@@ -432,11 +432,11 @@ drivers:
       eic_arch_asynch12: false
       eic_arch_asynch13: false
       eic_arch_asynch14: false
-      eic_arch_asynch15: false
+      eic_arch_asynch15: true
       eic_arch_asynch2: false
       eic_arch_asynch3: false
-      eic_arch_asynch4: false
-      eic_arch_asynch5: false
+      eic_arch_asynch4: true
+      eic_arch_asynch5: true
       eic_arch_asynch6: false
       eic_arch_asynch7: false
       eic_arch_asynch8: false
@@ -504,7 +504,7 @@ drivers:
       eic_arch_sense15: Rising-edge detection
       eic_arch_sense2: No detection
       eic_arch_sense3: No detection
-      eic_arch_sense4: High-level detection
+      eic_arch_sense4: Rising-edge detection
       eic_arch_sense5: Rising-edge detection
       eic_arch_sense6: No detection
       eic_arch_sense7: No detection
@@ -537,9 +537,9 @@ drivers:
       domain_group:
         nodes:
         - name: EIC
-          input: Generic clock generator 3
+          input: Generic clock generator 0
         configuration:
-          eic_gclk_selection: Generic clock generator 3
+          eic_gclk_selection: Generic clock generator 0
   GCLK:
     user_label: GCLK
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::GCLK::driver_config_definition::GCLK::HAL:HPL:GCLK

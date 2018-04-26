@@ -179,9 +179,8 @@ int32_t _ext_irq_init(void (*cb)(const uint32_t pin))
 	NVIC_DisableIRQ(EIC_IRQn);
 	NVIC_ClearPendingIRQ(EIC_IRQn);
 
-    uint32_t prio = configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY;
-    NVIC_SetPriority(EIC_IRQn, 4);
-    uint32_t test = NVIC_GetPriority(EIC_IRQn);
+    // set interrupt priority to be lower than 0, within the range of freeRTOS nesting
+    NVIC_SetPriority(EIC_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
 
     NVIC_EnableIRQ(EIC_IRQn);
 
