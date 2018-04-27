@@ -7,6 +7,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
+#include "limits.h"
 
 #include "sealUtil.h"
 #include "sealUSB.h"
@@ -43,12 +44,16 @@ typedef struct __attribute__((__packed__)){
 #define IMU_STACK_SIZE                  (1000 / sizeof(portSTACK_TYPE))
 #define IMU_TASK_PRI                    (tskIDLE_PRIORITY + 3)
 
-static SemaphoreHandle_t disp_mutex;
-static TaskHandle_t      xCreatedMonitorTask;
-static TaskHandle_t      xENV_th;
-static TaskHandle_t      xIMU_th;
-static TaskHandle_t      xMSG_th;
-static QueueHandle_t     msgQ;
+/*** Define the task handles for each system ***/
+static TaskHandle_t      xCreatedMonitorTask;   // debug monitoring task
+static TaskHandle_t      xENV_th;               // environmental sensors task (light and temp)
+static TaskHandle_t      xIMU_th;               // IMU
+static TaskHandle_t      xMSG_th;               // Message accumulator for USB/MEM
+static TaskHandle_t      xGPS_th;               // GPS
+static TaskHandle_t      xMOD_th;               // Modular port task
+
+static SemaphoreHandle_t disp_mutex;            // mutex to control access to USB terminal
+static QueueHandle_t     msgQ;                  // a message Q for
 
 /**
  * \brief Write string to console
@@ -112,12 +117,17 @@ static void ENV_task(void* pvParameters)
     }
 }
 
+#define ACC_DATA_READY      (0x01)
+#define MAG_DATA_READY      (0x02)
+#define MOTION_DETECT       (0x03)
+
 static void AccelerometerDataReadyISR(void)
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;  // will be set to true by notify if we are awakening a higher priority task
 
     /* Notify the IMU task that the ACCEL FIFO is ready to read */
-    vTaskNotifyGiveFromISR(xIMU_th, &xHigherPriorityTaskWoken);
+    //vTaskNotifyGiveFromISR(xIMU_th, &xHigherPriorityTaskWoken);
+    xTaskNotifyFromISR(xIMU_th, ACC_DATA_READY, eSetBits, &xHigherPriorityTaskWoken);
 
     /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context switch
     should be performed to ensure the interrupt returns directly to the highest
@@ -128,18 +138,39 @@ static void AccelerometerDataReadyISR(void)
 
 static void MagnetometerDataReadyISR(void)
 {
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;  // will be set to true by notify if we are awakening a higher priority task
+
+    /* Notify the IMU task that the ACCEL FIFO is ready to read */
+    xTaskNotifyFromISR(xIMU_th, MAG_DATA_READY, eSetBits, &xHigherPriorityTaskWoken);
+
+    /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context switch
+    should be performed to ensure the interrupt returns directly to the highest
+    priority task.  The macro used for this purpose is dependent on the port in
+    use and may be called portEND_SWITCHING_ISR(). */
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
-static void AccelerometerInterrupt2(void)
+static void AccelerometerMotionISR(void)
 {
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;  // will be set to true by notify if we are awakening a higher priority task
+
+    /* Notify the IMU task that the ACCEL FIFO is ready to read */
+    xTaskNotifyFromISR(xIMU_th, MOTION_DETECT, eSetBits, &xHigherPriorityTaskWoken);
+
+    /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context switch
+    should be performed to ensure the interrupt returns directly to the highest
+    priority task.  The macro used for this purpose is dependent on the port in
+    use and may be called portEND_SWITCHING_ISR(). */
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 static void IMU_task(void* pvParameters)
 {
 //    UBaseType_t uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
-
+    const TickType_t xMaxBlockTime = pdMS_TO_TICKS( 3500 );     // max block time, set to slightly more than accelerometer ISR period
+    BaseType_t  xResult;                // holds return value of blocking function
     int32_t     err = 0;                // for catching API errors
-//    uint32_t    ulNotificationValue;    // mutex to indicate data is ready to read from IMU
+    uint32_t    ulNotifyValue;          // notification value from ISRs
     IMU_MSG_t   msg;                    // reads the data
     (void)pvParameters;
 
@@ -153,29 +184,45 @@ static void IMU_task(void* pvParameters)
 
     // enable the data ready interrupts
     ext_irq_register(PIN_PA20, AccelerometerDataReadyISR);
-//     ext_irq_register(PIN_PA21, AccelerometerInterrupt2);
-//     ext_irq_register(PIN_PA27, MagnetometerDataReadyISR);
+    ext_irq_register(PIN_PA21, AccelerometerMotionISR);
+    ext_irq_register(PIN_PA27, MagnetometerDataReadyISR);
 
 //    uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
 
     for(;;) {
-        // read the temp
 
-//        ulNotificationValue = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(1000));
+        xResult = xTaskNotifyWait( pdFALSE,          /* Don't clear bits on entry. */
+                                   ULONG_MAX,        /* Clear all bits on exit. */
+                                   &ulNotifyValue,   /* Stores the notified value. */
+                                   xMaxBlockTime );
 
-        if( ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(3000)) ) {
-            portENTER_CRITICAL();
-            err = lsm303_acc_FIFOread(&msg.data[0], 25, NULL);
-            portEXIT_CRITICAL();
+        if( pdPASS == xResult ) {
+            if( ACC_DATA_READY == ulNotifyValue ) {
+                portENTER_CRITICAL();
+                err = lsm303_acc_FIFOread(&msg.data[0], 25, NULL);
+                portEXIT_CRITICAL();
 
-            if (disp_mutex_take() && err >= 0) {
-                usb_write(&msg, sizeof(IMU_MSG_t));
-                disp_mutex_give();
+                if (disp_mutex_take() && err >= 0) {
+                    usb_write(&msg, sizeof(IMU_MSG_t));
+                    disp_mutex_give();
+                }
+            }
+            else if( MAG_DATA_READY == ulNotifyValue ) {
+                // TODO - read mag data
+            }
+            else if( MOTION_DETECT == ulNotifyValue ) {
+                // TODO - read type of motion detected and trigger callback
+            }
+            else {
+                if (disp_mutex_take()) {
+                    usb_write("IMU: Unknown Event!", 19);
+                    disp_mutex_give();
+                }
             }
         }
         else {
             if (disp_mutex_take()) {
-                usb_write("IMU: 1 sec timeout", 19);
+                usb_write("IMU: Timeout!", 13);
                 disp_mutex_give();
             }
         }
@@ -297,7 +344,7 @@ int main(void)
      if (disp_mutex == NULL) { while (1){} }
 
     msgQ = xQueueCreate(2, sizeof(ENV_MSG_t));
-    if(msgQ == NULL) { while(1){} }
+    if(msgQ == NULL) { while(1){ ; } }
     vQueueAddToRegistry(msgQ, "ENV_MSG");
 
     if(xTaskCreate(MSG_task, "MESSAGE", MSG_STACK_SIZE, NULL, MSG_TASK_PRI, &xMSG_th) != pdPASS) {
