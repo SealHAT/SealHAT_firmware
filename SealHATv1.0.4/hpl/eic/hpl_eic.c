@@ -47,7 +47,7 @@
 #include <string.h>
 #include <utils.h>
 #include <utils_assert.h>
-#include "Config/FreeRTOSConfig.h"
+#include "FreeRTOS.h"
 
 #ifdef __MINGW32__
 #define ffs __builtin_ffs

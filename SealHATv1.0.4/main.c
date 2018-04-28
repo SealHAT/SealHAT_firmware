@@ -95,10 +95,13 @@ static void ENV_task(void* pvParameters)
     for(;;) {
         // read the temp
         gpio_set_pin_level(LED_GREEN, true);
+
+        portENTER_CRITICAL();
         err = si705x_measure_asyncStart();
 
         //  read the light level in floating point lux
         msg.light = max44009_read_float();
+        portEXIT_CRITICAL();
 
 //        uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
 
@@ -106,8 +109,10 @@ static void ENV_task(void* pvParameters)
         os_sleep(portTICK_PERIOD_MS * 5);
 
         // get temp
+        portENTER_CRITICAL();
         msg.temp  = si705x_celsius(si705x_measure_asyncGet(&err));
         if(err < 0) { msg.temp = (float)err; }
+        portEXIT_CRITICAL();
 
         // send the data to the Queue
         xQueueSend(msgQ, (void*)&msg, 0);
@@ -119,16 +124,18 @@ static void ENV_task(void* pvParameters)
 
 #define ACC_DATA_READY      (0x01)
 #define MAG_DATA_READY      (0x02)
-#define MOTION_DETECT       (0x03)
+#define MOTION_DETECT       (0x04)
 
 static void AccelerometerDataReadyISR(void)
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;  // will be set to true by notify if we are awakening a higher priority task
 
+    gpio_set_pin_level(MOD2, true);
     /* Notify the IMU task that the ACCEL FIFO is ready to read */
     //vTaskNotifyGiveFromISR(xIMU_th, &xHigherPriorityTaskWoken);
     xTaskNotifyFromISR(xIMU_th, ACC_DATA_READY, eSetBits, &xHigherPriorityTaskWoken);
 
+    gpio_set_pin_level(MOD2, false);
     /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context switch
     should be performed to ensure the interrupt returns directly to the highest
     priority task.  The macro used for this purpose is dependent on the port in
@@ -140,9 +147,11 @@ static void MagnetometerDataReadyISR(void)
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;  // will be set to true by notify if we are awakening a higher priority task
 
+    gpio_set_pin_level(MOD9, true);
     /* Notify the IMU task that the ACCEL FIFO is ready to read */
     xTaskNotifyFromISR(xIMU_th, MAG_DATA_READY, eSetBits, &xHigherPriorityTaskWoken);
 
+    gpio_set_pin_level(MOD9, false);
     /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context switch
     should be performed to ensure the interrupt returns directly to the highest
     priority task.  The macro used for this purpose is dependent on the port in
@@ -167,25 +176,27 @@ static void AccelerometerMotionISR(void)
 static void IMU_task(void* pvParameters)
 {
 //    UBaseType_t uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
-    const TickType_t xMaxBlockTime = pdMS_TO_TICKS( 3500 );     // max block time, set to slightly more than accelerometer ISR period
+    const TickType_t xMaxBlockTime = pdMS_TO_TICKS( 3000 );     // max block time, set to slightly more than accelerometer ISR period
     BaseType_t  xResult;                // holds return value of blocking function
     int32_t     err = 0;                // for catching API errors
     uint32_t    ulNotifyValue;          // notification value from ISRs
     IMU_MSG_t   msg;                    // reads the data
+    AxesRaw_t   magData;                // hold magnetometer data
     (void)pvParameters;
 
     // initialize the temperature sensor
     lsm303_init(&I2C_IMU);
     lsm303_acc_startFIFO(ACC_SCALE_2G, ACC_HR_50_HZ);
+    lsm303_mag_start(MAG_LP_50_HZ);
 
     // initialize the message header and stop byte
     msg.start = 0x03;
     msg.stop  = 0xFC;
 
     // enable the data ready interrupts
-    ext_irq_register(PIN_PA20, AccelerometerDataReadyISR);
-    ext_irq_register(PIN_PA21, AccelerometerMotionISR);
-    ext_irq_register(PIN_PA27, MagnetometerDataReadyISR);
+    ext_irq_register(IMU_INT1_XL, AccelerometerDataReadyISR);
+    ext_irq_register(IMU_INT2_XL, AccelerometerMotionISR);
+    ext_irq_register(IMU_INT_MAG, MagnetometerDataReadyISR);
 
 //    uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
 
@@ -197,9 +208,12 @@ static void IMU_task(void* pvParameters)
                                    xMaxBlockTime );
 
         if( pdPASS == xResult ) {
-            if( ACC_DATA_READY == ulNotifyValue ) {
+            
+            if( ACC_DATA_READY & ulNotifyValue ) {
                 portENTER_CRITICAL();
+                gpio_set_pin_level(MOD2, true);
                 err = lsm303_acc_FIFOread(&msg.data[0], 25, NULL);
+                gpio_set_pin_level(MOD2, false);
                 portEXIT_CRITICAL();
 
                 if (disp_mutex_take() && err >= 0) {
@@ -207,17 +221,17 @@ static void IMU_task(void* pvParameters)
                     disp_mutex_give();
                 }
             }
-            else if( MAG_DATA_READY == ulNotifyValue ) {
-                // TODO - read mag data
+            
+            if( MAG_DATA_READY & ulNotifyValue ) {
+                portENTER_CRITICAL();
+                gpio_set_pin_level(MOD9, true);
+                err = lsm303_mag_rawRead(&magData);
+                gpio_set_pin_level(MOD9, false);
+                portEXIT_CRITICAL();
             }
-            else if( MOTION_DETECT == ulNotifyValue ) {
+
+            if( MOTION_DETECT & ulNotifyValue ) {
                 // TODO - read type of motion detected and trigger callback
-            }
-            else {
-                if (disp_mutex_take()) {
-                    usb_write("IMU: Unknown Event!", 19);
-                    disp_mutex_give();
-                }
             }
         }
         else {
@@ -238,7 +252,7 @@ static void MSG_task(void* pvParameters)
 
         // try to get a message. Will sleep for 1000 ticks and print
         // error if nothing received in that time.
-        if( !xQueueReceive(msgQ, &msg, 1000) ) {
+        if( !xQueueReceive(msgQ, &msg, 1500) ) {
             if (disp_mutex_take()) {
                 str_write("MSG RECEIVE FAIL (1000 ticks)\n");
                 disp_mutex_give();
