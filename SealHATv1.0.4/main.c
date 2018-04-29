@@ -16,29 +16,53 @@
 #include "si705x/si705x.h"
 #include "lsm303/LSM303AGR.h"
 
-#define TASK_LED_STACK_SIZE (400 / sizeof(portSTACK_TYPE))
-#define TASK_LED_STACK_PRIORITY (tskIDLE_PRIORITY + 1)
+typedef enum {
+    DEV_ENV  = 0x10,
+    DEV_IMU  = 0x20,
+    DEV_GPS  = 0x30,
+    DEV_MOD  = 0x40,
+    DEV_MEM  = 0x50,
+    DEV_CPU  = 0x60,
+    DEV_MASK = 0xF0
+} DEV_ID_t;
 
-#define TASK_MONITOR_STACK_SIZE (320 / sizeof(portSTACK_TYPE))
-#define TASK_MONITOR_STACK_PRIORITY (tskIDLE_PRIORITY + 2)
+typedef enum {
+    ERROR_NONE    = 0x00,
+    ERROR_TEMP    = 0x01,
+    ERROR_LIGHT   = 0x02,
+    ERROR_CRC     = 0x03,
+    ERROR_I2C     = 0x04,
+    ERROR_TIMEOUT = 0x05
+} DEV_ERR_CODES_t;
 
 typedef struct __attribute__((__packed__)){
-    uint8_t start;
-    float   temp;
-    float   light;
-    uint8_t stop;
+    uint16_t srtSym;    // symbol to indicate start of packet
+    uint16_t  id;	    // Upper four bits is the device ID, lower four are device specific event flags
+    uint32_t timestamp; // timestamp. how many bits?
+    uint16_t size;		// size of data packet to follow. in bytes or samples? (worst case IMU size in bytes would need a uint16 :( )
+} DATA_HEADER_t;
+
+typedef struct __attribute__((__packed__)){
+    DATA_HEADER_t header;
+    uint16_t      temp;
+    uint16_t      light;
 } ENV_MSG_t;
 
 typedef struct __attribute__((__packed__)){
-    uint8_t start;
-    AxesRaw_t data[25];
-    uint8_t stop;
+    DATA_HEADER_t header;
+    AxesRaw_t     accelData[25];
 } IMU_MSG_t;
+
+#define TASK_LED_STACK_SIZE             (400 / sizeof(portSTACK_TYPE))
+#define TASK_LED_STACK_PRIORITY         (tskIDLE_PRIORITY + 1)
+
+#define TASK_MONITOR_STACK_SIZE         (320 / sizeof(portSTACK_TYPE))
+#define TASK_MONITOR_STACK_PRIORITY     (tskIDLE_PRIORITY + 2)
 
 #define MSG_STACK_SIZE                  (500 / sizeof(portSTACK_TYPE))
 #define MSG_TASK_PRI                    (tskIDLE_PRIORITY + 1)
 
-#define ENV_STACK_SIZE                 (500 / sizeof(portSTACK_TYPE))
+#define ENV_STACK_SIZE                  (500 / sizeof(portSTACK_TYPE))
 #define ENV_TASK_PRI                    (tskIDLE_PRIORITY + 2)
 
 #define IMU_STACK_SIZE                  (1000 / sizeof(portSTACK_TYPE))
@@ -86,39 +110,48 @@ static void ENV_task(void* pvParameters)
     // initialize the light sensor
     max44009_init(&I2C_ENV, LIGHT_ADD_GND);
 
-    // initialize the message header and stop byte
-    msg.start = 0x03;
-    msg.stop  = 0xFC;
-
 //    uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
 
-    for(;;) {
-        // read the temp
-        gpio_set_pin_level(LED_GREEN, true);
+    // set the header data
+    msg.header.srtSym    = 0xDEAD;
+    msg.header.size      = 4;   // four bytes of data in an env packet
+    msg.header.timestamp = 0;   // use timestamp as an index for now.
 
+    for(;;) {
+        // reset the message header
+        msg.header.id           = DEV_ENV;
+        msg.header.timestamp++;
+
+        // start an asynchronous temperature reading
         portENTER_CRITICAL();
         err = si705x_measure_asyncStart();
+        portEXIT_CRITICAL();
 
-        //  read the light level in floating point lux
-        msg.light = max44009_read_float();
+        //  read the light level
+        portENTER_CRITICAL();
+        msg.light = max44009_read_uint16();
         portEXIT_CRITICAL();
 
 //        uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
 
         // wait for the temperature sensor to finish
-        os_sleep(portTICK_PERIOD_MS * 5);
+        os_sleep(pdMS_TO_TICKS(5));
 
         // get temp
         portENTER_CRITICAL();
-        msg.temp  = si705x_celsius(si705x_measure_asyncGet(&err));
-        if(err < 0) { msg.temp = (float)err; }
+        msg.temp  = si705x_measure_asyncGet(&err);
         portEXIT_CRITICAL();
+        if(err < 0) {
+            msg.header.id |= ERROR_TEMP;
+        }
 
-        // send the data to the Queue
-        xQueueSend(msgQ, (void*)&msg, 0);
+        if (disp_mutex_take()) {
+            usb_write(&msg, sizeof(ENV_MSG_t));
+            disp_mutex_give();
+        }
 
-        gpio_set_pin_level(LED_GREEN, false);
-        os_sleep(portTICK_PERIOD_MS * 975);
+        // sleep till the next sample
+        os_sleep(pdMS_TO_TICKS(975));
     }
 }
 
@@ -132,14 +165,12 @@ static void AccelerometerDataReadyISR(void)
 
     gpio_set_pin_level(MOD2, true);
     /* Notify the IMU task that the ACCEL FIFO is ready to read */
-    //vTaskNotifyGiveFromISR(xIMU_th, &xHigherPriorityTaskWoken);
     xTaskNotifyFromISR(xIMU_th, ACC_DATA_READY, eSetBits, &xHigherPriorityTaskWoken);
 
     gpio_set_pin_level(MOD2, false);
     /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context switch
     should be performed to ensure the interrupt returns directly to the highest
-    priority task.  The macro used for this purpose is dependent on the port in
-    use and may be called portEND_SWITCHING_ISR(). */
+    priority task. */
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
@@ -154,8 +185,7 @@ static void MagnetometerDataReadyISR(void)
     gpio_set_pin_level(MOD9, false);
     /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context switch
     should be performed to ensure the interrupt returns directly to the highest
-    priority task.  The macro used for this purpose is dependent on the port in
-    use and may be called portEND_SWITCHING_ISR(). */
+    priority task.*/
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
@@ -168,8 +198,7 @@ static void AccelerometerMotionISR(void)
 
     /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context switch
     should be performed to ensure the interrupt returns directly to the highest
-    priority task.  The macro used for this purpose is dependent on the port in
-    use and may be called portEND_SWITCHING_ISR(). */
+    priority task.*/
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
@@ -189,9 +218,11 @@ static void IMU_task(void* pvParameters)
     lsm303_acc_startFIFO(ACC_SCALE_2G, ACC_HR_50_HZ);
     lsm303_mag_start(MAG_LP_50_HZ);
 
-    // initialize the message header and stop byte
-    msg.start = 0x03;
-    msg.stop  = 0xFC;
+    // initialize the message header
+    msg.header.srtSym    = 0xDEAD;
+    msg.header.id        = DEV_IMU;
+    msg.header.size      = sizeof(AxesRaw_t)*25;
+    msg.header.timestamp = 0;
 
     // enable the data ready interrupts
     ext_irq_register(IMU_INT1_XL, AccelerometerDataReadyISR);
@@ -208,20 +239,21 @@ static void IMU_task(void* pvParameters)
                                    xMaxBlockTime );
 
         if( pdPASS == xResult ) {
-            
+
             if( ACC_DATA_READY & ulNotifyValue ) {
                 portENTER_CRITICAL();
                 gpio_set_pin_level(MOD2, true);
-                err = lsm303_acc_FIFOread(&msg.data[0], 25, NULL);
+                err = lsm303_acc_FIFOread(&msg.accelData[0], 25, NULL);
                 gpio_set_pin_level(MOD2, false);
                 portEXIT_CRITICAL();
+                msg.header.timestamp++;
 
                 if (disp_mutex_take() && err >= 0) {
                     usb_write(&msg, sizeof(IMU_MSG_t));
                     disp_mutex_give();
                 }
             }
-            
+
             if( MAG_DATA_READY & ulNotifyValue ) {
                 portENTER_CRITICAL();
                 gpio_set_pin_level(MOD9, true);
@@ -235,8 +267,13 @@ static void IMU_task(void* pvParameters)
             }
         }
         else {
+            DATA_HEADER_t tmOut;
+            tmOut.id        = DEV_IMU | ERROR_TIMEOUT;
+            tmOut.size      = 0;
+            tmOut.timestamp = 65;
+
             if (disp_mutex_take()) {
-                usb_write("IMU: Timeout!", 13);
+                usb_write(&tmOut, sizeof(DATA_HEADER_t));
                 disp_mutex_give();
             }
         }
@@ -357,13 +394,13 @@ int main(void)
      disp_mutex = xSemaphoreCreateMutex();
      if (disp_mutex == NULL) { while (1){} }
 
-    msgQ = xQueueCreate(2, sizeof(ENV_MSG_t));
-    if(msgQ == NULL) { while(1){ ; } }
-    vQueueAddToRegistry(msgQ, "ENV_MSG");
+//     msgQ = xQueueCreate(2, sizeof(ENV_MSG_t));
+//     if(msgQ == NULL) { while(1){ ; } }
+//     vQueueAddToRegistry(msgQ, "ENV_MSG");
 
-    if(xTaskCreate(MSG_task, "MESSAGE", MSG_STACK_SIZE, NULL, MSG_TASK_PRI, &xMSG_th) != pdPASS) {
-        while(1) { ; }
-    }
+//     if(xTaskCreate(MSG_task, "MESSAGE", MSG_STACK_SIZE, NULL, MSG_TASK_PRI, &xMSG_th) != pdPASS) {
+//         while(1) { ; }
+//     }
 
     if(xTaskCreate(ENV_task, "ENV", ENV_STACK_SIZE, NULL, ENV_TASK_PRI, &xENV_th) != pdPASS) {
         while(1) { ; }
