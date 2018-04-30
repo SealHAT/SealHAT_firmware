@@ -188,7 +188,7 @@ void assert_triggered(const char *file, uint32_t line);
 #define configTIMER_TASK_STACK_DEPTH (64)
 #endif
 
-#define configPRIO_BITS 3
+#define configPRIO_BITS 2       // Cortex M0+ has 2 priority bits allowing for 4 levels
 #define configMAX_TASK_NAME_LEN (8)
 #define configIDLE_SHOULD_YIELD 1
 #define configQUEUE_REGISTRY_SIZE 5
@@ -317,13 +317,13 @@ extern uint32_t vGetRunTimeCounterValue(void);
 
 /* The lowest interrupt priority that can be used in a call to a "set priority"
 function. */
-#define configLIBRARY_LOWEST_INTERRUPT_PRIORITY 0x07
+#define configLIBRARY_LOWEST_INTERRUPT_PRIORITY 0x03
 
 /* The highest interrupt priority that can be used by any interrupt service
 routine that makes calls to interrupt safe FreeRTOS API functions.  DO NOT CALL
 INTERRUPT SAFE FREERTOS API FUNCTIONS FROM ANY INTERRUPT THAT HAS A HIGHER
 PRIORITY THAN THIS! (higher priorities are lower numeric values. */
-#define configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY 4
+#define configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY 0x01
 
 /* Interrupt priorities used by the kernel port layer itself.  These are generic
 to all Cortex-M ports, and do not rely on any particular library functions. */

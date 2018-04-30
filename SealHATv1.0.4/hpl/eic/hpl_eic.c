@@ -47,6 +47,7 @@
 #include <string.h>
 #include <utils.h>
 #include <utils_assert.h>
+#include "FreeRTOS.h"
 
 #ifdef __MINGW32__
 #define ffs __builtin_ffs
@@ -177,7 +178,11 @@ int32_t _ext_irq_init(void (*cb)(const uint32_t pin))
 	hri_eic_set_CTRLA_ENABLE_bit(EIC);
 	NVIC_DisableIRQ(EIC_IRQn);
 	NVIC_ClearPendingIRQ(EIC_IRQn);
-	NVIC_EnableIRQ(EIC_IRQn);
+
+    // set interrupt priority to be lower than 0, within the range of freeRTOS nesting
+    NVIC_SetPriority(EIC_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
+
+    NVIC_EnableIRQ(EIC_IRQn);
 
 	callback = cb;
 
