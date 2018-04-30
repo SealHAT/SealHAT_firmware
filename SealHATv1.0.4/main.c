@@ -59,7 +59,7 @@ typedef struct __attribute__((__packed__)){
 #define TASK_MONITOR_STACK_SIZE         (320 / sizeof(portSTACK_TYPE))
 #define TASK_MONITOR_STACK_PRIORITY     (tskIDLE_PRIORITY + 2)
 
-#define MSG_STACK_SIZE                  (500 / sizeof(portSTACK_TYPE))
+#define MSG_STACK_SIZE                  (750 / sizeof(portSTACK_TYPE))
 #define MSG_TASK_PRI                    (tskIDLE_PRIORITY + 1)
 
 #define ENV_STACK_SIZE                  (500 / sizeof(portSTACK_TYPE))
@@ -77,7 +77,7 @@ static TaskHandle_t      xGPS_th;               // GPS
 static TaskHandle_t      xMOD_th;               // Modular port task
 
 static SemaphoreHandle_t disp_mutex;            // mutex to control access to USB terminal
-static QueueHandle_t     msgQ;                  // a message Q for
+static QueueHandle_t     xMSG_q;                  // a message Queue for collecting all logged data
 
 /**
  * \brief Write string to console
@@ -95,6 +95,32 @@ static bool disp_mutex_take(void)
 static void disp_mutex_give(void)
 {
     xSemaphoreGive(disp_mutex);
+}
+
+static int32_t byteQ_write(uint8_t* buff, const uint32_t LEN)
+{
+    uint32_t i;
+
+    if(xSemaphoreTake(disp_mutex, ~0)) {
+
+        // bail early if there isn't enough space
+        if(uxQueueSpacesAvailable(xMSG_q) < LEN) {
+            return ERR_NO_RESOURCE;
+        }
+
+        for(i = 0; i < LEN; i++) {
+            if(!xQueueSendToBack(xMSG_q, &buff[i], pdMS_TO_TICKS(50))){
+                break;
+            }
+        }
+
+        xSemaphoreGive(disp_mutex);
+    }
+    else {
+        return ERR_FAILURE;
+    }
+
+    return i;
 }
 
 static void ENV_task(void* pvParameters)
@@ -145,10 +171,7 @@ static void ENV_task(void* pvParameters)
             msg.header.id |= ERROR_TEMP;
         }
 
-        if (disp_mutex_take()) {
-            usb_write(&msg, sizeof(ENV_MSG_t));
-            disp_mutex_give();
-        }
+        byteQ_write((uint8_t*)&msg, sizeof(ENV_MSG_t));
 
         // sleep till the next sample
         os_sleep(pdMS_TO_TICKS(975));
@@ -248,10 +271,7 @@ static void IMU_task(void* pvParameters)
                 portEXIT_CRITICAL();
                 msg.header.timestamp++;
 
-                if (disp_mutex_take() && err >= 0) {
-                    usb_write(&msg, sizeof(IMU_MSG_t));
-                    disp_mutex_give();
-                }
+                byteQ_write((uint8_t*)&msg, sizeof(IMU_MSG_t));
             }
 
             if( MAG_DATA_READY & ulNotifyValue ) {
@@ -272,35 +292,25 @@ static void IMU_task(void* pvParameters)
             tmOut.size      = 0;
             tmOut.timestamp = 65;
 
-            if (disp_mutex_take()) {
-                usb_write(&tmOut, sizeof(DATA_HEADER_t));
-                disp_mutex_give();
-            }
+            byteQ_write((uint8_t*)&tmOut, sizeof(DATA_HEADER_t));
         }
     } // END FOREVER LOOP
 }
 
 static void MSG_task(void* pvParameters)
 {
-    ENV_MSG_t msg;                              // hold the received messages
+    static const uint8_t BUFF_SIZE = 64;
+    uint8_t endptBuf[BUFF_SIZE];       // hold the received messages
+    uint_fast8_t i;
     (void)pvParameters;
 
     for(;;) {
 
-        // try to get a message. Will sleep for 1000 ticks and print
-        // error if nothing received in that time.
-        if( !xQueueReceive(msgQ, &msg, 1500) ) {
-            if (disp_mutex_take()) {
-                str_write("MSG RECEIVE FAIL (1000 ticks)\n");
-                disp_mutex_give();
-            }
+        for(i = 0; i < BUFF_SIZE; i++) {
+            xQueueReceive(xMSG_q, &endptBuf[i], ~0);
         }
-        else {
-            if (disp_mutex_take()) {
-                usb_write(&msg, sizeof(ENV_MSG_t));
-                disp_mutex_give();
-            }
-        }
+
+        usb_write(endptBuf, BUFF_SIZE);
     }
 }
 
@@ -394,13 +404,13 @@ int main(void)
      disp_mutex = xSemaphoreCreateMutex();
      if (disp_mutex == NULL) { while (1){} }
 
-//     msgQ = xQueueCreate(2, sizeof(ENV_MSG_t));
-//     if(msgQ == NULL) { while(1){ ; } }
-//     vQueueAddToRegistry(msgQ, "ENV_MSG");
+    xMSG_q = xQueueCreate(2000, 1);
+    if(xMSG_q == NULL) { while(1){ ; } }
+    vQueueAddToRegistry(xMSG_q, "BYTE_Q");
 
-//     if(xTaskCreate(MSG_task, "MESSAGE", MSG_STACK_SIZE, NULL, MSG_TASK_PRI, &xMSG_th) != pdPASS) {
-//         while(1) { ; }
-//     }
+    if(xTaskCreate(MSG_task, "MSG", MSG_STACK_SIZE, NULL, MSG_TASK_PRI, &xMSG_th) != pdPASS) {
+        while(1) { ; }
+    }
 
     if(xTaskCreate(ENV_task, "ENV", ENV_STACK_SIZE, NULL, ENV_TASK_PRI, &xENV_th) != pdPASS) {
         while(1) { ; }
