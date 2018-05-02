@@ -1078,10 +1078,10 @@
     <Compile Include="utilities\sealPrint.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="utilities\sealUSB.c">
+    <Compile Include="utilities\seal_USB.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="utilities\sealUSB.h">
+    <Compile Include="utilities\seal_USB.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="utilities\seal_UTIL.c">
