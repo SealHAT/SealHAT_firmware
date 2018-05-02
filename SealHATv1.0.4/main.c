@@ -22,12 +22,12 @@
 // {
 //     usb_write((void*)s, strlen(s));
 // }
-// 
+//
 // static bool disp_mutex_take(void)
 // {
 //     return xSemaphoreTake(disp_mutex, ~0);
 // }
-// 
+//
 // static void disp_mutex_give(void)
 // {
 //     xSemaphoreGive(disp_mutex);
@@ -40,10 +40,10 @@
 // {
 //     static portCHAR szList[128];
 // 	(void)pvParameters;
-// 
+//
 //     for (;;) {
 // 		if (disp_mutex_take()) {
-// 
+//
 //             // print RTOS stats to console
 // 			sprintf(szList, "%c%c%c%c", 0x1B, '[', '2', 'J');
 // 			str_write(szList);
@@ -53,10 +53,10 @@
 // 			str_write("***********************************\r\n");
 // 			vTaskList(szList);
 // 			str_write(szList);
-// 
+//
 // 			disp_mutex_give();
 // 		}
-// 
+//
 // 		os_sleep(5000);
 // 	}
 // }
