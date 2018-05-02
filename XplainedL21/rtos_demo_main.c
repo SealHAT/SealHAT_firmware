@@ -36,7 +36,7 @@ static SemaphoreHandle_t disp_mutex;
 static TaskHandle_t      xCreatedMonitorTask;
 static TaskHandle_t      xEnvTaskHandle;
 static TaskHandle_t      xMsgTaskHandle;
-static QueueHandle_t     msgQ;
+static QueueHandle_t     xMSG_q;
 
 /**
  * \brief Write string to console
@@ -93,7 +93,7 @@ static void environmentTask(void* pvParameters)
         if(err < 0) { message.temp = 0.00; }
 
         // send the data to the Queue
-        xQueueSend(msgQ, (void*)&message, 0);
+        xQueueSend(xMSG_q, (void*)&message, 0);
 
 //         if (disp_mutex_take()) {
 //  		    io_write(&EDBG_COM.io, (uint8_t*)&message, sizeof(ENV_MSG_t));
@@ -114,7 +114,7 @@ static void msgTask(void* pvParameters)
 
         // try to get a message. Will sleep for 1000 ticks and print
         // error if nothing received in that time.
-        if( !xQueueReceive(msgQ, &msg, 1000) ) {
+        if( !xQueueReceive(xMSG_q, &msg, 1000) ) {
             if (disp_mutex_take()) {
                 io_write(&EDBG_COM.io, (uint8_t *)"MSG RECEIVE FAIL (1000 ticks)\n", 30);
                 disp_mutex_give();
@@ -220,9 +220,9 @@ int main(void)
      disp_mutex = xSemaphoreCreateMutex();
      if (disp_mutex == NULL) { while (1){} }
 
-    msgQ = xQueueCreate(2, sizeof(ENV_MSG_t));
-    if(msgQ == NULL) { while(1){} }
-    vQueueAddToRegistry(msgQ, "ENV_MSG");
+    xMSG_q = xQueueCreate(2, sizeof(ENV_MSG_t));
+    if(xMSG_q == NULL) { while(1){} }
+    vQueueAddToRegistry(xMSG_q, "ENV_MSG");
 
     if(xTaskCreate(environmentTask, "ENV", TASK_STACK_SIZE, NULL, ENV_TASK_PRI, xEnvTaskHandle) != pdPASS) {
         while(1) { ; }

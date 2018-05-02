@@ -1084,10 +1084,34 @@
     <Compile Include="utilities\sealUSB.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="utilities\sealUtil.c">
+    <Compile Include="utilities\seal_UTIL.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="utilities\sealUtil.h">
+    <Compile Include="utilities\seal_UTIL.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="utilities\seal_ENV.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="utilities\seal_ENV.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="utilities\seal_IMU.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="utilities\seal_IMU.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="utilities\seal_MSG.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="utilities\seal_MSG.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="utilities\seal_RTOS.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="utilities\seal_RTOS.h">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>
