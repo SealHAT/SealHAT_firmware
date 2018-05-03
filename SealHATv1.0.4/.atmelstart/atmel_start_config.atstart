@@ -103,7 +103,7 @@ middlewares:
       usb_cdcd_acm_epaddr: EndpointAddress = 0x82
       usb_cdcd_acm_iconfig_en: false
       usb_cdcd_acm_iconfig_str: ''
-      usb_cdcd_acm_idproduct: 9220
+      usb_cdcd_acm_idproduct: 57005
       usb_cdcd_acm_idvender: 1003
       usb_cdcd_acm_imanufact_en: true
       usb_cdcd_acm_imanufact_str: SealHAT
@@ -700,7 +700,7 @@ drivers:
       dfll_arch_fine: 512
       dfll_arch_fstep: 1
       dfll_arch_llaw: false
-      dfll_arch_ondemand: false
+      dfll_arch_ondemand: true
       dfll_arch_qldis: false
       dfll_arch_runstdby: false
       dfll_arch_stable: false

@@ -68,7 +68,6 @@ int main(void)
     i2c_unblock_bus(ENV_SDA, ENV_SCL);
 	system_init();
     set_lowPower_mode();
-    usb_start();
 
     if(MSG_task_init(2000) != ERR_NONE) {
         while(1) {;}
@@ -86,7 +85,6 @@ int main(void)
 // 	if (xTaskCreate(task_monitor, "Monitor", TASK_MONITOR_STACK_SIZE, NULL, TASK_MONITOR_STACK_PRIORITY, &xCreatedMonitorTask) != pdPASS) {
 //         while(1) { ; }
 //     }
-
 	vTaskStartScheduler();
 
 	return 0;
