@@ -62,7 +62,7 @@
 // <o> idProduct <0x0000-0xFFFF>
 // <id> usb_cdcd_acm_idproduct
 #ifndef CONF_USB_CDCD_ACM_IDPRODUCT
-#define CONF_USB_CDCD_ACM_IDPRODUCT 0x2404
+#define CONF_USB_CDCD_ACM_IDPRODUCT 0xdead
 #endif
 
 // <o> bcdDevice <0x0000-0xFFFF>

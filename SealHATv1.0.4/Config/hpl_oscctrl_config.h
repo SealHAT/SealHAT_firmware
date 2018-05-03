@@ -248,7 +248,7 @@
 // <i> Indicates whether On Demand Control is enabled or not
 // <id> dfll_arch_ondemand
 #ifndef CONF_DFLL_ONDEMAND
-#define CONF_DFLL_ONDEMAND 0
+#define CONF_DFLL_ONDEMAND 1
 #endif
 
 // <q> Run in Standby
