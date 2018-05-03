@@ -51,6 +51,19 @@ void EXTERNAL_IRQ_init(void)
 	gpio_set_pin_function(IMU_INT2_XL, PINMUX_PA21A_EIC_EXTINT5);
 
 	// Set pin direction to input
+	gpio_set_pin_direction(VBUS_DETECT, GPIO_DIRECTION_IN);
+
+	gpio_set_pin_pull_mode(VBUS_DETECT,
+	                       // <y> Pull configuration
+	                       // <id> pad_pull_config
+	                       // <GPIO_PULL_OFF"> Off
+	                       // <GPIO_PULL_UP"> Pull-up
+	                       // <GPIO_PULL_DOWN"> Pull-down
+	                       GPIO_PULL_OFF);
+
+	gpio_set_pin_function(VBUS_DETECT, PINMUX_PA11A_EIC_EXTINT11);
+
+	// Set pin direction to input
 	gpio_set_pin_direction(IMU_INT_MAG, GPIO_DIRECTION_IN);
 
 	gpio_set_pin_pull_mode(IMU_INT_MAG,
@@ -383,21 +396,6 @@ void system_init(void)
 	                       GPIO_PULL_OFF);
 
 	gpio_set_pin_function(ENV_IRQ, GPIO_PIN_FUNCTION_OFF);
-
-	// GPIO on PA11
-
-	// Set pin direction to input
-	gpio_set_pin_direction(VBUS_DETECT, GPIO_DIRECTION_IN);
-
-	gpio_set_pin_pull_mode(VBUS_DETECT,
-	                       // <y> Pull configuration
-	                       // <id> pad_pull_config
-	                       // <GPIO_PULL_OFF"> Off
-	                       // <GPIO_PULL_UP"> Pull-up
-	                       // <GPIO_PULL_DOWN"> Pull-down
-	                       GPIO_PULL_OFF);
-
-	gpio_set_pin_function(VBUS_DETECT, GPIO_PIN_FUNCTION_OFF);
 
 	// GPIO on PA14
 

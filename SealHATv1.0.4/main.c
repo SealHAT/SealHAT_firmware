@@ -5,7 +5,7 @@
 #include "seal_RTOS.h"
 #include "seal_ENV.h"
 #include "seal_IMU.h"
-#include "seal_MSG.h"
+#include "seal_CTRL.h"
 
 #define TASK_MONITOR_STACK_SIZE         (320 / sizeof(portSTACK_TYPE))
 #define TASK_MONITOR_STACK_PRIORITY     (tskIDLE_PRIORITY + 2)

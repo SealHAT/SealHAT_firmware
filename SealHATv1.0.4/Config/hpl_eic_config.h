@@ -516,7 +516,7 @@
 // <e> Interrupt 11 Settings
 // <id> eic_arch_enable_irq_setting11
 #ifndef CONF_EIC_ENABLE_IRQ_SETTING11
-#define CONF_EIC_ENABLE_IRQ_SETTING11 0
+#define CONF_EIC_ENABLE_IRQ_SETTING11 1
 #endif
 
 // <q> External Interrupt 11 Filter Enable
@@ -543,7 +543,7 @@
 // <i> This defines input sense trigger
 // <id> eic_arch_sense11
 #ifndef CONF_EIC_SENSE11
-#define CONF_EIC_SENSE11 EIC_NMICTRL_NMISENSE_NONE_Val
+#define CONF_EIC_SENSE11 EIC_NMICTRL_NMISENSE_BOTH_Val
 #endif
 
 // <q> External Interrupt 11 Asynchronous Edge Detection Mode
@@ -723,7 +723,7 @@
 
 // </e>
 
-#define CONFIG_EIC_EXTINT_MAP {4, PIN_PA20}, {5, PIN_PA21}, {15, PIN_PA27},
+#define CONFIG_EIC_EXTINT_MAP {4, PIN_PA20}, {5, PIN_PA21}, {11, PIN_PA11}, {15, PIN_PA27},
 
 // <<< end of configuration section >>>
 
