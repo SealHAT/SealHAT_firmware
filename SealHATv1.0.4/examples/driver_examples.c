@@ -18,6 +18,10 @@ static void button_on_PA21_pressed(void)
 {
 }
 
+static void button_on_PA11_pressed(void)
+{
+}
+
 static void button_on_PA27_pressed(void)
 {
 }
@@ -30,6 +34,7 @@ void EXTERNAL_IRQ_example(void)
 
 	ext_irq_register(PIN_PA20, button_on_PA20_pressed);
 	ext_irq_register(PIN_PA21, button_on_PA21_pressed);
+	ext_irq_register(PIN_PA11, button_on_PA11_pressed);
 	ext_irq_register(PIN_PA27, button_on_PA27_pressed);
 }
 

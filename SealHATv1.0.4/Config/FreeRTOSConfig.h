@@ -235,7 +235,7 @@ to exclude the API function. */
 // <q> Include task delay utilities
 // <id> freertos_vtaskdelayuntil
 #ifndef INCLUDE_vTaskDelayUntil
-#define INCLUDE_vTaskDelayUntil 0
+#define INCLUDE_vTaskDelayUntil 1
 #endif
 
 // <q> Include task delay function
@@ -285,7 +285,7 @@ to exclude the API function. */
 // <q> Include the function to pend timer call
 // <id> freertos_xtimerpendfunctioncall
 #ifndef INCLUDE_xTimerPendFunctionCall
-#define INCLUDE_xTimerPendFunctionCall 0
+#define INCLUDE_xTimerPendFunctionCall 1
 #endif
 
 // </e>

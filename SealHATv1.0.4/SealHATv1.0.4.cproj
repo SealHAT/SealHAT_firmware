@@ -29,14 +29,14 @@
     <eraseonlaunchrule>0</eraseonlaunchrule>
     <EraseKey />
     <AsfFrameworkConfig>
-      <framework-data xmlns="">
+      <framework-data>
         <options />
         <configurations />
         <files />
         <documentation help="" />
         <offline-documentation help="" />
         <dependencies>
-          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.39.0" />
+          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.31.0" />
         </dependencies>
       </framework-data>
     </AsfFrameworkConfig>
@@ -1078,10 +1078,10 @@
     <Compile Include="utilities\sealPrint.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="utilities\sealUSB.c">
+    <Compile Include="utilities\seal_USB.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="utilities\sealUSB.h">
+    <Compile Include="utilities\seal_USB.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="utilities\seal_UTIL.c">
@@ -1102,10 +1102,10 @@
     <Compile Include="utilities\seal_IMU.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="utilities\seal_MSG.c">
+    <Compile Include="utilities\seal_CTRL.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="utilities\seal_MSG.h">
+    <Compile Include="utilities\seal_CTRL.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="utilities\seal_RTOS.c">
