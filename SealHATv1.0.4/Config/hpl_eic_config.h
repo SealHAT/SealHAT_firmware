@@ -207,7 +207,7 @@
 // <i> This defines input sense trigger
 // <id> eic_arch_sense3
 #ifndef CONF_EIC_SENSE3
-#define CONF_EIC_SENSE3 EIC_NMICTRL_NMISENSE_NONE_Val
+#define CONF_EIC_SENSE3 EIC_NMICTRL_NMISENSE_RISE_Val
 #endif
 
 // <q> External Interrupt 3 Asynchronous Edge Detection Mode
@@ -723,7 +723,7 @@
 
 // </e>
 
-#define CONFIG_EIC_EXTINT_MAP {4, PIN_PA20}, {5, PIN_PA21}, {11, PIN_PA11}, {15, PIN_PA27},
+#define CONFIG_EIC_EXTINT_MAP {3, PIN_PA19}, {4, PIN_PA20}, {5, PIN_PA21}, {11, PIN_PA11}, {15, PIN_PA27},
 
 // <<< end of configuration section >>>
 

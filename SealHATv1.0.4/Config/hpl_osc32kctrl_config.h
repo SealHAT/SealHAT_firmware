@@ -25,7 +25,7 @@
 // <id> rtc_1khz_selection
 #ifndef CONF_RTCCTRL_1KHZ
 
-#define CONF_RTCCTRL_1KHZ 0
+#define CONF_RTCCTRL_1KHZ 1
 
 #endif
 

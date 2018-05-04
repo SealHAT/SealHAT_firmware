@@ -13,6 +13,8 @@
 
 struct spi_m_sync_descriptor SPI_MEMORY;
 
+struct calendar_descriptor CALENDAR_0;
+
 struct i2c_m_sync_desc I2C_GPS;
 
 struct i2c_m_sync_desc I2C_ENV;
@@ -23,6 +25,19 @@ void EXTERNAL_IRQ_init(void)
 {
 	hri_gclk_write_PCHCTRL_reg(GCLK, EIC_GCLK_ID, CONF_GCLK_EIC_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 	hri_mclk_set_APBAMASK_EIC_bit(MCLK);
+
+	// Set pin direction to input
+	gpio_set_pin_direction(GPS_TXD, GPIO_DIRECTION_IN);
+
+	gpio_set_pin_pull_mode(GPS_TXD,
+	                       // <y> Pull configuration
+	                       // <id> pad_pull_config
+	                       // <GPIO_PULL_OFF"> Off
+	                       // <GPIO_PULL_UP"> Pull-up
+	                       // <GPIO_PULL_DOWN"> Pull-down
+	                       GPIO_PULL_OFF);
+
+	gpio_set_pin_function(GPS_TXD, PINMUX_PA19A_EIC_EXTINT3);
 
 	// Set pin direction to input
 	gpio_set_pin_direction(IMU_INT1_XL, GPIO_DIRECTION_IN);
@@ -77,6 +92,17 @@ void EXTERNAL_IRQ_init(void)
 	gpio_set_pin_function(IMU_INT_MAG, PINMUX_PA27A_EIC_EXTINT15);
 
 	ext_irq_init();
+}
+
+void CALENDAR_0_CLOCK_init(void)
+{
+	hri_mclk_set_APBAMASK_RTC_bit(MCLK);
+}
+
+void CALENDAR_0_init(void)
+{
+	CALENDAR_0_CLOCK_init();
+	calendar_init(&CALENDAR_0, RTC);
 }
 
 void I2C_GPS_PORT_init(void)
@@ -250,6 +276,20 @@ void SPI_MEMORY_init(void)
 	SPI_MEMORY_CLOCK_init();
 	spi_m_sync_init(&SPI_MEMORY, SERCOM4);
 	SPI_MEMORY_PORT_init();
+}
+
+void TIMER_0_CLOCK_init(void)
+{
+	hri_mclk_set_APBDMASK_TC4_bit(MCLK);
+	hri_gclk_write_PCHCTRL_reg(GCLK, TC4_GCLK_ID, CONF_GCLK_TC4_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+}
+
+void EVENT_SYSTEM_0_init(void)
+{
+	hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_0, CONF_GCLK_EVSYS_CHANNEL_0_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+
+	hri_mclk_set_APBDMASK_EVSYS_bit(MCLK);
+	event_system_init();
 }
 
 void USB_DEVICE_INSTANCE_PORT_init(void)
@@ -426,21 +466,6 @@ void system_init(void)
 
 	gpio_set_pin_function(GPS_TIMEPULSE, GPIO_PIN_FUNCTION_OFF);
 
-	// GPIO on PA19
-
-	// Set pin direction to input
-	gpio_set_pin_direction(GPS_TXD, GPIO_DIRECTION_IN);
-
-	gpio_set_pin_pull_mode(GPS_TXD,
-	                       // <y> Pull configuration
-	                       // <id> pad_pull_config
-	                       // <GPIO_PULL_OFF"> Off
-	                       // <GPIO_PULL_UP"> Pull-up
-	                       // <GPIO_PULL_DOWN"> Pull-down
-	                       GPIO_PULL_OFF);
-
-	gpio_set_pin_function(GPS_TXD, GPIO_PIN_FUNCTION_OFF);
-
 	// GPIO on PB02
 
 	// Set pin direction to output
@@ -555,6 +580,8 @@ void system_init(void)
 
 	EXTERNAL_IRQ_init();
 
+	CALENDAR_0_init();
+
 	I2C_GPS_init();
 
 	I2C_ENV_init();
@@ -562,6 +589,12 @@ void system_init(void)
 	I2C_IMU_init();
 
 	SPI_MEMORY_init();
+
+	TIMER_0_CLOCK_init();
+
+	TIMER_0_init();
+
+	EVENT_SYSTEM_0_init();
 
 	USB_DEVICE_INSTANCE_init();
 }
