@@ -33,7 +33,7 @@ middlewares:
       freertos_use_recursive_mutexes: true
       freertos_use_stats_formatting_functions: true
       freertos_use_tick_hook: false
-      freertos_use_tickless_idle: false
+      freertos_use_tickless_idle: true
       freertos_use_timers: true
       freertos_use_trace_facility: true
       freertos_uxtaskpriorityget: false
