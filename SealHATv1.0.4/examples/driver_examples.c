@@ -10,6 +10,10 @@
 #include "driver_init.h"
 #include "utils.h"
 
+static void button_on_PA19_pressed(void)
+{
+}
+
 static void button_on_PA20_pressed(void)
 {
 }
@@ -32,10 +36,46 @@ static void button_on_PA27_pressed(void)
 void EXTERNAL_IRQ_example(void)
 {
 
+	ext_irq_register(PIN_PA19, button_on_PA19_pressed);
 	ext_irq_register(PIN_PA20, button_on_PA20_pressed);
 	ext_irq_register(PIN_PA21, button_on_PA21_pressed);
 	ext_irq_register(PIN_PA11, button_on_PA11_pressed);
 	ext_irq_register(PIN_PA27, button_on_PA27_pressed);
+}
+
+/**
+ * Example of using RTC_CALENDAR.
+ */
+static struct calendar_alarm alarm;
+
+static void alarm_cb(struct calendar_descriptor *const descr)
+{
+	/* alarm expired */
+}
+
+void RTC_CALENDAR_example(void)
+{
+	struct calendar_date date;
+	struct calendar_time time;
+
+	calendar_enable(&RTC_CALENDAR);
+
+	date.year  = 2000;
+	date.month = 12;
+	date.day   = 31;
+
+	time.hour = 12;
+	time.min  = 59;
+	time.sec  = 59;
+
+	calendar_set_date(&RTC_CALENDAR, &date);
+	calendar_set_time(&RTC_CALENDAR, &time);
+
+	alarm.cal_alarm.datetime.time.sec = 4;
+	alarm.cal_alarm.option            = CALENDAR_ALARM_MATCH_SEC;
+	alarm.cal_alarm.mode              = REPEAT;
+
+	calendar_set_alarm(&RTC_CALENDAR, &alarm, alarm_cb);
 }
 
 void I2C_GPS_example(void)
