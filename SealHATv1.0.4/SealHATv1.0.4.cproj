@@ -1024,6 +1024,12 @@
     <Compile Include="rtos_start.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="seal_RTOS.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="seal_RTOS.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="si705x\si705x.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1031,6 +1037,24 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="si705x\si705xTypes.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="tasks\seal_CTRL.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="tasks\seal_CTRL.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="tasks\seal_ENV.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="tasks\seal_ENV.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="tasks\seal_IMU.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="tasks\seal_IMU.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="thirdparty\RTOS\freertos\FreeRTOSV10.0.0\rtos_port.c">
@@ -1183,30 +1207,6 @@
     <Compile Include="utilities\seal_UTIL.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="utilities\seal_ENV.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="utilities\seal_ENV.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="utilities\seal_IMU.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="utilities\seal_IMU.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="utilities\seal_CTRL.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="utilities\seal_CTRL.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="utilities\seal_RTOS.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="utilities\seal_RTOS.h">
-      <SubType>compile</SubType>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Config\" />
@@ -1236,6 +1236,7 @@
     <Folder Include="hri\" />
     <Folder Include="max44009" />
     <Folder Include="lsm303" />
+    <Folder Include="tasks" />
     <Folder Include="thirdparty\" />
     <Folder Include="thirdparty\RTOS\" />
     <Folder Include="thirdparty\RTOS\freertos\" />

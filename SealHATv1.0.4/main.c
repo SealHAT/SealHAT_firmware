@@ -3,9 +3,9 @@
 
 #include "seal_UTIL.h"
 #include "seal_RTOS.h"
-#include "seal_ENV.h"
-#include "seal_IMU.h"
-#include "seal_CTRL.h"
+#include "tasks/seal_ENV.h"
+#include "tasks/seal_IMU.h"
+#include "tasks/seal_CTRL.h"
 
 /*** Define the task handles for each system ***/
 //static TaskHandle_t      xGPS_th;               // GPS
@@ -19,7 +19,7 @@ int main(void)
 	system_init();
     set_lowPower_mode();
 
-    if(MSG_task_init(2000) != ERR_NONE) {
+    if(CTRL_task_init(2000) != ERR_NONE) {
         while(1) {;}
     }
 
