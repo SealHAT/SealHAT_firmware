@@ -65,7 +65,7 @@ extern "C" {
  * \brief Initialize tc interface
  * \return Initialization status.
  */
-int8_t TIMER_0_init();
+int8_t TIMER_MS_init();
 
 #ifdef __cplusplus
 }

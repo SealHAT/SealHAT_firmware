@@ -13,7 +13,7 @@
 
 struct spi_m_sync_descriptor SPI_MEMORY;
 
-struct calendar_descriptor CALENDAR_0;
+struct calendar_descriptor RTC_CALENDAR;
 
 struct i2c_m_sync_desc I2C_GPS;
 
@@ -94,15 +94,15 @@ void EXTERNAL_IRQ_init(void)
 	ext_irq_init();
 }
 
-void CALENDAR_0_CLOCK_init(void)
+void RTC_CALENDAR_CLOCK_init(void)
 {
 	hri_mclk_set_APBAMASK_RTC_bit(MCLK);
 }
 
-void CALENDAR_0_init(void)
+void RTC_CALENDAR_init(void)
 {
-	CALENDAR_0_CLOCK_init();
-	calendar_init(&CALENDAR_0, RTC);
+	RTC_CALENDAR_CLOCK_init();
+	calendar_init(&RTC_CALENDAR, RTC);
 }
 
 void I2C_GPS_PORT_init(void)
@@ -278,18 +278,10 @@ void SPI_MEMORY_init(void)
 	SPI_MEMORY_PORT_init();
 }
 
-void TIMER_0_CLOCK_init(void)
+void TIMER_MS_CLOCK_init(void)
 {
 	hri_mclk_set_APBDMASK_TC4_bit(MCLK);
 	hri_gclk_write_PCHCTRL_reg(GCLK, TC4_GCLK_ID, CONF_GCLK_TC4_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-}
-
-void EVENT_SYSTEM_0_init(void)
-{
-	hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_0, CONF_GCLK_EVSYS_CHANNEL_0_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-
-	hri_mclk_set_APBDMASK_EVSYS_bit(MCLK);
-	event_system_init();
 }
 
 void USB_DEVICE_INSTANCE_PORT_init(void)
@@ -580,7 +572,7 @@ void system_init(void)
 
 	EXTERNAL_IRQ_init();
 
-	CALENDAR_0_init();
+	RTC_CALENDAR_init();
 
 	I2C_GPS_init();
 
@@ -590,11 +582,9 @@ void system_init(void)
 
 	SPI_MEMORY_init();
 
-	TIMER_0_CLOCK_init();
+	TIMER_MS_CLOCK_init();
 
-	TIMER_0_init();
-
-	EVENT_SYSTEM_0_init();
+	TIMER_MS_init();
 
 	USB_DEVICE_INSTANCE_init();
 }

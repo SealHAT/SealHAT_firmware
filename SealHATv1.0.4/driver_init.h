@@ -33,11 +33,9 @@ extern "C" {
 #include <hal_spi_m_sync.h>
 #include <tc_lite.h>
 
-#include <hal_evsys.h>
-
 #include "hal_usb_device.h"
 
-extern struct calendar_descriptor CALENDAR_0;
+extern struct calendar_descriptor RTC_CALENDAR;
 
 extern struct i2c_m_sync_desc I2C_GPS;
 
@@ -46,8 +44,8 @@ extern struct i2c_m_sync_desc I2C_ENV;
 extern struct i2c_m_sync_desc       I2C_IMU;
 extern struct spi_m_sync_descriptor SPI_MEMORY;
 
-void CALENDAR_0_CLOCK_init(void);
-void CALENDAR_0_init(void);
+void RTC_CALENDAR_CLOCK_init(void);
+void RTC_CALENDAR_init(void);
 
 void I2C_GPS_CLOCK_init(void);
 void I2C_GPS_init(void);
@@ -65,9 +63,9 @@ void SPI_MEMORY_PORT_init(void);
 void SPI_MEMORY_CLOCK_init(void);
 void SPI_MEMORY_init(void);
 
-void TIMER_0_CLOCK_init(void);
+void TIMER_MS_CLOCK_init(void);
 
-int8_t TIMER_0_init(void);
+int8_t TIMER_MS_init(void);
 
 void USB_DEVICE_INSTANCE_CLOCK_init(void);
 void USB_DEVICE_INSTANCE_init(void);
