@@ -966,11 +966,11 @@ drivers:
       dbgctrl_dbgrun: false
       drvctrl_control: false
       evctrl_control: true
-      evctrl_evact: 'OFF'
+      evctrl_evact: RETRIGGER
       evctrl_mceo0: false
       evctrl_mceo1: false
       evctrl_ovfeo: false
-      evctrl_tcei: false
+      evctrl_tcei: true
       evctrl_tcinv: false
       intenset_control: false
       intenset_err: false

@@ -86,13 +86,14 @@ int8_t TIMER_MS_init()
 
 	// hri_tccount16_write_COUNT_reg(TC4,0x0); /* Counter Value: 0x0 */
 
-	// hri_tc_write_EVCTRL_reg(TC4,0 << TC_EVCTRL_MCEO0_Pos /* Match or Capture Channel 0 Event Output Enable: disabled
-	// */
-	//		 | 0 << TC_EVCTRL_MCEO1_Pos /* Match or Capture Channel 1 Event Output Enable: disabled */
-	//		 | 0 << TC_EVCTRL_OVFEO_Pos /* Overflow/Underflow Event Output Enable: disabled */
-	//		 | 0 << TC_EVCTRL_TCEI_Pos /* TC Event Input: disabled */
-	//		 | 0 << TC_EVCTRL_TCINV_Pos /* TC Inverted Event Input: disabled */
-	//		 | 0); /* Event Action: 0 */
+	hri_tc_write_EVCTRL_reg(
+	    TC4,
+	    0 << TC_EVCTRL_MCEO0_Pos       /* Match or Capture Channel 0 Event Output Enable: disabled */
+	        | 0 << TC_EVCTRL_MCEO1_Pos /* Match or Capture Channel 1 Event Output Enable: disabled */
+	        | 0 << TC_EVCTRL_OVFEO_Pos /* Overflow/Underflow Event Output Enable: disabled */
+	        | 1 << TC_EVCTRL_TCEI_Pos  /* TC Event Input: enabled */
+	        | 0 << TC_EVCTRL_TCINV_Pos /* TC Inverted Event Input: disabled */
+	        | 1);                      /* Event Action: 1 */
 
 	// hri_tc_write_INTEN_reg(TC4,0 << TC_INTENSET_MC0_Pos /* Match or Capture Channel 0 Interrupt Enable: disabled */
 	//		 | 0 << TC_INTENSET_MC1_Pos /* Match or Capture Channel 1 Interrupt Enable: disabled */
