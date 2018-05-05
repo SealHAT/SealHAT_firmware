@@ -233,7 +233,7 @@
           <AcmeProjectActionInfo Action="File" Source="atmel_start.c" IsConfig="false" Hash="+nmaruIqTOrYG/L+7//fEA" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_dmac_config.h" IsConfig="true" Hash="7aL46a4HpySQ8gZc8jgJ8w" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_eic_config.h" IsConfig="true" Hash="RWWCuSfANurU4rGMuLJxog" />
-          <AcmeProjectActionInfo Action="File" Source="config/hpl_evsys_config.h" IsConfig="true" Hash="HxBh8wjr8yHRsiratmmRAA" />
+          <AcmeProjectActionInfo Action="File" Source="config/hpl_evsys_config.h" IsConfig="true" Hash="1LAtGZ0GeaXXUlfD/SAQ3w" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_gclk_config.h" IsConfig="true" Hash="LAX7E50kOPBlFsZrpBGJkQ" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_mclk_config.h" IsConfig="true" Hash="ypj6b88E67yiUigfMMA65A" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_osc32kctrl_config.h" IsConfig="true" Hash="1lr8/iP9d4vSgnRopTGGEQ" />
@@ -300,6 +300,7 @@
       <Value>../hpl/core</Value>
       <Value>../hpl/dmac</Value>
       <Value>../hpl/eic</Value>
+      <Value>../hpl/evsys</Value>
       <Value>../hpl/gclk</Value>
       <Value>../hpl/mclk</Value>
       <Value>../hpl/osc32kctrl</Value>
@@ -350,6 +351,7 @@
       <Value>../hpl/core</Value>
       <Value>../hpl/dmac</Value>
       <Value>../hpl/eic</Value>
+      <Value>../hpl/evsys</Value>
       <Value>../hpl/gclk</Value>
       <Value>../hpl/mclk</Value>
       <Value>../hpl/osc32kctrl</Value>
@@ -384,6 +386,7 @@
       <Value>../hpl/core</Value>
       <Value>../hpl/dmac</Value>
       <Value>../hpl/eic</Value>
+      <Value>../hpl/evsys</Value>
       <Value>../hpl/gclk</Value>
       <Value>../hpl/mclk</Value>
       <Value>../hpl/osc32kctrl</Value>
@@ -435,6 +438,7 @@
       <Value>../hpl/core</Value>
       <Value>../hpl/dmac</Value>
       <Value>../hpl/eic</Value>
+      <Value>../hpl/evsys</Value>
       <Value>../hpl/gclk</Value>
       <Value>../hpl/mclk</Value>
       <Value>../hpl/osc32kctrl</Value>
@@ -488,6 +492,7 @@
       <Value>../hpl/core</Value>
       <Value>../hpl/dmac</Value>
       <Value>../hpl/eic</Value>
+      <Value>../hpl/evsys</Value>
       <Value>../hpl/gclk</Value>
       <Value>../hpl/mclk</Value>
       <Value>../hpl/osc32kctrl</Value>
@@ -523,6 +528,7 @@
       <Value>../hpl/core</Value>
       <Value>../hpl/dmac</Value>
       <Value>../hpl/eic</Value>
+      <Value>../hpl/evsys</Value>
       <Value>../hpl/gclk</Value>
       <Value>../hpl/mclk</Value>
       <Value>../hpl/osc32kctrl</Value>
@@ -566,6 +572,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Config\hpl_eic_config.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Config\hpl_evsys_config.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Config\hpl_gclk_config.h">
@@ -625,6 +634,9 @@
     <Compile Include="hal\include\hal_delay.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="hal\include\hal_evsys.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="hal\include\hal_ext_irq.h">
       <SubType>compile</SubType>
     </Compile>
@@ -659,6 +671,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hal\include\hpl_dma.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hal\include\hpl_evsys.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hal\include\hpl_ext_irq.h">
@@ -751,6 +766,9 @@
     <Compile Include="hal\src\hal_delay.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="hal\src\hal_evsys.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="hal\src\hal_ext_irq.c">
       <SubType>compile</SubType>
     </Compile>
@@ -836,6 +854,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hpl\eic\hpl_eic.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hpl\evsys\hpl_evsys.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hpl\gclk\hpl_gclk.c">
@@ -1201,6 +1222,7 @@
     <Folder Include="hpl\core\" />
     <Folder Include="hpl\dmac\" />
     <Folder Include="hpl\eic\" />
+    <Folder Include="hpl\evsys\" />
     <Folder Include="hpl\gclk\" />
     <Folder Include="hpl\mclk\" />
     <Folder Include="hpl\osc32kctrl\" />

@@ -33,6 +33,8 @@ extern "C" {
 #include <hal_spi_m_sync.h>
 #include <tc_lite.h>
 
+#include <hal_evsys.h>
+
 #include "hal_usb_device.h"
 
 extern struct calendar_descriptor RTC_CALENDAR;
