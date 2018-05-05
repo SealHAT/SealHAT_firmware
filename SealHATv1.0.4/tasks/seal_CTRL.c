@@ -32,6 +32,16 @@ void vbus_detection_cb(void)
     }
 }
 
+void timestamp_FillHeader(DATA_HEADER_t* header)
+{
+    // get the time in seconds since (the custom set) epoch
+    header->timestamp = _calendar_get_counter(&RTC_CALENDAR.device);
+
+    // force a sync on the counter value and get the sub second value (2048 per second, or about .5 mSec)
+    hri_tc_set_CTRLB_CMD_bf(TC4, TC_CTRLBSET_CMD_READSYNC_Val);
+    header->timestamp = hri_tccount16_get_COUNT_reg(TC4, 0xFFFF);
+}
+
 int32_t byteQ_write(uint8_t* buff, const uint32_t LEN)
 {
     uint32_t i;

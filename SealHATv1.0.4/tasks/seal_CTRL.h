@@ -78,6 +78,8 @@ extern QueueHandle_t      xDATA_q;       // a message Queue for collecting all l
 
 void vbus_detection_cb(void);
 
+void timestamp_FillHeader(DATA_HEADER_t* header);
+
 int32_t byteQ_write(uint8_t* buff, const uint32_t LEN);
 
 int32_t CTRL_task_init(uint32_t qLength);
