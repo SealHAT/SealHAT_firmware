@@ -76,6 +76,9 @@ void ENV_task(void* pvParameters)
             msg.header.id |= ERROR_TEMP;
         }
 
-        byteQ_write((uint8_t*)&msg, sizeof(ENV_MSG_t));
+        err = ctrlLog_write((uint8_t*)&msg, sizeof(ENV_MSG_t));
+        if(err < ERR_NONE && usb_dtr()){
+            gpio_toggle_pin_level(LED_RED);
+        }
     }
 } 

@@ -71,16 +71,18 @@ typedef struct __attribute__((__packed__)){
     uint16_t size;		// size of data packet to follow. in bytes or samples? (worst case IMU size in bytes would need a uint16 :( )
 } DATA_HEADER_t;
 
-extern TaskHandle_t       xCTRL_th;      // Message accumulator for USB/MEM
-extern EventGroupHandle_t xCTRL_eg;      // IMU event group
-extern SemaphoreHandle_t  USB_mutex;   // Mutex to control access to USB terminal
-extern QueueHandle_t      xDATA_q;       // a message Queue for collecting all logged data
+extern TaskHandle_t         xCTRL_th;      // Message accumulator for USB/MEM
+extern EventGroupHandle_t   xCTRL_eg;      // IMU event group
+extern SemaphoreHandle_t    DATA_mutex;    // Mutex to control access to USB terminal
+extern StreamBufferHandle_t xDATA_sb;      // stream buffer for getting data into FLASH or USB
 
 void vbus_detection_cb(void);
 
 void timestamp_FillHeader(DATA_HEADER_t* header);
 
-int32_t byteQ_write(uint8_t* buff, const uint32_t LEN);
+int32_t ctrlLog_write(uint8_t* buff, const uint32_t LEN);
+
+int32_t ctrlLog_writeISR(uint8_t* buff, const uint32_t LEN);
 
 int32_t CTRL_task_init(uint32_t qLength);
 

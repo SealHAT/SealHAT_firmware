@@ -7,10 +7,10 @@
 
 #include "seal_CTRL.h"
 
-TaskHandle_t       xCTRL_th;     // Message accumulator for USB/MEM
-EventGroupHandle_t xCTRL_eg;     // IMU event group
-SemaphoreHandle_t  USB_mutex;    // mutex to control access to USB terminal
-QueueHandle_t      xDATA_q;      // a message Queue for collecting all logged data
+TaskHandle_t         xCTRL_th;     // Message accumulator for USB/MEM
+EventGroupHandle_t   xCTRL_eg;     // IMU event group
+SemaphoreHandle_t    DATA_mutex;   // mutex to control access to USB terminal
+StreamBufferHandle_t xDATA_sb;     // stream buffer for getting data into FLASH or USB
 
 void vbus_detection_cb(void)
 {
@@ -42,30 +42,54 @@ void timestamp_FillHeader(DATA_HEADER_t* header)
     header->msTime = hri_tccount16_get_COUNT_reg(TC4, 0xFFFF);
 }
 
-int32_t byteQ_write(uint8_t* buff, const uint32_t LEN)
+int32_t ctrlLog_write(uint8_t* buff, const uint32_t LEN)
 {
-    uint32_t i;
+    uint32_t err;
 
-    if(xSemaphoreTake(USB_mutex, ~0)) {
+    if(xSemaphoreTake(DATA_mutex, ~0)) {
 
         // bail early if there isn't enough space
-        if(uxQueueSpacesAvailable(xDATA_q) < LEN) {
-            return ERR_NO_RESOURCE;
+        portENTER_CRITICAL();
+        if(xStreamBufferSpacesAvailable(xDATA_sb) >= LEN) {
+            err = xStreamBufferSend(xDATA_sb, buff, LEN, 0);
         }
-
-        for(i = 0; i < LEN; i++) {
-            if(!xQueueSendToBack(xDATA_q, &buff[i], pdMS_TO_TICKS(50))){
-                break;
-            }
+        else {
+            err = ERR_NO_RESOURCE;
         }
+        portEXIT_CRITICAL();
 
-        xSemaphoreGive(USB_mutex);
+        xSemaphoreGive(DATA_mutex);
     }
     else {
-        return ERR_FAILURE;
+        err = ERR_FAILURE;
     }
 
-    return i;
+    return err;
+}
+
+int32_t ctrlLog_writeISR(uint8_t* buff, const uint32_t LEN)
+{
+    uint32_t err;
+
+    if(xSemaphoreTake(DATA_mutex, ~0)) {
+
+        // bail early if there isn't enough space
+        portENTER_CRITICAL();
+        if(xStreamBufferSpacesAvailable(xDATA_sb) >= LEN) {
+            err = xStreamBufferSendFromISR(xDATA_sb, buff, LEN, 0);
+        }
+        else {
+            err = ERR_NO_RESOURCE;
+        }
+        portEXIT_CRITICAL();
+
+        xSemaphoreGive(DATA_mutex);
+    }
+    else {
+        err = ERR_FAILURE;
+    }
+
+    return err;
 }
 
 int32_t CTRL_task_init(uint32_t qLength)
@@ -103,18 +127,15 @@ int32_t CTRL_task_init(uint32_t qLength)
         xEventGroupSetBits(xCTRL_eg, EVENT_VBUS);
     }
 
-    USB_mutex = xSemaphoreCreateMutex();
-    if (USB_mutex == NULL) {
+    DATA_mutex = xSemaphoreCreateMutex();
+    if (DATA_mutex == NULL) {
         return ERR_NO_MEMORY;
     }
 
-    xDATA_q = xQueueCreate(qLength, 1);
-    if(xDATA_q == NULL) {
+    xDATA_sb = xStreamBufferCreate(qLength, 64);
+    if(xDATA_sb == NULL) {
         return ERR_NO_MEMORY;
     }
-
-    // TODO - add debug guards
-    vQueueAddToRegistry(xDATA_q, "BYTE_Q");
 
     return ( xTaskCreate(CTRL_task, "MSG", MSG_STACK_SIZE, NULL, MSG_TASK_PRI, &xCTRL_th) == pdPASS ? ERR_NONE : ERR_NO_MEMORY);
 }
@@ -123,17 +144,16 @@ void CTRL_task(void* pvParameters)
 {
     static const uint8_t BUFF_SIZE = 64;
     uint8_t endptBuf[BUFF_SIZE];       // hold the received messages
-    uint_fast8_t i;
     (void)pvParameters;
 
     // register VBUS detection interrupt
     ext_irq_register(VBUS_DETECT, vbus_detection_cb);
 
-    for(;;) {
+    // set the stream buffer trigger level for USB
+    xStreamBufferSetTriggerLevel(xDATA_sb, BUFF_SIZE);
 
-        for(i = 0; i < BUFF_SIZE; i++) {
-            xQueueReceive(xDATA_q, &endptBuf[i], ~0);
-        }
+    for(;;) {
+        xStreamBufferReceive(xDATA_sb, endptBuf, BUFF_SIZE, portMAX_DELAY);
 
         if(usb_state() == USB_Configured && usb_dtr()) {
             usb_write(endptBuf, BUFF_SIZE);
