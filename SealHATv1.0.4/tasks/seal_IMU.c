@@ -76,7 +76,7 @@ void IMU_task(void* pvParameters)
     lsm303_mag_start(MAG_LP_50_HZ);
 
     // initialize the message header
-    msg.header.srtSym    = 0xDEAD;
+    msg.header.srtSym    = MSG_START_SYM;
     msg.header.id        = DEV_IMU;
     msg.header.size      = sizeof(AxesRaw_t)*25;
     msg.header.timestamp = 0;
@@ -101,9 +101,18 @@ void IMU_task(void* pvParameters)
                 portENTER_CRITICAL();
                 err = lsm303_acc_FIFOread(&msg.accelData[0], 25, NULL);
                 portEXIT_CRITICAL();
+                
+                // set timestamp and set error flag if needed
                 timestamp_FillHeader(&msg.header);
+                if(err != ERR_NONE) {
+                    msg.header.id |= ERROR_I2C;
+                }               
 
-                byteQ_write((uint8_t*)&msg, sizeof(IMU_MSG_t));
+
+                err = ctrlLog_write((uint8_t*)&msg, sizeof(IMU_MSG_t));
+                if(err < ERR_NONE && usb_dtr()){
+                    gpio_toggle_pin_level(LED_RED);
+                }
             }
 
             if( MAG_DATA_READY & ulNotifyValue ) {
@@ -124,7 +133,7 @@ void IMU_task(void* pvParameters)
             tmOut.size      = 0;
             tmOut.timestamp = 65;
 
-            byteQ_write((uint8_t*)&tmOut, sizeof(DATA_HEADER_t));
+            ctrlLog_write((uint8_t*)&tmOut, sizeof(DATA_HEADER_t));
         }
     } // END FOREVER LOOP
 }

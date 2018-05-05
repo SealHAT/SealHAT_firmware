@@ -27,9 +27,9 @@ int main(void)
         while(1) {;}
     }
 
-//     if(IMU_task_init(0xCAFED00D) != ERR_NONE) {
-//         while(1) {;}
-//     }
+    if(IMU_task_init(0xCAFED00D) != ERR_NONE) {
+        while(1) {;}
+    }
 
 	vTaskStartScheduler();
 

@@ -34,7 +34,7 @@ void ENV_task(void* pvParameters)
     //    uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
 
     // set the header data
-    msg.header.srtSym    = 0xDEAD;
+    msg.header.srtSym    = MSG_START_SYM;
     msg.header.size      = 4;   // four bytes of data in an env packet
 
     // Initialize the xLastWakeTime variable with the current time.
@@ -76,6 +76,9 @@ void ENV_task(void* pvParameters)
             msg.header.id |= ERROR_TEMP;
         }
 
-        byteQ_write((uint8_t*)&msg, sizeof(ENV_MSG_t));
+        err = ctrlLog_write((uint8_t*)&msg, sizeof(ENV_MSG_t));
+        if(err < ERR_NONE && usb_dtr()){
+            gpio_toggle_pin_level(LED_RED);
+        }
     }
 } 
