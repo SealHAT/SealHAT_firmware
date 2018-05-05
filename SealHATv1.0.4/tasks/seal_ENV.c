@@ -34,7 +34,7 @@ void ENV_task(void* pvParameters)
     //    uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
 
     // set the header data
-    msg.header.srtSym    = 0xDEAD;
+    msg.header.srtSym    = MSG_START_SYM;
     msg.header.size      = 4;   // four bytes of data in an env packet
 
     // Initialize the xLastWakeTime variable with the current time.

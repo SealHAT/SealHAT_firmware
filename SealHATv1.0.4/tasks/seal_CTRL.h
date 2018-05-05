@@ -14,6 +14,8 @@
 #define MSG_STACK_SIZE                  (750 / sizeof(portSTACK_TYPE))
 #define MSG_TASK_PRI                    (tskIDLE_PRIORITY + 1)
 
+#define MSG_START_SYM       (0xADDE)
+
 typedef enum {
     DEV_ENV  = 0x10,
     DEV_IMU  = 0x20,

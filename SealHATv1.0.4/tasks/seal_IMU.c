@@ -76,7 +76,7 @@ void IMU_task(void* pvParameters)
     lsm303_mag_start(MAG_LP_50_HZ);
 
     // initialize the message header
-    msg.header.srtSym    = 0xDEAD;
+    msg.header.srtSym    = MSG_START_SYM;
     msg.header.id        = DEV_IMU;
     msg.header.size      = sizeof(AxesRaw_t)*25;
     msg.header.timestamp = 0;
