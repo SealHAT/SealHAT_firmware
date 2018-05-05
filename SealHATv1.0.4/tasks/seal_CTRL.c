@@ -39,7 +39,7 @@ void timestamp_FillHeader(DATA_HEADER_t* header)
 
     // force a sync on the counter value and get the sub second value (2048 per second, or about .5 mSec)
     hri_tc_set_CTRLB_CMD_bf(TC4, TC_CTRLBSET_CMD_READSYNC_Val);
-    header->timestamp = hri_tccount16_get_COUNT_reg(TC4, 0xFFFF);
+    header->msTime = hri_tccount16_get_COUNT_reg(TC4, 0xFFFF);
 }
 
 int32_t byteQ_write(uint8_t* buff, const uint32_t LEN)
@@ -72,6 +72,7 @@ int32_t CTRL_task_init(uint32_t qLength)
 {
     struct calendar_date date;
     struct calendar_time time;
+    int32_t err = ERR_NONE;
 
     // create 24-bit system event group
     xCTRL_eg = xEventGroupCreate();
@@ -89,8 +90,11 @@ int32_t CTRL_task_init(uint32_t qLength)
     time.min  = 33;
     time.sec  = 0;
 
-    calendar_set_date(&RTC_CALENDAR, &date);
-    calendar_set_time(&RTC_CALENDAR, &time);
+    err = calendar_set_date(&RTC_CALENDAR, &date);
+    if(err != ERR_NONE) { return err; }
+
+    err = calendar_set_time(&RTC_CALENDAR, &time);
+    if(err != ERR_NONE) { return err; }
 
     // initialize (clear all) event group and check current VBUS level
     xEventGroupClearBits(xCTRL_eg, EVENT_MASK_ALL);

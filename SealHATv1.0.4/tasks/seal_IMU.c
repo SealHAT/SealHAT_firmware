@@ -101,7 +101,7 @@ void IMU_task(void* pvParameters)
                 portENTER_CRITICAL();
                 err = lsm303_acc_FIFOread(&msg.accelData[0], 25, NULL);
                 portEXIT_CRITICAL();
-                msg.header.timestamp++;
+                timestamp_FillHeader(&msg.header);
 
                 byteQ_write((uint8_t*)&msg, sizeof(IMU_MSG_t));
             }
