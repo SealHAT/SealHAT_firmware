@@ -940,6 +940,18 @@
     <Compile Include="si705x\si705xTypes.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="storage\flash_io.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="storage\flash_io.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="storage\NAND_Flash.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="storage\NAND_Flash.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="thirdparty\RTOS\freertos\FreeRTOSV10.0.0\rtos_port.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1140,6 +1152,7 @@
     <Folder Include="hri\" />
     <Folder Include="max44009" />
     <Folder Include="lsm303" />
+    <Folder Include="storage" />
     <Folder Include="thirdparty\" />
     <Folder Include="thirdparty\RTOS\" />
     <Folder Include="thirdparty\RTOS\freertos\" />
