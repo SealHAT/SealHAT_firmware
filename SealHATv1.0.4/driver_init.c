@@ -447,7 +447,7 @@ void system_init(void)
 	                   // <id> pad_initial_level
 	                   // <false"> Low
 	                   // <true"> High
-	                   false);
+	                   true);
 
 	gpio_set_pin_function(MEM_CS2, GPIO_PIN_FUNCTION_OFF);
 
@@ -532,7 +532,7 @@ void system_init(void)
 	                   // <id> pad_initial_level
 	                   // <false"> Low
 	                   // <true"> High
-	                   false);
+	                   true);
 
 	gpio_set_pin_function(MEM_CS0, GPIO_PIN_FUNCTION_OFF);
 
@@ -546,7 +546,7 @@ void system_init(void)
 	                   // <id> pad_initial_level
 	                   // <false"> Low
 	                   // <true"> High
-	                   false);
+	                   true);
 
 	gpio_set_pin_function(MEM_CS1, GPIO_PIN_FUNCTION_OFF);
 

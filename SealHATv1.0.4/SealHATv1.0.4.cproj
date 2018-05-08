@@ -191,7 +191,7 @@
           <AcmeProjectActionInfo Action="File" Source="usb/usb_protocol.c" IsConfig="false" Hash="tWUcFFv/c8ipnv3J//bMIg" />
           <AcmeProjectActionInfo Action="File" Source="usb/usb_protocol.h" IsConfig="false" Hash="EIEORPtDPE5AsfEkRF09CQ" />
           <AcmeProjectActionInfo Action="File" Source="main.c" IsConfig="false" Hash="k0AH7j+BrmdFhBPzCCMptA" />
-          <AcmeProjectActionInfo Action="File" Source="driver_init.c" IsConfig="false" Hash="g5WcCanx46UdsoLIH3Yh3Q" />
+          <AcmeProjectActionInfo Action="File" Source="driver_init.c" IsConfig="false" Hash="rl4oB0mvpj9lmOJltJEtXg" />
           <AcmeProjectActionInfo Action="File" Source="driver_init.h" IsConfig="false" Hash="+arcMqTVRzP3u7AT8nSA3Q" />
           <AcmeProjectActionInfo Action="File" Source="atmel_start_pins.h" IsConfig="false" Hash="biIkNLcfJY9VgExxX9bfUw" />
           <AcmeProjectActionInfo Action="File" Source="examples/driver_examples.h" IsConfig="false" Hash="nOIqNasStP5LS4JgPlKxRQ" />
@@ -222,7 +222,7 @@
           <AcmeProjectActionInfo Action="File" Source="hpl/rtc/hpl_rtc.c" IsConfig="false" Hash="WqEToPs2gH7umtT7Wav+GQ" />
           <AcmeProjectActionInfo Action="File" Source="hpl/rtc/hpl_rtc_base.h" IsConfig="false" Hash="fDk2/Y2rUPUfceyluLNNRQ" />
           <AcmeProjectActionInfo Action="File" Source="hpl/sercom/hpl_sercom.c" IsConfig="false" Hash="ZYfMh3RGbAVXpvhURZGTYg" />
-          <AcmeProjectActionInfo Action="File" Source="hpl/tc/tc_lite.c" IsConfig="false" Hash="FEqm35mTpeMhmry3+KGJAg" />
+          <AcmeProjectActionInfo Action="File" Source="hpl/tc/tc_lite.c" IsConfig="false" Hash="vnoe53+gccaUoV3duK9D1g" />
           <AcmeProjectActionInfo Action="File" Source="hpl/tc/tc_lite.h" IsConfig="false" Hash="S/ugamYXQkD+6gzzUa/QfQ" />
           <AcmeProjectActionInfo Action="File" Source="hpl/usb/hpl_usb.c" IsConfig="false" Hash="1/do4eiVESUOUDlFFtkhOA" />
           <AcmeProjectActionInfo Action="File" Source="rtos_start.c" IsConfig="false" Hash="qv6vh5sOfPk/GIJ/SomW1g" />
@@ -233,7 +233,7 @@
           <AcmeProjectActionInfo Action="File" Source="atmel_start.c" IsConfig="false" Hash="+nmaruIqTOrYG/L+7//fEA" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_dmac_config.h" IsConfig="true" Hash="7aL46a4HpySQ8gZc8jgJ8w" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_eic_config.h" IsConfig="true" Hash="RWWCuSfANurU4rGMuLJxog" />
-          <AcmeProjectActionInfo Action="File" Source="config/hpl_evsys_config.h" IsConfig="true" Hash="VYoEifsud0tBWPqr5dHZxA" />
+          <AcmeProjectActionInfo Action="File" Source="config/hpl_evsys_config.h" IsConfig="true" Hash="1LAtGZ0GeaXXUlfD/SAQ3w" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_gclk_config.h" IsConfig="true" Hash="LAX7E50kOPBlFsZrpBGJkQ" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_mclk_config.h" IsConfig="true" Hash="ypj6b88E67yiUigfMMA65A" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_osc32kctrl_config.h" IsConfig="true" Hash="1lr8/iP9d4vSgnRopTGGEQ" />
@@ -247,14 +247,14 @@
         </AcmeActionInfos>
       </AcmeProjectConfig>
     </AcmeProjectConfig>
-    <avrtool>com.atmel.avrdbg.tool.samice</avrtool>
-    <avrtoolserialnumber>801001446</avrtoolserialnumber>
+    <avrtool>com.atmel.avrdbg.tool.powerdebugger</avrtool>
+    <avrtoolserialnumber>J50200001011</avrtoolserialnumber>
     <avrdeviceexpectedsignature>0x10810214</avrdeviceexpectedsignature>
     <avrtoolinterface>SWD</avrtoolinterface>
     <com_atmel_avrdbg_tool_samice>
       <ToolOptions>
         <InterfaceProperties>
-          <SwdClock>4000000</SwdClock>
+          <SwdClock>0</SwdClock>
         </InterfaceProperties>
         <InterfaceName>SWD</InterfaceName>
       </ToolOptions>
@@ -262,7 +262,7 @@
       <ToolNumber>801001446</ToolNumber>
       <ToolName>J-Link</ToolName>
     </com_atmel_avrdbg_tool_samice>
-    <avrtoolinterfaceclock>4000000</avrtoolinterfaceclock>
+    <avrtoolinterfaceclock>2000000</avrtoolinterfaceclock>
     <com_atmel_avrdbg_tool_powerdebugger>
       <ToolOptions>
         <InterfaceProperties>
