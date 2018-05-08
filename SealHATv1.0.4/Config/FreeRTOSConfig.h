@@ -116,7 +116,7 @@ void assert_triggered(const char *file, uint32_t line);
 // <q> Use tickless idle
 // <id> freertos_use_tickless_idle
 #ifndef configUSE_TICKLESS_IDLE
-#define configUSE_TICKLESS_IDLE 0
+#define configUSE_TICKLESS_IDLE 1
 #endif
 
 // <q> Use trace facility
@@ -191,7 +191,7 @@ void assert_triggered(const char *file, uint32_t line);
 #define configPRIO_BITS 2       // Cortex M0+ has 2 priority bits allowing for 4 levels
 #define configMAX_TASK_NAME_LEN (8)
 #define configIDLE_SHOULD_YIELD 1
-#define configQUEUE_REGISTRY_SIZE 5
+#define configQUEUE_REGISTRY_SIZE 0
 #define configUSE_QUEUE_SETS 1
 #define configENABLE_BACKWARD_COMPATIBILITY 1
 
