@@ -1045,10 +1045,19 @@
     <Compile Include="storage\flash_io.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="storage\HelperFunctions.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="storage\HelperFunctions.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="storage\NAND_Flash.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="storage\NAND_Flash.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="storage\TestArray.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="tasks\seal_CTRL.c">
