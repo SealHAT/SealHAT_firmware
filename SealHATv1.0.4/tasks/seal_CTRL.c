@@ -12,6 +12,9 @@ EventGroupHandle_t   xCTRL_eg;     // IMU event group
 SemaphoreHandle_t    DATA_mutex;   // mutex to control access to USB terminal
 StreamBufferHandle_t xDATA_sb;     // stream buffer for getting data into FLASH or USB
 
+    
+static FLASH_DESCRIPTOR flash_descriptor; /* Declare flash descriptor. */
+
 void vbus_detection_cb(void)
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
@@ -136,13 +139,16 @@ int32_t CTRL_task_init(uint32_t qLength)
     if(xDATA_sb == NULL) {
         return ERR_NO_MEMORY;
     }
+    
+    /* Flash storage initialization. */
+    flash_io_init(&flash_descriptor, PAGE_SIZE_LESS);
 
     return ( xTaskCreate(CTRL_task, "MSG", MSG_STACK_SIZE, NULL, MSG_TASK_PRI, &xCTRL_th) == pdPASS ? ERR_NONE : ERR_NO_MEMORY);
 }
 
 void CTRL_task(void* pvParameters)
 {
-    static const uint8_t BUFF_SIZE = 64;
+    static const uint8_t BUFF_SIZE = PAGE_SIZE_LESS;
     uint8_t endptBuf[BUFF_SIZE];       // hold the received messages
     (void)pvParameters;
 
@@ -154,9 +160,15 @@ void CTRL_task(void* pvParameters)
 
     for(;;) {
         xStreamBufferReceive(xDATA_sb, endptBuf, BUFF_SIZE, portMAX_DELAY);
+        
+        // write data once buffer is full
+        flash_io_write(&flash_descriptor, xDATA_sb, BUFF_SIZE);
+        
+        flash_io_flush(&flash_descriptor);
+        flash_io_reset_addr();
 
-        if(usb_state() == USB_Configured && usb_dtr()) {
+        /*if(usb_state() == USB_Configured && usb_dtr()) {
             usb_write(endptBuf, BUFF_SIZE);
-        }
+        }*/
     }
 }
