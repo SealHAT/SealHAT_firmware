@@ -1024,6 +1024,48 @@
     <Compile Include="rtos_start.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="sam-m8q\gps.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sam-m8q\gps.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sam-m8q\ubxproto\portable_endian.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sam-m8q\ubxproto\ubx.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sam-m8q\ubxproto\ubx.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sam-m8q\ubxproto\ubxaid.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sam-m8q\ubxproto\ubxcfg.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sam-m8q\ubxproto\ubxlog.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sam-m8q\ubxproto\ubxmessage.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sam-m8q\ubxproto\ubxmon.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sam-m8q\ubxproto\ubxnav.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sam-m8q\ubxproto\ubxnav.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sam-m8q\ubxproto\ubxrxm.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sam-m8q\ubxproto\ubxutils.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="seal_RTOS.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1236,6 +1278,8 @@
     <Folder Include="hri\" />
     <Folder Include="max44009" />
     <Folder Include="lsm303" />
+    <Folder Include="sam-m8q" />
+    <Folder Include="sam-m8q\ubxproto" />
     <Folder Include="tasks" />
     <Folder Include="thirdparty\" />
     <Folder Include="thirdparty\RTOS\" />

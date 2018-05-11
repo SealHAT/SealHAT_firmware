@@ -10,6 +10,9 @@
 [submodule "SealHATv1.0.4/utilities"]
 	path = SealHATv1.0.4/utilities
 	url = https://github.com/SealHAT/Utilities.git
+
 [submodule "SealHATv1.0.4/sam-m8q"]
+
 	path = SealHATv1.0.4/sam-m8q
+
 	url = https://github.com/SealHAT/SAM-M8Q.git
