@@ -1093,6 +1093,12 @@
     <Compile Include="tasks\seal_ENV.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="tasks\seal_GPS.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="tasks\seal_GPS.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="tasks\seal_IMU.c">
       <SubType>compile</SubType>
     </Compile>
