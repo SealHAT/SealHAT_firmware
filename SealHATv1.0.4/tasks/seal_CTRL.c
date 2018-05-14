@@ -14,6 +14,8 @@ StreamBufferHandle_t xDATA_sb;     // stream buffer for getting data into FLASH 
 
     
 static FLASH_DESCRIPTOR flash_descriptor; /* Declare flash descriptor. */
+const uint8_t WELCOME[] = "Welcome\n";
+const uint8_t NEW_LINE[] = "\n";
 
 void vbus_detection_cb(void)
 {
@@ -141,16 +143,20 @@ int32_t CTRL_task_init(uint32_t qLength)
     }
     
     /* Flash storage initialization. */
-    flash_io_init(&flash_descriptor, PAGE_SIZE_LESS);
+    //flash_io_init(&flash_descriptor, PAGE_SIZE_LESS);
 
     return ( xTaskCreate(CTRL_task, "MSG", MSG_STACK_SIZE, NULL, MSG_TASK_PRI, &xCTRL_th) == pdPASS ? ERR_NONE : ERR_NO_MEMORY);
 }
 
 void CTRL_task(void* pvParameters)
 {
+    int retVal;
     static const uint8_t BUFF_SIZE = 64;
-    uint8_t endptBuf[BUFF_SIZE];       // hold the received messages
+    static uint8_t endptBuf[PAGE_SIZE_EXTRA];       // hold the received messages
     (void)pvParameters;
+    
+    /* Initialize flash device(s). */
+    flash_io_init(&flash_descriptor, PAGE_SIZE_LESS);
 
     // register VBUS detection interrupt
     ext_irq_register(VBUS_DETECT, vbus_detection_cb);
@@ -160,35 +166,44 @@ void CTRL_task(void* pvParameters)
     
     xStreamBufferReceive(xDATA_sb, endptBuf, BUFF_SIZE, portMAX_DELAY);
     
+    do { /* NOTHING */ } while (!usb_dtr());
+        
+    // print welcome
+    if(usb_state() == USB_Configured && usb_dtr()) {
+        usb_write(WELCOME, 8);
+    }
+    
+    // print old buffer data
+    do {
+        retVal = usb_write(endptBuf, BUFF_SIZE);
+    } while((usb_dtr() == false) || (retVal != USB_OK));
+    
+    // print newline character to console
+    do {
+        retVal = usb_write(NEW_LINE, 1);
+    } while((usb_dtr() == false) || (retVal != USB_OK));
+        
     // write data once buffer is full
-    flash_io_write(&flash_descriptor, xDATA_sb, BUFF_SIZE);
+    flash_io_write(&flash_descriptor, endptBuf, BUFF_SIZE);
         
     // flush the flash buffer and reset the address pointer
     flash_io_flush(&flash_descriptor);
     flash_io_reset_addr();
     
-    // reset the stream buffer to ensure it is empty (for testing)
-    xStreamBufferReset(xDATA_sb);
-    
-    do { /* NOTHING */ } while (!usb_dtr());
-        
-    // print empty buffer
-    if(usb_state() == USB_Configured && usb_dtr()) {
-        usb_write(endptBuf, BUFF_SIZE);
-    }        
-    
-    flash_io_read(&flash_descriptor, xDATA_sb, BUFF_SIZE);
+    delay_ms(10);
+
+    flash_io_read(&flash_descriptor, endptBuf, PAGE_SIZE_LESS);
     
     if(usb_isInBusy() == true) { /* Wait */ }
         
-    // print empty buffer
-    if(usb_state() == USB_Configured && usb_dtr()) {
-        usb_write(endptBuf, BUFF_SIZE);
-    }
+    // print new buffer data
+    do{
+        retVal = usb_write(endptBuf, BUFF_SIZE);
+    } while((usb_dtr() == false) || (retVal != USB_OK));
 
     for(;;) 
     {
         gpio_toggle_pin_level(LED_GREEN);
-        delay_ms(1000);
+        delay_ms(500);
     }
 }

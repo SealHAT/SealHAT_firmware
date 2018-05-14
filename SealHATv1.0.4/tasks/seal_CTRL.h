@@ -12,7 +12,7 @@
 #ifndef SEAL_MSG_H_
 #define SEAL_MSG_H_
 
-#define MSG_STACK_SIZE                  (750 / sizeof(portSTACK_TYPE))
+#define MSG_STACK_SIZE                  (3000 / sizeof(portSTACK_TYPE))
 #define MSG_TASK_PRI                    (tskIDLE_PRIORITY + 1)
 
 #define MSG_START_SYM       (0xADDE)

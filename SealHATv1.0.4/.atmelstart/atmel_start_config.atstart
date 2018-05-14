@@ -1,5 +1,13 @@
 format_version: '2'
 name: My Project
+versions:
+  api: '1.0'
+  backend: 1.2.132
+  commit: release1.2
+  content: 1.0.898
+  content_pack_name: unknown
+  format: '2'
+  frontend: 1.2.1708
 board:
   identifier: CustomBoard
   device: SAML21G18B-MN
@@ -905,7 +913,7 @@ drivers:
       spi_master_arch_dord: MSB first
       spi_master_arch_ibon: In data stream
       spi_master_arch_runstdby: false
-      spi_master_baud_rate: 50000
+      spi_master_baud_rate: 1000000
       spi_master_character_size: 8 bits
       spi_master_dummybyte: 511
       spi_master_rx_enable: true
