@@ -7,13 +7,15 @@
 
 #include "seal_CTRL.h"
 
+#define CONFIG_BLOCK_ADDR   (0x3F840)
+
 TaskHandle_t         xCTRL_th;     // Message accumulator for USB/MEM
 EventGroupHandle_t   xCTRL_eg;     // IMU event group
 SemaphoreHandle_t    DATA_mutex;   // mutex to control access to USB terminal
 StreamBufferHandle_t xDATA_sb;     // stream buffer for getting data into FLASH or USB
 
     
-static FLASH_DESCRIPTOR flash_descriptor; /* Declare flash descriptor. */
+static FLASH_DESCRIPTOR seal_flash_descriptor; /* Declare flash descriptor. */
 const uint8_t WELCOME[] = "Welcome\n";
 const uint8_t NEW_LINE[] = "\n";
 
@@ -155,8 +157,36 @@ void CTRL_task(void* pvParameters)
     static uint8_t endptBuf[PAGE_SIZE_EXTRA];       // hold the received messages
     (void)pvParameters;
     
+    static uint8_t writeBuf[64];
+    static uint8_t readBuf[64];
+    
+    for(int i = 0; i < 64; i++)
+    {
+        writeBuf[i] = 0;
+        readBuf[i]  = 0;
+    }
+    
+    writeBuf[0] = 0xDE;
+    writeBuf[1] = 0xAD;
+    writeBuf[2] = 0xBE;
+    writeBuf[3] = 0xEF;
+    writeBuf[4] = 0xDE;
+    writeBuf[5] = 0xAD;
+    writeBuf[6] = 0xBE;
+    writeBuf[7] = 0xEF;
+    
+    retVal = flash_erase(&FLASH_NVM, CONFIG_BLOCK_ADDR, 4);
+    
+    /* Write data to flash */
+    retVal = flash_write(&FLASH_NVM, CONFIG_BLOCK_ADDR, writeBuf, NVMCTRL_PAGE_SIZE);
+    
+    delay_ms(2);
+
+    /* Read data from flash */
+    retVal = flash_read(&FLASH_NVM, CONFIG_BLOCK_ADDR, readBuf, NVMCTRL_PAGE_SIZE);
+    
     /* Initialize flash device(s). */
-    flash_io_init(&flash_descriptor, PAGE_SIZE_LESS);
+    flash_io_init(&seal_flash_descriptor, PAGE_SIZE_LESS);
 
     // register VBUS detection interrupt
     ext_irq_register(VBUS_DETECT, vbus_detection_cb);
@@ -184,15 +214,15 @@ void CTRL_task(void* pvParameters)
     } while((usb_dtr() == false) || (retVal != USB_OK));
         
     // write data once buffer is full
-    flash_io_write(&flash_descriptor, endptBuf, BUFF_SIZE);
+    flash_io_write(&seal_flash_descriptor, endptBuf, BUFF_SIZE);
         
     // flush the flash buffer and reset the address pointer
-    flash_io_flush(&flash_descriptor);
+    flash_io_flush(&seal_flash_descriptor);
     flash_io_reset_addr();
     
     delay_ms(10);
 
-    flash_io_read(&flash_descriptor, endptBuf, PAGE_SIZE_LESS);
+    flash_io_read(&seal_flash_descriptor, endptBuf, PAGE_SIZE_LESS);
     
     if(usb_isInBusy() == true) { /* Wait */ }
         
