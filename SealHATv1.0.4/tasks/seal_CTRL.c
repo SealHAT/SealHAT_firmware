@@ -7,17 +7,12 @@
 
 #include "seal_CTRL.h"
 
-#define CONFIG_BLOCK_ADDR   (0x3F840)
-
 TaskHandle_t         xCTRL_th;     // Message accumulator for USB/MEM
 EventGroupHandle_t   xCTRL_eg;     // IMU event group
 SemaphoreHandle_t    DATA_mutex;   // mutex to control access to USB terminal
 StreamBufferHandle_t xDATA_sb;     // stream buffer for getting data into FLASH or USB
 
-    
 static FLASH_DESCRIPTOR seal_flash_descriptor; /* Declare flash descriptor. */
-const uint8_t WELCOME[] = "Welcome\n";
-const uint8_t NEW_LINE[] = "\n";
 
 void vbus_detection_cb(void)
 {
@@ -104,6 +99,8 @@ int32_t CTRL_task_init(uint32_t qLength)
     struct calendar_date date;
     struct calendar_time time;
     int32_t err = ERR_NONE;
+    static uint8_t readBuf[64];
+    int retVal;
 
     // create 24-bit system event group
     xCTRL_eg = xEventGroupCreate();
@@ -144,8 +141,9 @@ int32_t CTRL_task_init(uint32_t qLength)
         return ERR_NO_MEMORY;
     }
     
-    /* Flash storage initialization. */
-    //flash_io_init(&flash_descriptor, PAGE_SIZE_LESS);
+    /* TODO: This is a stand-in read for reading the config struct from the EEPROM. Once the config struct
+     * is set up, this call should be updated to read data into said struct on device startup. */
+    retVal = flash_read(&FLASH_NVM, CONFIG_BLOCK_BASE_ADDR, readBuf, NVMCTRL_PAGE_SIZE);
 
     return ( xTaskCreate(CTRL_task, "MSG", MSG_STACK_SIZE, NULL, MSG_TASK_PRI, &xCTRL_th) == pdPASS ? ERR_NONE : ERR_NO_MEMORY);
 }
@@ -157,34 +155,6 @@ void CTRL_task(void* pvParameters)
     static uint8_t endptBuf[PAGE_SIZE_EXTRA];       // hold the received messages
     (void)pvParameters;
     
-    static uint8_t writeBuf[64];
-    static uint8_t readBuf[64];
-    
-    for(int i = 0; i < 64; i++)
-    {
-        writeBuf[i] = 0;
-        readBuf[i]  = 0;
-    }
-    
-    writeBuf[0] = 0xDE;
-    writeBuf[1] = 0xAD;
-    writeBuf[2] = 0xBE;
-    writeBuf[3] = 0xEF;
-    writeBuf[4] = 0xDE;
-    writeBuf[5] = 0xAD;
-    writeBuf[6] = 0xBE;
-    writeBuf[7] = 0xEF;
-    
-    retVal = flash_erase(&FLASH_NVM, CONFIG_BLOCK_ADDR, 4);
-    
-    /* Write data to flash */
-    retVal = flash_write(&FLASH_NVM, CONFIG_BLOCK_ADDR, writeBuf, NVMCTRL_PAGE_SIZE);
-    
-    delay_ms(2);
-
-    /* Read data from flash */
-    retVal = flash_read(&FLASH_NVM, CONFIG_BLOCK_ADDR, readBuf, NVMCTRL_PAGE_SIZE);
-    
     /* Initialize flash device(s). */
     flash_io_init(&seal_flash_descriptor, PAGE_SIZE_LESS);
 
@@ -192,48 +162,15 @@ void CTRL_task(void* pvParameters)
     ext_irq_register(VBUS_DETECT, vbus_detection_cb);
 
     // set the stream buffer trigger level for USB
-    xStreamBufferSetTriggerLevel(xDATA_sb, BUFF_SIZE);
-    
-    xStreamBufferReceive(xDATA_sb, endptBuf, BUFF_SIZE, portMAX_DELAY);
-    
-    do { /* NOTHING */ } while (!usb_dtr());
-        
-    // print welcome
-    if(usb_state() == USB_Configured && usb_dtr()) {
-        usb_write(WELCOME, 8);
-    }
-    
-    // print old buffer data
-    do {
-        retVal = usb_write(endptBuf, BUFF_SIZE);
-    } while((usb_dtr() == false) || (retVal != USB_OK));
-    
-    // print newline character to console
-    do {
-        retVal = usb_write(NEW_LINE, 1);
-    } while((usb_dtr() == false) || (retVal != USB_OK));
-        
-    // write data once buffer is full
-    flash_io_write(&seal_flash_descriptor, endptBuf, BUFF_SIZE);
-        
-    // flush the flash buffer and reset the address pointer
-    flash_io_flush(&seal_flash_descriptor);
-    flash_io_reset_addr();
-    
-    delay_ms(10);
+    xStreamBufferSetTriggerLevel(xDATA_sb, PAGE_SIZE_LESS);
 
-    flash_io_read(&seal_flash_descriptor, endptBuf, PAGE_SIZE_LESS);
-    
-    if(usb_isInBusy() == true) { /* Wait */ }
-        
-    // print new buffer data
-    do{
-        retVal = usb_write(endptBuf, BUFF_SIZE);
-    } while((usb_dtr() == false) || (retVal != USB_OK));
-
+    /* Receive and write data forever. */
     for(;;) 
     {
-        gpio_toggle_pin_level(LED_GREEN);
-        delay_ms(500);
+        /* Receive a page worth of data. */
+        xStreamBufferReceive(xDATA_sb, endptBuf, PAGE_SIZE_LESS, portMAX_DELAY);
+        
+        /* Write data to external flash device. */
+        flash_io_write(&seal_flash_descriptor, endptBuf, BUFF_SIZE);
     }
 }

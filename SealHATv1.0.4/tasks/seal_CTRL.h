@@ -16,7 +16,8 @@
 #define MSG_STACK_SIZE                  (3000 / sizeof(portSTACK_TYPE))
 #define MSG_TASK_PRI                    (tskIDLE_PRIORITY + 1)
 
-#define MSG_START_SYM       (0xADDE)
+#define MSG_START_SYM                   (0xADDE)
+#define CONFIG_BLOCK_BASE_ADDR          (0x3F840)   /* First writable page address of on-chip EEPROM. */
 
 typedef enum {
     DEV_ENV  = 0x10,
