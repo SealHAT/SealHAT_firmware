@@ -4,7 +4,6 @@
  * Created: 30-Apr-18 22:40:17
  *  Author: Ethan
  */
-#include "seal_RTOS.h"
 #include "seal_CTRL.h"
 #include "lsm303/LSM303AGR.h"
 

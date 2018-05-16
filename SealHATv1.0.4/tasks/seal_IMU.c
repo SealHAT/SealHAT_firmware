@@ -77,7 +77,7 @@ void IMU_task(void* pvParameters)
 
     // initialize the message header
     msg.header.srtSym    = MSG_START_SYM;
-    msg.header.id        = DEV_IMU;
+    msg.header.id        = DEVICE_ID_ACCELEROMETER;
     msg.header.size      = sizeof(AxesRaw_t)*25;
     msg.header.timestamp = 0;
 
@@ -101,12 +101,12 @@ void IMU_task(void* pvParameters)
                 portENTER_CRITICAL();
                 err = lsm303_acc_FIFOread(&msg.accelData[0], 25, NULL);
                 portEXIT_CRITICAL();
-                
+
                 // set timestamp and set error flag if needed
                 timestamp_FillHeader(&msg.header);
                 if(err != ERR_NONE) {
-                    msg.header.id |= ERROR_I2C;
-                }               
+                    msg.header.id |= DEVICE_ERR_COMMUNICATIONS;
+                }
 
 
                 err = ctrlLog_write((uint8_t*)&msg, sizeof(IMU_MSG_t));
@@ -129,7 +129,7 @@ void IMU_task(void* pvParameters)
         }
         else {
             DATA_HEADER_t tmOut;
-            tmOut.id        = DEV_IMU | ERROR_TIMEOUT;
+            tmOut.id        = DEVICE_ID_ACCELEROMETER | DEVICE_ERR_TIMEOUT;
             tmOut.size      = 0;
             tmOut.timestamp = 65;
 
