@@ -92,15 +92,15 @@ int32_t ctrlLog_write(uint8_t* buff, const uint32_t LEN);
 int32_t ctrlLog_writeISR(uint8_t* buff, const uint32_t LEN);
 
 /**
- * Initializes the resources needed for the environmental sensor task.
+ * Initializes the resources needed for the control task.
  *
- * @param period [IN] the period to sample the sensor, in seconds
+ * @param qLength [IN] the length of the control data queue in bytes. Memory for this queue will be reserved dynamically.
  * @return system error code. ERR_NONE if successful, or negative if failure (ERR_NO_MEMORY likely).
  */
 int32_t CTRL_task_init(uint32_t qLength);
 
 /**
- * The control task. Only use as a task in RTOS.
+ * The control task. Only use as a task in RTOS, never call directly.
  */
 void CTRL_task(void* pvParameters);
 

@@ -62,7 +62,7 @@ int32_t IMU_task_init(uint32_t settings)
 void IMU_task(void* pvParameters)
 {
 //    UBaseType_t uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
-    const TickType_t xMaxBlockTime = pdMS_TO_TICKS( 3000 );     // max block time, set to slightly more than accelerometer ISR period
+    const TickType_t xMaxBlockTime = pdMS_TO_TICKS( 3500 );     // max block time, set to slightly more than accelerometer ISR period
     BaseType_t  xResult;                // holds return value of blocking function
     int32_t     err = 0;                // for catching API errors
     uint32_t    ulNotifyValue;          // notification value from ISRs
@@ -93,7 +93,7 @@ void IMU_task(void* pvParameters)
         xResult = xTaskNotifyWait( pdFALSE,          /* Don't clear bits on entry. */
                                    ULONG_MAX,        /* Clear all bits on exit. */
                                    &ulNotifyValue,   /* Stores the notified value. */
-                                   xMaxBlockTime );
+                                   xMaxBlockTime );  /* Max time to block before writing an error packet */
 
         if( pdPASS == xResult ) {
 
