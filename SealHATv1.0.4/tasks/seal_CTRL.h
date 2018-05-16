@@ -50,16 +50,58 @@ extern EventGroupHandle_t   xCTRL_eg;      // IMU event group
 extern SemaphoreHandle_t    DATA_mutex;    // Mutex to control access to USB terminal
 extern StreamBufferHandle_t xDATA_sb;      // stream buffer for getting data into FLASH or USB
 
+/**
+ * This function is the ISR callback intended for use with the VBUS interrupt.
+ * It will be called on the rising and falling edge of VBUS.
+ */
 void vbus_detection_cb(void);
 
+/**
+ * This function fills a header with the current timestamp with seconds and milliseconds.
+ * @param header [IN] pointer to a data header struct to fill with the time.
+ */
 void timestamp_FillHeader(DATA_HEADER_t* header);
 
+/**
+ * Function to write to the control
+ * !!! NEVER USE FROM AN ISR OR OUTSIDE OF THE RTOS CONTEXT !!!
+ * This function will always write the total number of bytes requested or fail
+ * the data is COPIED into the buffer. if is safe to use the data again as soon as this
+ * function returns success.
+ *
+ * @param buff [IN] pointer to an object to write to the stream queue
+ * @param LEN [IN] the size of the object in bytes
+ * @return Positive Value  - the number of bytes written, which will always be the number requested.
+ *         ERR_NO_RESOURCE - If there is not enough space the function will return ERR_NO_RESOURCE
+ *         ERR_FAILURE     - If the mutex is taken by another task
+ */
 int32_t ctrlLog_write(uint8_t* buff, const uint32_t LEN);
 
+/**
+ * Function to write to the control queue from an ISR
+ * This function will always write the total number of bytes requested or fail
+ * the data is COPIED into the buffer. if is safe to use the data again as soon as this
+ * function returns success.
+ *
+ * @param buff [IN] pointer to an object to write to the stream queue
+ * @param LEN [IN] the size of the object in bytes
+ * @return Positive Value  - the number of bytes written, which will always be the number requested.
+ *         ERR_NO_RESOURCE - If there is not enough space the function will return ERR_NO_RESOURCE
+ *         ERR_FAILURE     - If the mutex is taken by another task
+ */
 int32_t ctrlLog_writeISR(uint8_t* buff, const uint32_t LEN);
 
+/**
+ * Initializes the resources needed for the environmental sensor task.
+ *
+ * @param period [IN] the period to sample the sensor, in seconds
+ * @return system error code. ERR_NONE if successful, or negative if failure (ERR_NO_MEMORY likely).
+ */
 int32_t CTRL_task_init(uint32_t qLength);
 
+/**
+ * The control task. Only use as a task in RTOS.
+ */
 void CTRL_task(void* pvParameters);
 
 #endif /* SEAL_MSG_H_ */ 
