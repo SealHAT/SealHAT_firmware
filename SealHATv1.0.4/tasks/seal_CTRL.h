@@ -15,25 +15,29 @@
 #define MSG_STACK_SIZE                  (750 / sizeof(portSTACK_TYPE))
 #define MSG_TASK_PRI                    (tskIDLE_PRIORITY + 1)
 
-// 24-bit system wide event group
+// 24-bit system wide event group. NEVER use the numbers directly, they are subject to change. Use the names.
 typedef enum {
     // System state alerts
     EVENT_VBUS          = 0x00000001, // indicated the current VBUS level, use USB API to check USB state
     EVENT_LOW_BATTERY   = 0x00000002, // Indicates the battery has reached a critically low level according to settings
-    EVENT_UNUSED_1      = 0x00000004,
-    EVENT_UNUSED_2      = 0x00000008,
-    EVENT_MOTION_SURGE  = 0x00000010, // indicates a surge event has been detected
-    EVENT_MOTION_SWAY   = 0x00000020, // indicates a sway event has been detected
-    EVENT_MOTION_HEAVE  = 0x00000040, // indicates a heave event has been detected
-    EVENT_POSITION_1    = 0x00000080,
-    EVENT_POSITION_2    = 0x00000100,
-    EVENT_POSITION_3    = 0x00000200,
-    EVENT_IMU_UNK_1     = 0x00000400,
-    EVENT_IMU_UNK_2     = 0x00000800,
-    EVENT_UNUSED_3      = 0x00001000,
-    EVENT_UNUSED_4      = 0x00002000,
-    EVENT_UNUSED_5      = 0x00004000,
-    EVENT_UNUSED_6      = 0x00008000,
+    EVENT_SYS_1         = 0x00000004,
+    EVENT_SYS_2         = 0x00000008,
+    EVENT_SYS_3         = 0x00000010,
+    EVENT_SYS_4         = 0x00000020,
+    EVENT_SYS_5         = 0x00000040,
+    EVENT_SYS_6         = 0x00000080,
+    EVENT_MASK_SYS      = 0x000000FF, // Mask for watching the system flags
+
+    EVENT_MOTION_SURGE  = 0x00000100, // indicates a surge event has been detected
+    EVENT_MOTION_SWAY   = 0x00000200, // indicates a sway event has been detected
+    EVENT_MOTION_HEAVE  = 0x00000400, // indicates a heave event has been detected
+    EVENT_POSITION_1    = 0x00000800,
+    EVENT_POSITION_2    = 0x00001000,
+    EVENT_POSITION_3    = 0x00002000,
+    EVENT_IMU_UNK_1     = 0x00004000,
+    EVENT_IMU_UNK_2     = 0x00008000,
+    EVENT_MASK_IMU      = 0x0000FF00, // mask for watching the IMU bits
+
     EVENT_UNUSED_7      = 0x00010000,
     EVENT_UNUSED_8      = 0x00020000,
     EVENT_UNUSED_9      = 0x00040000,
@@ -42,7 +46,8 @@ typedef enum {
     EVENT_UNUSED_12     = 0x00200000,
     EVENT_UNUSED_13     = 0x00400000,
     EVENT_UNUSED_14     = 0x00800000,
-    EVENT_MASK_ALL      = 0x00FFFFFF
+
+    EVENT_MASK_ALL      = 0x00FFFFFF  // mask for all bits
 } SYSTEM_EVENT_FLAGS_t;
 
 extern TaskHandle_t         xCTRL_th;      // Message accumulator for USB/MEM
