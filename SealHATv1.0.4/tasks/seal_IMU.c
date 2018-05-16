@@ -62,7 +62,7 @@ int32_t IMU_task_init(uint32_t settings)
 void IMU_task(void* pvParameters)
 {
 //    UBaseType_t uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
-    const TickType_t xMaxBlockTime = pdMS_TO_TICKS( 3000 );     // max block time, set to slightly more than accelerometer ISR period
+    const TickType_t xMaxBlockTime = pdMS_TO_TICKS( 3500 );     // max block time, set to slightly more than accelerometer ISR period
     BaseType_t  xResult;                // holds return value of blocking function
     int32_t     err = 0;                // for catching API errors
     uint32_t    ulNotifyValue;          // notification value from ISRs
@@ -77,7 +77,7 @@ void IMU_task(void* pvParameters)
 
     // initialize the message header
     msg.header.srtSym    = MSG_START_SYM;
-    msg.header.id        = DEV_IMU;
+    msg.header.id        = DEVICE_ID_ACCELEROMETER;
     msg.header.size      = sizeof(AxesRaw_t)*25;
     msg.header.timestamp = 0;
 
@@ -93,7 +93,7 @@ void IMU_task(void* pvParameters)
         xResult = xTaskNotifyWait( pdFALSE,          /* Don't clear bits on entry. */
                                    ULONG_MAX,        /* Clear all bits on exit. */
                                    &ulNotifyValue,   /* Stores the notified value. */
-                                   xMaxBlockTime );
+                                   xMaxBlockTime );  /* Max time to block before writing an error packet */
 
         if( pdPASS == xResult ) {
 
@@ -101,12 +101,12 @@ void IMU_task(void* pvParameters)
                 portENTER_CRITICAL();
                 err = lsm303_acc_FIFOread(&msg.accelData[0], 25, NULL);
                 portEXIT_CRITICAL();
-                
+
                 // set timestamp and set error flag if needed
                 timestamp_FillHeader(&msg.header);
                 if(err != ERR_NONE) {
-                    msg.header.id |= ERROR_I2C;
-                }               
+                    msg.header.id |= DEVICE_ERR_COMMUNICATIONS;
+                }
 
 
                 err = ctrlLog_write((uint8_t*)&msg, sizeof(IMU_MSG_t));
@@ -129,7 +129,7 @@ void IMU_task(void* pvParameters)
         }
         else {
             DATA_HEADER_t tmOut;
-            tmOut.id        = DEV_IMU | ERROR_TIMEOUT;
+            tmOut.id        = DEVICE_ID_ACCELEROMETER | DEVICE_ERR_TIMEOUT;
             tmOut.size      = 0;
             tmOut.timestamp = 65;
 
