@@ -28,15 +28,18 @@ typedef enum {
     EVENT_SYS_6         = 0x00000080,
     EVENT_MASK_SYS      = 0x000000FF, // Mask for watching the system flags
 
-    EVENT_MOTION_SURGE  = 0x00000100, // indicates a surge event has been detected
-    EVENT_MOTION_SWAY   = 0x00000200, // indicates a sway event has been detected
-    EVENT_MOTION_HEAVE  = 0x00000400, // indicates a heave event has been detected
-    EVENT_POSITION_1    = 0x00000800,
-    EVENT_POSITION_2    = 0x00001000,
-    EVENT_POSITION_3    = 0x00002000,
-    EVENT_IMU_UNK_1     = 0x00004000,
-    EVENT_IMU_UNK_2     = 0x00008000,
-    EVENT_MASK_IMU      = 0x0000FF00, // mask for watching the IMU bits
+    // IMU events. names assume pin 1 of the IMU is in the upper right
+    // Consumers of these flags are responsible for clearing them
+    EVENT_MOTION_SHIFT   = 8,
+    EVENT_MASK_IMU       = 0x0000FF00, // mask for watching the IMU bits
+    EVENT_MOTION_BACK    = 0x00000100,
+    EVENT_MOTION_FORWARD = 0x00000200,
+    EVENT_MOTION_LEFT    = 0x00000400,
+    EVENT_MOTION_RIGHT   = 0x00000800,
+    EVENT_MOTION_DOWN    = 0x00001000,
+    EVENT_MOTION_UP      = 0x00002000,
+    EVENT_IMU_UNK_1      = 0x00004000,
+    EVENT_IMU_UNK_2      = 0x00008000,
 
     EVENT_UNUSED_7      = 0x00010000,
     EVENT_UNUSED_8      = 0x00020000,
