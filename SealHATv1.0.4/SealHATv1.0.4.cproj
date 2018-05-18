@@ -1088,9 +1088,6 @@
     <Compile Include="storage\NAND_Flash.h">
       <SubType>compile</SubType>
     </Compile>
-    <None Include="storage\TestArray.c">
-      <SubType>compile</SubType>
-    </None>
     <Compile Include="tasks\seal_CTRL.c">
       <SubType>compile</SubType>
     </Compile>
