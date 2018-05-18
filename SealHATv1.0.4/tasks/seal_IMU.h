@@ -19,6 +19,12 @@ typedef struct __attribute__((__packed__)){
     AxesRaw_t     data[IMU_DATA_SIZE];
 } IMU_MSG_t;
 
+typedef struct __attribute__((__packed__)){
+    uint16_t     header;
+    uint8_t      size;
+    AxesSI_t     data[IMU_DATA_SIZE];
+} IMU_DEBUG_MSG_t;
+
 extern TaskHandle_t xIMU_th;        // IMU task handle
 
 /**

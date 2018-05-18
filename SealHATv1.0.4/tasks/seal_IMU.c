@@ -80,10 +80,15 @@ void IMU_task(void* pvParameters)
     (void)pvParameters;
 
     // initialize the IMU
-    lsm303_init(&I2C_IMU);
-    lsm303_acc_startFIFO(ACC_SCALE_2G, ACC_HR_50_HZ);
-    //lsm303_mag_start(MAG_LP_50_HZ);
-    lsm303_acc_motionDetectStart(0x03, 800, 1);
+    err = lsm303_init(&I2C_IMU);
+    err = lsm303_acc_startFIFO(ACC_SCALE_2G, ACC_HR_50_HZ);
+    //err = lsm303_mag_start(MAG_LP_50_HZ);
+    //lsm303_acc_motionDetectStart(0x03, 800, 1);
+
+    // enable the data ready interrupts
+    ext_irq_register(IMU_INT1_XL, AccelerometerDataReadyISR);
+    ext_irq_register(IMU_INT_MAG, MagnetometerDataReadyISR);
+    ext_irq_register(IMU_INT2_XL, AccelerometerMotionISR);
 
     // initialize the message headers
     accMsg.header.srtSym = MSG_START_SYM;
@@ -91,11 +96,6 @@ void IMU_task(void* pvParameters)
     magMsg.header.srtSym = MSG_START_SYM;
     magMsg.header.id     = DEVICE_ID_MAGNETIC_FIELD;
     magMsg.header.size   = sizeof(AxesRaw_t)*25;
-
-    // enable the data ready interrupts
-    ext_irq_register(IMU_INT1_XL, AccelerometerDataReadyISR);
-    ext_irq_register(IMU_INT2_XL, AccelerometerMotionISR);
-    ext_irq_register(IMU_INT_MAG, MagnetometerDataReadyISR);
 
 //    uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
 
@@ -167,12 +167,11 @@ void IMU_task(void* pvParameters)
             }
         }
         else {
-            DATA_HEADER_t tmOut;
-            tmOut.id        = DEVICE_ID_ACCELEROMETER | DEVICE_ERR_TIMEOUT;
-            tmOut.size      = 0;
-            tmOut.timestamp = 65;
-
-            ctrlLog_write((uint8_t*)&tmOut, sizeof(DATA_HEADER_t));
+            accMsg.header.id  |= DEVICE_ERR_TIMEOUT;
+            accMsg.header.size = 0;
+            timestamp_FillHeader(&accMsg.header);
+            err = ctrlLog_write((uint8_t*)&accMsg, sizeof(DATA_HEADER_t));
+            accMsg.header.id &= ~(DEVICE_ERR_MASK);
         }
     } // END FOREVER LOOP
 }
