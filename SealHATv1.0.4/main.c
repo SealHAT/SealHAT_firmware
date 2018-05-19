@@ -23,9 +23,9 @@ int main(void)
         while(1) {;}
     }
 
-//     if(ENV_task_init(1) != ERR_NONE) {
-//         while(1) {;}
-//     }
+    if(ENV_task_init(1) != ERR_NONE) {
+        while(1) {;}
+    }
 
     if(IMU_task_init(0xCAFED00D) != ERR_NONE) {
         while(1) {;}
