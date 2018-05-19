@@ -7,7 +7,7 @@
 
  #include "seal_GPS.h"
 
-TaskHandle_t    xGPS_th;    /* GPS task handle */
+TaskHandle_t        xGPS_th;    /* GPS task handle */
 
 int32_t GPS_task_init(void *profile)
 {
@@ -17,26 +17,67 @@ int32_t GPS_task_init(void *profile)
 
 void GPS_task(void *pvParameters)
 {
+    
     int32_t     err     = ERR_NONE;     /* for catching API errors                  */
-    GPS_MSG_t   msg;                    /* holds the gps message to store in flash  */
+    GPS_MSG_t   msg;                    /* holds the GPS message to store in flash  */
+    BaseType_t  xResult;                /* holds return value of blocking function  */
+    TickType_t  xMaxBlockTime;          /* max time to wait for the task to resume  */
+    uint32_t    ulNotifyValue;          /* holds the notification bits from the ISR */
+    uint16_t    logcount;               /* how many log entries were parsed         */
+
     
     /* initialize the GPS module */
-    gps_init_i2c(&I2C_IMU);
+    err = gps_init_i2c(&I2C_GPS) | gps_selftest() ? ERR_NOT_INITIALIZED : ERR_NONE;
+    // TODO what to do if this fails? Will be handled in SW
+    if (err) { gpio_toggle_pin_level(LED_RED); }
+
+    /* update the maximum blocking time to current FIFO full time + <max sensor time> */
+    //xMaxBlockTime = pdMS_TO_TICKS(/* TODO - calculated fifo full value */);
 
     /* initialize the message header */
     msg.header.srtSym       = MSG_START_SYM;
-    msg.header.id           = DEV_GPS;
+    msg.header.id           = DEVICE_ID_GPS;
     msg.header.timestamp    = 0;
     msg.header.msTime       = 0;
-    msg.header.size         = sizeof(location_t)*GPS_FIFO_SIZE;
+    msg.header.size         = sizeof(gps_log_t)*GPS_LOGSIZE;
     
     /* enable the data ready interrupt (TxReady) */
     ext_irq_register(GPS_TXD, GPS_isr_dataready);
-
     
     for (;;) {
+        /* wait for notification from ISR, returns `pdTRUE` if task, else `pdFALSE` */
+        xResult = xTaskNotifyWait( GPS_NOTIFY_NONE, /* bits to clear on entry       */
+                                   GPS_NOTIFY_ALL,  /* bits to clear on exit        */
+                                   &ulNotifyValue,   /* stores the notification bits */
+                                   xMaxBlockTime ); /* max wait time before error   */
         
-    }
+        if (pdPASS == xResult) {
+            /* if the ISR indicated that data is ready */
+            if ( GPS_NOTIFY_TXRDY & ulNotifyValue) {
+                /* copy the GPS FIFO over I2C */
+                portENTER_CRITICAL();
+                err = gps_readfifo() ? ERR_TIMEOUT : ERR_NONE;
+                portEXIT_CRITICAL();
+                
+                /* set the timestamp and any error flags to the log message */
+                timestamp_FillHeader(&msg.header);
+                if (ERR_NONE != err) { /* log error */
+                    msg.header.id |= DEVICE_ERR_COMMUNICATIONS;
+                    msg.header.size = 0;
+                    err = ctrlLog_write((uint8_t*)&msg, sizeof(DATA_HEADER_t));
+                    if (err) { gpio_toggle_pin_level(LED_RED); }
+                } else { /* no error */
+                    logcount = gps_parsefifo(GPS_FIFO, msg.log, GPS_LOGSIZE);
+                    // TODO - snoop the logs and do something if consistently invalid
+                    msg.header.size = logcount * sizeof(gps_log_t);
+                    err = ctrlLog_write((uint8_t*)&msg, sizeof(DATA_HEADER_t));
+                    if (err) { gpio_toggle_pin_level(LED_RED); }
+                }
+            }
+        } else { /* the interrupt timed out */
+            // TODO - implement FIFO ready count (in gps.c) and do something with that
+        }
+    } // END FOREVER LOOP
 }
 
 void GPS_isr_dataready(void)

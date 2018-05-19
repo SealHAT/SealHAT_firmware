@@ -16,9 +16,15 @@
 #define GPS_TASK_PRI    (tskIDLE_PRIORITY + 3)
 #define GPS_FIFO_SIZE   (1024)  // TODO better pick
 
+typedef enum GPS_NOTIFY_VALS {
+    GPS_NOTIFY_NONE     = 0x0000,
+    GPS_NOTIFY_TXRDY    = 0x0001,
+    GPS_NOTIFY_ALL      = 0xFFFF
+} GPS_NOTIFY_VALS;
+
 typedef struct __attribute__((__packed__)) {
     DATA_HEADER_t header;
-    location_t    navData[GPS_FIFO_SIZE]; 
+    gps_log_t     log[GPS_LOGSIZE]; 
 } GPS_MSG_t;
 
 extern TaskHandle_t xGPS_th;
