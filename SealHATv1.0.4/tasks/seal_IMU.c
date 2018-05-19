@@ -91,11 +91,11 @@ void IMU_task(void* pvParameters)
     ext_irq_register(IMU_INT2_XL, AccelerometerMotionISR);
 
     // initialize the message headers
-    accMsg.header.srtSym = MSG_START_SYM;
-    accMsg.header.id     = DEVICE_ID_ACCELEROMETER;
-    magMsg.header.srtSym = MSG_START_SYM;
-    magMsg.header.id     = DEVICE_ID_MAGNETIC_FIELD;
-    magMsg.header.size   = sizeof(AxesRaw_t)*25;
+    accMsg.header.startSym = MSG_START_SYM;
+    accMsg.header.id       = DEVICE_ID_ACCELEROMETER;
+    magMsg.header.startSym = MSG_START_SYM;
+    magMsg.header.id       = DEVICE_ID_MAGNETIC_FIELD;
+    magMsg.header.size     = sizeof(AxesRaw_t)*25;
 
 //    uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
 
@@ -107,7 +107,6 @@ void IMU_task(void* pvParameters)
                                    xMaxBlockTime );  /* Max time to block before writing an error packet */
 
         if( pdPASS == xResult ) {
-
             if( ACC_DATA_READY & ulNotifyValue ) {
                 bool overrun;
 
@@ -127,6 +126,7 @@ void IMU_task(void* pvParameters)
                     accMsg.header.id &= ~(DEVICE_ERR_MASK);
                 }
                 else {
+                    // TODO: make buffer slightly larger and have the log write calculate size from err and header size.
                     accMsg.header.size = err;   // the number of bytes read on last read
                     err = ctrlLog_write((uint8_t*)&accMsg, sizeof(IMU_MSG_t));
                     if(err < ERR_NONE){
@@ -163,7 +163,10 @@ void IMU_task(void* pvParameters)
             if( MOTION_DETECT & ulNotifyValue ) {
                 uint8_t detect;
                 err = lsm303_acc_motionDetectRead(&detect);
-                xEventGroupSetBits(xCTRL_eg, ((detect & MOTION_INT_MASK) << EVENT_MOTION_SHIFT));
+
+                if(!err) {
+                    xEventGroupSetBits(xCTRL_eg, ((detect & MOTION_INT_MASK) << EVENT_MOTION_SHIFT));
+                }
             }
         }
         else {

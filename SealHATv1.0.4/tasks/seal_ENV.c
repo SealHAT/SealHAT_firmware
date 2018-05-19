@@ -34,7 +34,7 @@ void ENV_task(void* pvParameters)
     //    uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
 
     // set the header data
-    msg.header.srtSym = MSG_START_SYM;
+    msg.header.startSym = MSG_START_SYM;
     msg.header.size   = ENV_PACKET_LEGTH * sizeof(ENV_DATA_t);
     msg.header.id     = DEVICE_ID_ENVIRONMENTAL;
 
