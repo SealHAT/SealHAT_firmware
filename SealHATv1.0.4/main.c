@@ -25,9 +25,9 @@ int main(void)
     }
 
     // start the environmental sensors
-    if(ENV_task_init() != ERR_NONE) {
-        while(1) {;}
-    }
+//     if(ENV_task_init() != ERR_NONE) {
+//         while(1) {;}
+//     }
 
     // IMU task init.
     if(IMU_task_init() != ERR_NONE) {

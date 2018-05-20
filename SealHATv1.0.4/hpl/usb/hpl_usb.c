@@ -1506,6 +1506,8 @@ int32_t _usb_d_dev_enable(void)
 
 	NVIC_EnableIRQ(USB_IRQn);
 
+    volatile int32_t prio = NVIC_GetPriority(USB_IRQn);
+
 	hri_usbdevice_set_INTEN_reg(hw,
 	                            USB_DEVICE_INTENSET_SOF | USB_DEVICE_INTENSET_EORST | USB_DEVICE_INTENSET_RAMACER
 	                                | USB_D_SUSPEND_INT_FLAGS);
