@@ -52,17 +52,17 @@ void AccelerometerMotionISR(void)
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
-int32_t IMU_task_init(uint32_t settings)
+int32_t IMU_task_init(void)
 {
-    return ( xTaskCreate(IMU_task, "IMU", IMU_STACK_SIZE, (void*)settings, IMU_TASK_PRI, &xIMU_th) == pdPASS ? ERR_NONE : ERR_NO_MEMORY);
+    return ( xTaskCreate(IMU_task, "IMU", IMU_STACK_SIZE, (void*)NULL, IMU_TASK_PRI, &xIMU_th) == pdPASS ? ERR_NONE : ERR_NO_MEMORY);
 }
 
 int32_t IMU_task_deinit(void)
 {
     int32_t err;
 
-    err = lsm303_acc_stop();
-    err = lsm303_mag_stop();
+    err = lsm303_acc_toggle();
+    err = lsm303_mag_toggle();
     //i2c_m_sync_disable();
 
     return err;

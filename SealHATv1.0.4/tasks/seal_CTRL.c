@@ -94,7 +94,7 @@ int32_t ctrlLog_writeISR(uint8_t* buff, const uint32_t LEN)
     return err;
 }
 
-int32_t CTRL_task_init(uint32_t qLength)
+int32_t CTRL_task_init(void)
 {
     struct calendar_date date;
     struct calendar_time time;
@@ -136,7 +136,7 @@ int32_t CTRL_task_init(uint32_t qLength)
         return ERR_NO_MEMORY;
     }
 
-    xDATA_sb = xStreamBufferCreate(qLength, 64);
+    xDATA_sb = xStreamBufferCreate(DATA_QUEUE_LENGTH, 64);
     if(xDATA_sb == NULL) {
         return ERR_NO_MEMORY;
     }

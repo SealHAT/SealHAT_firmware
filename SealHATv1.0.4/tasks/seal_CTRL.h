@@ -16,6 +16,7 @@
 
 #define MSG_STACK_SIZE                  (3000 / sizeof(portSTACK_TYPE))
 #define MSG_TASK_PRI                    (tskIDLE_PRIORITY + 1)
+#define DATA_QUEUE_LENGTH               (2000)
 
 #define CONFIG_BLOCK_BASE_ADDR          (0x3F840)   /* First writable page address of on-chip EEPROM. */
 
@@ -105,10 +106,9 @@ int32_t ctrlLog_writeISR(uint8_t* buff, const uint32_t LEN);
 /**
  * Initializes the resources needed for the control task.
  *
- * @param qLength [IN] the length of the control data queue in bytes. Memory for this queue will be reserved dynamically.
  * @return system error code. ERR_NONE if successful, or negative if failure (ERR_NO_MEMORY likely).
  */
-int32_t CTRL_task_init(uint32_t qLength);
+int32_t CTRL_task_init(void);
 
 /**
  * The control task. Only use as a task in RTOS, never call directly.
