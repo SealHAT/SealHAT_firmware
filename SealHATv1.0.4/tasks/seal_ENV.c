@@ -84,8 +84,5 @@ void ENV_task(void* pvParameters)
 
         // send data to the CTRL task once done
         err = ctrlLog_write((uint8_t*)&msg, sizeof(ENV_MSG_t));
-        if(err < ERR_NONE && usb_dtr()){
-            gpio_toggle_pin_level(LED_RED);
-        }
     }
 } 

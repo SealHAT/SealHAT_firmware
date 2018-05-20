@@ -5,11 +5,6 @@
  *  Author: Ethan
  */
 #include "seal_RTOS.h"
-#include "seal_Types.h"
-#include "seal_USB.h"
-#include "sealPrint.h"
-#include "storage\flash_io.h"
-#include "driver_init.h"
 
 #ifndef SEAL_MSG_H_
 #define SEAL_MSG_H_

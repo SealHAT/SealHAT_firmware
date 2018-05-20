@@ -119,19 +119,13 @@ void IMU_task(void* pvParameters)
                 if(err < 0) {
                     accMsg.header.id  |= DEVICE_ERR_COMMUNICATIONS;
                     accMsg.header.size = 0;
-                    err = ctrlLog_write((uint8_t*)&accMsg, sizeof(DATA_HEADER_t));
-                    if(err < ERR_NONE){
-                        gpio_toggle_pin_level(LED_RED);
-                    }
+                    ctrlLog_write((uint8_t*)&accMsg, sizeof(DATA_HEADER_t));
                     accMsg.header.id &= ~(DEVICE_ERR_MASK);
                 }
                 else {
                     // TODO: make buffer slightly larger and have the log write calculate size from err and header size.
                     accMsg.header.size = err;   // the number of bytes read on last read
-                    err = ctrlLog_write((uint8_t*)&accMsg, sizeof(IMU_MSG_t));
-                    if(err < ERR_NONE){
-                        gpio_toggle_pin_level(LED_RED);
-                    }
+                    ctrlLog_write((uint8_t*)&accMsg, sizeof(IMU_MSG_t));
                 }
             } // end of accelerometer state
 
@@ -151,10 +145,7 @@ void IMU_task(void* pvParameters)
 
                 if(magItr >= IMU_DATA_SIZE) {
                     timestamp_FillHeader(&magMsg.header);
-                    err = ctrlLog_write((uint8_t*)&magMsg, sizeof(IMU_MSG_t));
-                    if(err < ERR_NONE){
-                        gpio_toggle_pin_level(LED_RED);
-                    }
+                    ctrlLog_write((uint8_t*)&magMsg, sizeof(IMU_MSG_t));
                     magMsg.header.id &= ~(DEVICE_ERR_MASK);
                     magItr = 0;
                 }

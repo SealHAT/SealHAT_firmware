@@ -6,6 +6,9 @@
  */
 
 #include "seal_CTRL.h"
+#include "seal_USB.h"
+#include "sealPrint.h"
+#include "storage\flash_io.h"
 
 TaskHandle_t         xCTRL_th;     // Message accumulator for USB/MEM
 EventGroupHandle_t   xCTRL_eg;     // IMU event group
@@ -57,6 +60,7 @@ int32_t ctrlLog_write(uint8_t* buff, const uint32_t LEN)
         }
         else {
             err = ERR_NO_RESOURCE;
+            gpio_set_pin_level(LED_RED, false);
         }
         portEXIT_CRITICAL();
 
@@ -64,6 +68,7 @@ int32_t ctrlLog_write(uint8_t* buff, const uint32_t LEN)
     }
     else {
         err = ERR_FAILURE;
+        gpio_set_pin_level(LED_RED, false);
     }
 
     return err;
@@ -100,7 +105,7 @@ int32_t CTRL_task_init(void)
     struct calendar_time time;
     int32_t err = ERR_NONE;
     static uint8_t readBuf[64]; // TODO: delete this array after configuration struct has been added to code base
-    int retVal;
+    int retVal; // TODO: do something with this value or remove it
 
     // create 24-bit system event group
     xCTRL_eg = xEventGroupCreate();
@@ -140,7 +145,7 @@ int32_t CTRL_task_init(void)
     if(xDATA_sb == NULL) {
         return ERR_NO_MEMORY;
     }
-    
+
     /* TODO: This is a stand-in read for reading the config struct from the EEPROM. Once the config struct
      * is set up, this call should be updated to read data into said struct on device startup. */
     retVal = flash_read(&FLASH_NVM, CONFIG_BLOCK_BASE_ADDR, readBuf, NVMCTRL_PAGE_SIZE);
@@ -152,7 +157,7 @@ void CTRL_task(void* pvParameters)
 {
     static uint8_t endptBuf[PAGE_SIZE_EXTRA];       // hold the received messages
     (void)pvParameters;
-    
+
     /* Initialize flash device(s). */
     flash_io_init(&seal_flash_descriptor, PAGE_SIZE_LESS);
 
@@ -163,11 +168,11 @@ void CTRL_task(void* pvParameters)
     xStreamBufferSetTriggerLevel(xDATA_sb, PAGE_SIZE_LESS);
 
     /* Receive and write data forever. */
-    for(;;) 
+    for(;;)
     {
         /* Receive a page worth of data. */
         xStreamBufferReceive(xDATA_sb, endptBuf, PAGE_SIZE_LESS, portMAX_DELAY);
-        
+
         /* Write data to external flash device. */
         flash_io_write(&seal_flash_descriptor, endptBuf, PAGE_SIZE_LESS);
     }
