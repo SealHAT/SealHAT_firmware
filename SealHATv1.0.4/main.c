@@ -14,13 +14,6 @@
 
 int main(void)
 {
-    /* Variables */
-    uint8_t status;
-    uint8_t dataAr[PAGE_SIZE_EXTRA];
-    int     i;
-    int     retVal;
-    int     tempRetVal;
-     
     i2c_unblock_bus(IMU_SDA, IMU_SCL);
     i2c_unblock_bus(GPS_SDA, GPS_SCL);
     i2c_unblock_bus(ENV_SDA, ENV_SCL);

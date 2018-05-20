@@ -99,7 +99,7 @@ int32_t CTRL_task_init(uint32_t qLength)
     struct calendar_date date;
     struct calendar_time time;
     int32_t err = ERR_NONE;
-    static uint8_t readBuf[64];
+    static uint8_t readBuf[64]; // TODO: delete this array after configuration struct has been added to code base
     int retVal;
 
     // create 24-bit system event group
@@ -150,8 +150,6 @@ int32_t CTRL_task_init(uint32_t qLength)
 
 void CTRL_task(void* pvParameters)
 {
-    int retVal;
-    static const uint8_t BUFF_SIZE = 64;
     static uint8_t endptBuf[PAGE_SIZE_EXTRA];       // hold the received messages
     (void)pvParameters;
     
@@ -171,6 +169,6 @@ void CTRL_task(void* pvParameters)
         xStreamBufferReceive(xDATA_sb, endptBuf, PAGE_SIZE_LESS, portMAX_DELAY);
         
         /* Write data to external flash device. */
-        flash_io_write(&seal_flash_descriptor, endptBuf, BUFF_SIZE);
+        flash_io_write(&seal_flash_descriptor, endptBuf, PAGE_SIZE_LESS);
     }
 }
