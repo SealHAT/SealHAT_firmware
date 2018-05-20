@@ -8,6 +8,8 @@
  #include "seal_GPS.h"
 
 TaskHandle_t        xGPS_th;    /* GPS task handle */
+GPS_MSG_t			gps_msg;	/* holds the GPS message to store in flash  */
+
 
 int32_t GPS_task_init(void *profile)
 {
@@ -19,7 +21,6 @@ void GPS_task(void *pvParameters)
 {
     
     int32_t     err     = ERR_NONE;     /* for catching API errors                  */
-    GPS_MSG_t   msg;                    /* holds the GPS message to store in flash  */
     BaseType_t  xResult;                /* holds return value of blocking function  */
     TickType_t  xMaxBlockTime;          /* max time to wait for the task to resume  */
     uint32_t    ulNotifyValue;          /* holds the notification bits from the ISR */
@@ -27,19 +28,24 @@ void GPS_task(void *pvParameters)
 
     
     /* initialize the GPS module */
-    err = gps_init_i2c(&I2C_GPS) | gps_selftest() ? ERR_NOT_INITIALIZED : ERR_NONE;
+	gpio_set_pin_level(GPS_TXD, true);
+	portENTER_CRITICAL();
+	err = gps_init_i2c(&I2C_GPS) | gps_selftest() ? ERR_NOT_INITIALIZED : ERR_NONE;
+	portEXIT_CRITICAL();
     // TODO what to do if this fails? Will be handled in SW
-    if (err) { gpio_toggle_pin_level(LED_RED); }
+    if (err) { 
+		gpio_toggle_pin_level(LED_RED); 
+	}
 
     /* update the maximum blocking time to current FIFO full time + <max sensor time> */
-    //xMaxBlockTime = pdMS_TO_TICKS(/* TODO - calculated fifo full value */);
+    xMaxBlockTime = pdMS_TO_TICKS(12000);
 
     /* initialize the message header */
-    msg.header.srtSym       = MSG_START_SYM;
-    msg.header.id           = DEVICE_ID_GPS;
-    msg.header.timestamp    = 0;
-    msg.header.msTime       = 0;
-    msg.header.size         = sizeof(gps_log_t)*GPS_LOGSIZE;
+    gps_msg.header.srtSym       = MSG_START_SYM;
+    gps_msg.header.id           = DEVICE_ID_GPS;
+    gps_msg.header.timestamp    = 0;
+    gps_msg.header.msTime       = 0;
+    gps_msg.header.size         = sizeof(gps_log_t)*GPS_LOGSIZE;
     
     /* enable the data ready interrupt (TxReady) */
     ext_irq_register(GPS_TXD, GPS_isr_dataready);
@@ -60,22 +66,23 @@ void GPS_task(void *pvParameters)
                 portEXIT_CRITICAL();
                 
                 /* set the timestamp and any error flags to the log message */
-                timestamp_FillHeader(&msg.header);
+                timestamp_FillHeader(&gps_msg.header);
                 if (ERR_NONE != err) { /* log error */
-                    msg.header.id |= DEVICE_ERR_COMMUNICATIONS;
-                    msg.header.size = 0;
-                    err = ctrlLog_write((uint8_t*)&msg, sizeof(DATA_HEADER_t));
+                    gps_msg.header.id |= DEVICE_ERR_COMMUNICATIONS;
+                    gps_msg.header.size = 0;
+                    err = ctrlLog_write((uint8_t*)&gps_msg, sizeof(DATA_HEADER_t));
                     if (err) { gpio_toggle_pin_level(LED_RED); }
                 } else { /* no error */
-                    logcount = gps_parsefifo(GPS_FIFO, msg.log, GPS_LOGSIZE);
+                    logcount = gps_parsefifo(GPS_FIFO, gps_msg.log, GPS_LOGSIZE);
                     // TODO - snoop the logs and do something if consistently invalid
-                    msg.header.size = logcount * sizeof(gps_log_t);
-                    err = ctrlLog_write((uint8_t*)&msg, sizeof(DATA_HEADER_t));
+                    gps_msg.header.size = logcount * sizeof(gps_log_t);
+                    err = ctrlLog_write((uint8_t*)&gps_msg, sizeof(DATA_HEADER_t));
                     if (err) { gpio_toggle_pin_level(LED_RED); }
                 }
             }
         } else { /* the interrupt timed out */
             // TODO - implement FIFO ready count (in gps.c) and do something with that
+			delay_ms(1);
         }
     } // END FOREVER LOOP
 }
@@ -85,7 +92,7 @@ void GPS_isr_dataready(void)
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;  // will be set to true by notify if we are awakening a higher priority task
 
     /* Notify the GPS task that the FIFO has enough data to trigger the TxReady interrupt */
-    xTaskNotifyFromISR(xGPS_th, GPS_TXRDY, eSetBits, &xHigherPriorityTaskWoken);
+    xTaskNotifyFromISR(xGPS_th, GPS_NOTIFY_TXRDY, eSetBits, &xHigherPriorityTaskWoken);
 
     /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context switch
     should be performed to ensure the interrupt returns directly to the highest

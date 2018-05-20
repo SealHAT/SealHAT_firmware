@@ -11,10 +11,8 @@
 #ifndef SEAL_GPS_H_
 #define SEAL_GPS_H_
 
-#define GPS_TXRDY       (0x01)
-#define GPS_STACK_SIZE  (1)     // TODO what should this be?
+#define GPS_STACK_SIZE  (2048 / sizeof(portSTACK_TYPE))	/* number of 32-bit words to reserve for task */
 #define GPS_TASK_PRI    (tskIDLE_PRIORITY + 3)
-#define GPS_FIFO_SIZE   (1024)  // TODO better pick
 
 typedef enum GPS_NOTIFY_VALS {
     GPS_NOTIFY_NONE     = 0x0000,
@@ -28,6 +26,7 @@ typedef struct __attribute__((__packed__)) {
 } GPS_MSG_t;
 
 extern TaskHandle_t xGPS_th;
+extern GPS_MSG_t   gps_msg;         /* holds the GPS message to store in flash  */
 
 int32_t GPS_task_init(void *profile);   // TODO restrict to enumerated type or struct
 void    GPS_task(void *pvParameters);
