@@ -1304,13 +1304,15 @@ pads:
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PB10
     mode: Digital output
     user_label: MEM_CS0
-    configuration: null
+    configuration:
+      pad_initial_level: High
   MEM_CS1:
     name: PB11
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PB11
     mode: Digital output
     user_label: MEM_CS1
-    configuration: null
+    configuration:
+      pad_initial_level: High
   MEM_MISO:
     name: PA12
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PA12
@@ -1328,7 +1330,8 @@ pads:
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PA14
     mode: Digital output
     user_label: MEM_CS2
-    configuration: null
+    configuration:
+      pad_initial_level: High
   MEM_MOSI:
     name: PA15
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PA15
