@@ -8,12 +8,16 @@
 #include "seal_Types.h"
 #include "seal_USB.h"
 #include "sealPrint.h"
+#include "storage\flash_io.h"
+#include "driver_init.h"
 
 #ifndef SEAL_MSG_H_
 #define SEAL_MSG_H_
 
-#define MSG_STACK_SIZE                  (750 / sizeof(portSTACK_TYPE))
+#define MSG_STACK_SIZE                  (3000 / sizeof(portSTACK_TYPE))
 #define MSG_TASK_PRI                    (tskIDLE_PRIORITY + 1)
+
+#define CONFIG_BLOCK_BASE_ADDR          (0x3F840)   /* First writable page address of on-chip EEPROM. */
 
 // 24-bit system wide event group. NEVER use the numbers directly, they are subject to change. Use the names.
 typedef enum {
@@ -49,7 +53,6 @@ typedef enum {
     EVENT_UNUSED_12     = 0x00200000,
     EVENT_UNUSED_13     = 0x00400000,
     EVENT_UNUSED_14     = 0x00800000,
-
     EVENT_MASK_ALL      = 0x00FFFFFF  // mask for all bits
 } SYSTEM_EVENT_FLAGS_t;
 

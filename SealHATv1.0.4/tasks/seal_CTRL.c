@@ -12,6 +12,8 @@ EventGroupHandle_t   xCTRL_eg;     // IMU event group
 SemaphoreHandle_t    DATA_mutex;   // mutex to control access to USB terminal
 StreamBufferHandle_t xDATA_sb;     // stream buffer for getting data into FLASH or USB
 
+static FLASH_DESCRIPTOR seal_flash_descriptor; /* Declare flash descriptor. */
+
 void vbus_detection_cb(void)
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
@@ -97,6 +99,8 @@ int32_t CTRL_task_init(uint32_t qLength)
     struct calendar_date date;
     struct calendar_time time;
     int32_t err = ERR_NONE;
+    static uint8_t readBuf[64]; // TODO: delete this array after configuration struct has been added to code base
+    int retVal;
 
     // create 24-bit system event group
     xCTRL_eg = xEventGroupCreate();
@@ -136,27 +140,35 @@ int32_t CTRL_task_init(uint32_t qLength)
     if(xDATA_sb == NULL) {
         return ERR_NO_MEMORY;
     }
+    
+    /* TODO: This is a stand-in read for reading the config struct from the EEPROM. Once the config struct
+     * is set up, this call should be updated to read data into said struct on device startup. */
+    retVal = flash_read(&FLASH_NVM, CONFIG_BLOCK_BASE_ADDR, readBuf, NVMCTRL_PAGE_SIZE);
 
     return ( xTaskCreate(CTRL_task, "MSG", MSG_STACK_SIZE, NULL, MSG_TASK_PRI, &xCTRL_th) == pdPASS ? ERR_NONE : ERR_NO_MEMORY);
 }
 
 void CTRL_task(void* pvParameters)
 {
-    static const uint8_t BUFF_SIZE = 64;
-    uint8_t endptBuf[BUFF_SIZE];       // hold the received messages
+    static uint8_t endptBuf[PAGE_SIZE_EXTRA];       // hold the received messages
     (void)pvParameters;
+    
+    /* Initialize flash device(s). */
+    flash_io_init(&seal_flash_descriptor, PAGE_SIZE_LESS);
 
     // register VBUS detection interrupt
     ext_irq_register(VBUS_DETECT, vbus_detection_cb);
 
     // set the stream buffer trigger level for USB
-    xStreamBufferSetTriggerLevel(xDATA_sb, BUFF_SIZE);
+    xStreamBufferSetTriggerLevel(xDATA_sb, PAGE_SIZE_LESS);
 
-    for(;;) {
-        xStreamBufferReceive(xDATA_sb, endptBuf, BUFF_SIZE, portMAX_DELAY);
-
-        if(usb_state() == USB_Configured && usb_dtr()) {
-            usb_write(endptBuf, BUFF_SIZE);
-        }
+    /* Receive and write data forever. */
+    for(;;) 
+    {
+        /* Receive a page worth of data. */
+        xStreamBufferReceive(xDATA_sb, endptBuf, PAGE_SIZE_LESS, portMAX_DELAY);
+        
+        /* Write data to external flash device. */
+        flash_io_write(&seal_flash_descriptor, endptBuf, PAGE_SIZE_LESS);
     }
 }

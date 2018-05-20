@@ -3,6 +3,7 @@
 
 #include "seal_UTIL.h"
 #include "seal_RTOS.h"
+#include "seal_USB.h"
 #include "tasks/seal_ENV.h"
 #include "tasks/seal_IMU.h"
 #include "tasks/seal_CTRL.h"
@@ -35,4 +36,3 @@ int main(void)
 
 	return 0;
 }
-

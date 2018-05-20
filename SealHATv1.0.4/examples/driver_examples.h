@@ -14,6 +14,8 @@ extern "C" {
 
 void EXTERNAL_IRQ_example(void);
 
+void FLASH_NVM_example(void);
+
 void RTC_CALENDAR_example(void);
 
 void I2C_GPS_example(void);
