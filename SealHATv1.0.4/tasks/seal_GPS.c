@@ -10,7 +10,6 @@
 TaskHandle_t        xGPS_th;    /* GPS task handle */
 GPS_MSG_t			gps_msg;	/* holds the GPS message to store in flash  */
 
-
 int32_t GPS_task_init(void *profile)
 {
     /* create the task, return ERR_NONE or ERR_NO_MEMORY if the task creation failed */
@@ -30,7 +29,7 @@ void GPS_task(void *pvParameters)
     /* initialize the GPS module */
 	gpio_set_pin_level(GPS_TXD, true);
 	portENTER_CRITICAL();
-	err = gps_init_i2c(&I2C_GPS) | gps_selftest() ? ERR_NOT_INITIALIZED : ERR_NONE;
+	err = gps_init_i2c(&I2C_GPS) || gps_selftest() ? ERR_NOT_INITIALIZED : ERR_NONE;
 	portEXIT_CRITICAL();
     // TODO what to do if this fails? Will be handled in SW
     if (err) { 
@@ -38,7 +37,7 @@ void GPS_task(void *pvParameters)
 	}
 
     /* update the maximum blocking time to current FIFO full time + <max sensor time> */
-    xMaxBlockTime = pdMS_TO_TICKS(12000);
+    xMaxBlockTime = pdMS_TO_TICKS(24000);	// TODO calculate based on registers
 
     /* initialize the message header */
     gps_msg.header.srtSym       = MSG_START_SYM;
@@ -71,18 +70,28 @@ void GPS_task(void *pvParameters)
                     gps_msg.header.id |= DEVICE_ERR_COMMUNICATIONS;
                     gps_msg.header.size = 0;
                     err = ctrlLog_write((uint8_t*)&gps_msg, sizeof(DATA_HEADER_t));
-                    if (err) { gpio_toggle_pin_level(LED_RED); }
+                    if (err < 0) { 
+						gpio_toggle_pin_level(LED_RED); 
+					}
                 } else { /* no error */
                     logcount = gps_parsefifo(GPS_FIFO, gps_msg.log, GPS_LOGSIZE);
                     // TODO - snoop the logs and do something if consistently invalid
                     gps_msg.header.size = logcount * sizeof(gps_log_t);
                     err = ctrlLog_write((uint8_t*)&gps_msg, sizeof(DATA_HEADER_t));
-                    if (err) { gpio_toggle_pin_level(LED_RED); }
+                    if (err < 0) { 
+						gpio_toggle_pin_level(LED_RED); 
+					}
                 }
             }
         } else { /* the interrupt timed out */
             // TODO - implement FIFO ready count (in gps.c) and do something with that
-			delay_ms(1);
+			err = gps_checkfifo();
+			if (err < 0) {
+				gpio_toggle_pin_level(LED_RED); 	
+			} else {
+				gpio_toggle_pin_level(LED_RED); 
+			}
+
         }
     } // END FOREVER LOOP
 }

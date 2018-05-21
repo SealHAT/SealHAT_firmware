@@ -114,7 +114,7 @@ void I2C_GPS_PORT_init(void)
 	                       // <GPIO_PULL_OFF"> Off
 	                       // <GPIO_PULL_UP"> Pull-up
 	                       // <GPIO_PULL_DOWN"> Pull-down
-	                       GPIO_PULL_OFF);
+	                       GPIO_PULL_DOWN);
 
 	gpio_set_pin_function(GPS_SDA, PINMUX_PA16C_SERCOM1_PAD0);
 
@@ -124,7 +124,7 @@ void I2C_GPS_PORT_init(void)
 	                       // <GPIO_PULL_OFF"> Off
 	                       // <GPIO_PULL_UP"> Pull-up
 	                       // <GPIO_PULL_DOWN"> Pull-down
-	                       GPIO_PULL_OFF);
+	                       GPIO_PULL_DOWN);
 
 	gpio_set_pin_function(GPS_SCL, PINMUX_PA17C_SERCOM1_PAD1);
 }
@@ -289,6 +289,7 @@ void EVENT_SYS_init(void)
 	hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_0, CONF_GCLK_EVSYS_CHANNEL_0_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 
 	hri_mclk_set_APBDMASK_EVSYS_bit(MCLK);
+
 	event_system_init();
 }
 
@@ -574,7 +575,7 @@ void system_init(void)
 	                   // <id> pad_initial_level
 	                   // <false"> Low
 	                   // <true"> High
-	                   false);
+	                   true);
 
 	gpio_set_pin_function(GPS_RESET, GPIO_PIN_FUNCTION_OFF);
 

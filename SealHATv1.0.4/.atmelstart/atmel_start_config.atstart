@@ -1,5 +1,13 @@
 format_version: '2'
 name: My Project
+versions:
+  api: '1.0'
+  backend: 1.2.139
+  commit: release1.2
+  content: 1.0.943
+  content_pack_name: unknown
+  format: '2'
+  frontend: 1.2.1708
 board:
   identifier: CustomBoard
   device: SAML21G18B-MN
