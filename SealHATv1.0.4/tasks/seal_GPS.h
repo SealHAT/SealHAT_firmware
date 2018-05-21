@@ -15,9 +15,9 @@
 #define GPS_TASK_PRI    (tskIDLE_PRIORITY + 3)
 
 typedef enum GPS_NOTIFY_VALS {
-    GPS_NOTIFY_NONE     = 0x0000,
-    GPS_NOTIFY_TXRDY    = 0x0001,
-    GPS_NOTIFY_ALL      = 0xFFFF
+    GPS_NOTIFY_NONE     = 0x00000000,
+    GPS_NOTIFY_TXRDY    = 0x00000001,
+    GPS_NOTIFY_ALL      = 0xFFFFFFFF
 } GPS_NOTIFY_VALS;
 
 typedef struct __attribute__((__packed__)) {

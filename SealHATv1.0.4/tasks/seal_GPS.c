@@ -37,7 +37,7 @@ void GPS_task(void *pvParameters)
 	}
 
     /* update the maximum blocking time to current FIFO full time + <max sensor time> */
-    xMaxBlockTime = pdMS_TO_TICKS(24000);	// TODO calculate based on registers
+    xMaxBlockTime = pdMS_TO_TICKS(26000);	// TODO calculate based on registers
 
     /* initialize the message header */
     gps_msg.header.srtSym       = MSG_START_SYM;
