@@ -78,7 +78,7 @@ void GPS_task(void *pvParameters)
                     logcount = gps_parsefifo(GPS_FIFO, gps_msg.log, GPS_LOGSIZE);
                     // TODO - snoop the logs and do something if consistently invalid
                     gps_msg.header.size = logcount * sizeof(gps_log_t);
-                    err = ctrlLog_write((uint8_t*)&gps_msg, sizeof(DATA_HEADER_t));
+                    err = ctrlLog_write((uint8_t*)&gps_msg, sizeof(DATA_HEADER_t) + gps_msg.header.size);
                     if (err < 0) { 
 						gpio_toggle_pin_level(LED_RED); 
 					}
