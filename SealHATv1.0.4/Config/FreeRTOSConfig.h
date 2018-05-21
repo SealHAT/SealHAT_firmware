@@ -110,7 +110,7 @@ void assert_triggered(const char *file, uint32_t line);
 // <i> if open, you must realize vApplicationTickHook function
 // <id> freertos_use_tick_hook
 #ifndef configUSE_TICK_HOOK
-#define configUSE_TICK_HOOK 0
+#define configUSE_TICK_HOOK 1
 #endif
 
 // <q> Use tickless idle
