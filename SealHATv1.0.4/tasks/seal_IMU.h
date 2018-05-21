@@ -19,12 +19,6 @@ typedef struct __attribute__((__packed__)){
     AxesRaw_t     data[IMU_DATA_SIZE];
 } IMU_MSG_t;
 
-typedef struct __attribute__((__packed__)){
-    uint16_t     header;
-    uint8_t      size;
-    AxesSI_t     data[IMU_DATA_SIZE];
-} IMU_DEBUG_MSG_t;
-
 extern TaskHandle_t xIMU_th;        // IMU task handle
 
 /**
@@ -48,10 +42,9 @@ void AccelerometerMotionISR(void);
 /**
  * Initializes the resources needed for the IMU task.
  *
- * @param settings [IN] settings to pass to the IMU task. **not currently used**
  * @return system error code. ERR_NONE if successful, or negative if failure (ERR_NO_MEMORY likely).
  */
-int32_t IMU_task_init(uint32_t settings);
+int32_t IMU_task_init(void);
 
 /**
  * Sets the IMU (accelerometer and magnetometer) to idle/low-power mode

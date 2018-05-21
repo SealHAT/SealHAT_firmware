@@ -23,6 +23,8 @@ extern "C" {
 
 #include <hal_ext_irq.h>
 
+#include <hal_flash.h>
+
 #include <hal_calendar.h>
 
 #include <hal_i2c_m_sync.h>
@@ -37,6 +39,8 @@ extern "C" {
 
 #include "hal_usb_device.h"
 
+extern struct flash_descriptor FLASH_NVM;
+
 extern struct calendar_descriptor RTC_CALENDAR;
 
 extern struct i2c_m_sync_desc I2C_GPS;
@@ -45,6 +49,9 @@ extern struct i2c_m_sync_desc I2C_ENV;
 
 extern struct i2c_m_sync_desc       I2C_IMU;
 extern struct spi_m_sync_descriptor SPI_MEMORY;
+
+void FLASH_NVM_init(void);
+void FLASH_NVM_CLOCK_init(void);
 
 void RTC_CALENDAR_CLOCK_init(void);
 void RTC_CALENDAR_init(void);

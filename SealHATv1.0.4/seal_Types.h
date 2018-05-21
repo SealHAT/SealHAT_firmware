@@ -54,11 +54,11 @@ typedef enum {
 
 /** Header for data packets from the device **/
 typedef struct __attribute__((__packed__)){
-    uint16_t srtSym;    // symbol to indicate start of packet
+    uint16_t startSym;    // symbol to indicate start of packet
     uint16_t id;	    // Upper four bits is the device ID, lower four are device specific event flags
     uint32_t timestamp; // timestamp. how many bits?
     uint16_t msTime;    // timestamp ms part
-    uint16_t size;		// size of data packet to follow. in bytes or samples? (worst case IMU size in bytes would need a uint16 :( )
+    uint16_t size;		// size of data packet to follow in bytes
 } DATA_HEADER_t;
 
 #endif /* SEAL_TYPES_H_ */

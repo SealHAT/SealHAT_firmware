@@ -3,29 +3,30 @@
 
 #include "seal_UTIL.h"
 #include "seal_RTOS.h"
+#include "seal_USB.h"
 #include "tasks/seal_ENV.h"
 #include "tasks/seal_IMU.h"
 #include "tasks/seal_CTRL.h"
 #include "tasks/seal_GPS.h"
 
-/*** Define the task handles for each system ***/
-//static TaskHandle_t      xGPS_th;               // GPS
-//static TaskHandle_t      xMOD_th;               // Modular port task
-
 int main(void)
 {
-	int32_t err;
-//     i2c_unblock_bus(IMU_SDA, IMU_SCL);
-//     i2c_unblock_bus(ENV_SDA, ENV_SCL);
-	i2c_unblock_bus(GPS_SDA, GPS_SCL);
+    // clear the I2C busses. I2C devices can lock up the bus if there was a reset during a transaction.
+    i2c_unblock_bus(IMU_SDA, IMU_SCL);
+    i2c_unblock_bus(GPS_SDA, GPS_SCL);
+    i2c_unblock_bus(ENV_SDA, ENV_SCL);
+
+    // initialize the system and set low power mode
 	system_init();
     set_lowPower_mode();
 
-    if(CTRL_task_init(2000) != ERR_NONE) {
+    // start the control task.
+    if(CTRL_task_init() != ERR_NONE) {
         while(1) {;}
     }
-// 
-//     if(ENV_task_init(1) != ERR_NONE) {
+
+    // start the environmental sensors
+//     if(ENV_task_init() != ERR_NONE) {
 //         while(1) {;}
 //     }
 // 
@@ -33,17 +34,16 @@ int main(void)
 //         while(1) {;}
 //     }
 
-	err = GPS_task_init(0xCAFED00D);
-	
-	if (ERR_NONE != err) {
-		while(1) {
-			delay_ms(100);
-		}
-	}
-
-
+    // IMU task init.
+    if(IMU_task_init() != ERR_NONE) {
+        while(1) {;}
+    }
+    
+    if(GPS_task_init() != ERR_NONE) {
+        while(1) {;}
+    }
+    // Start the freeRTOS scheduler, this will never return.
 	vTaskStartScheduler();
 
 	return 0;
 }
-

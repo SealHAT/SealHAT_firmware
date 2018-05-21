@@ -6,11 +6,16 @@
  */
 
 #include "seal_CTRL.h"
+#include "seal_USB.h"
+#include "sealPrint.h"
+#include "storage\flash_io.h"
 
 TaskHandle_t         xCTRL_th;     // Message accumulator for USB/MEM
 EventGroupHandle_t   xCTRL_eg;     // IMU event group
 SemaphoreHandle_t    DATA_mutex;   // mutex to control access to USB terminal
 StreamBufferHandle_t xDATA_sb;     // stream buffer for getting data into FLASH or USB
+
+static FLASH_DESCRIPTOR seal_flash_descriptor; /* Declare flash descriptor. */
 
 void vbus_detection_cb(void)
 {
@@ -55,6 +60,7 @@ int32_t ctrlLog_write(uint8_t* buff, const uint32_t LEN)
         }
         else {
             err = ERR_NO_RESOURCE;
+            gpio_set_pin_level(LED_RED, false);
         }
         portEXIT_CRITICAL();
 
@@ -62,6 +68,7 @@ int32_t ctrlLog_write(uint8_t* buff, const uint32_t LEN)
     }
     else {
         err = ERR_FAILURE;
+        gpio_set_pin_level(LED_RED, false);
     }
 
     return err;
@@ -80,6 +87,7 @@ int32_t ctrlLog_writeISR(uint8_t* buff, const uint32_t LEN)
         }
         else {
             err = ERR_NO_RESOURCE;
+            gpio_set_pin_level(LED_RED, false);
         }
         portEXIT_CRITICAL();
 
@@ -87,16 +95,19 @@ int32_t ctrlLog_writeISR(uint8_t* buff, const uint32_t LEN)
     }
     else {
         err = ERR_FAILURE;
+        gpio_set_pin_level(LED_RED, false);
     }
 
     return err;
 }
 
-int32_t CTRL_task_init(uint32_t qLength)
+int32_t CTRL_task_init(void)
 {
     struct calendar_date date;
     struct calendar_time time;
     int32_t err = ERR_NONE;
+    static uint8_t readBuf[64]; // TODO: delete this array after configuration struct has been added to code base
+    int retVal; // TODO: do something with this value or remove it
 
     // create 24-bit system event group
     xCTRL_eg = xEventGroupCreate();
@@ -120,6 +131,24 @@ int32_t CTRL_task_init(uint32_t qLength)
     err = calendar_set_time(&RTC_CALENDAR, &time);
     if(err != ERR_NONE) { return err; }
 
+    DATA_mutex = xSemaphoreCreateMutex();
+    if (DATA_mutex == NULL) {
+        return ERR_NO_MEMORY;
+    }
+
+    xDATA_sb = xStreamBufferCreate(DATA_QUEUE_LENGTH, 64);
+    if(xDATA_sb == NULL) {
+        return ERR_NO_MEMORY;
+    }
+    
+    /* TODO: This is a stand-in read for reading the config struct from the EEPROM. Once the config struct
+     * is set up, this call should be updated to read data into said struct on device startup. */
+    retVal = flash_read(&FLASH_NVM, CONFIG_BLOCK_BASE_ADDR, readBuf, NVMCTRL_PAGE_SIZE);
+
+    
+    /* Initialize flash device(s). */
+    flash_io_init(&seal_flash_descriptor, PAGE_SIZE_LESS);
+
     // initialize (clear all) event group and check current VBUS level
     xEventGroupClearBits(xCTRL_eg, EVENT_MASK_ALL);
     if(gpio_get_pin_level(VBUS_DETECT)) {
@@ -127,36 +156,38 @@ int32_t CTRL_task_init(uint32_t qLength)
         xEventGroupSetBits(xCTRL_eg, EVENT_VBUS);
     }
 
-    DATA_mutex = xSemaphoreCreateMutex();
-    if (DATA_mutex == NULL) {
-        return ERR_NO_MEMORY;
-    }
-
-    xDATA_sb = xStreamBufferCreate(qLength, 64);
-    if(xDATA_sb == NULL) {
-        return ERR_NO_MEMORY;
-    }
-
     return ( xTaskCreate(CTRL_task, "MSG", MSG_STACK_SIZE, NULL, MSG_TASK_PRI, &xCTRL_th) == pdPASS ? ERR_NONE : ERR_NO_MEMORY);
 }
 
 void CTRL_task(void* pvParameters)
 {
-    static const uint8_t BUFF_SIZE = 64;
-    uint8_t endptBuf[BUFF_SIZE];       // hold the received messages
+    static uint8_t endptBuf[64];       // hold the received messages
+    int32_t err;
     (void)pvParameters;
 
     // register VBUS detection interrupt
     ext_irq_register(VBUS_DETECT, vbus_detection_cb);
 
     // set the stream buffer trigger level for USB
-    xStreamBufferSetTriggerLevel(xDATA_sb, BUFF_SIZE);
+    xStreamBufferSetTriggerLevel(xDATA_sb, 64);
 
-    for(;;) {
-        xStreamBufferReceive(xDATA_sb, endptBuf, BUFF_SIZE, portMAX_DELAY);
+    /* Receive and write data forever. */
+    for(;;)
+    {
+        /* Receive a page worth of data. */
+        xStreamBufferReceive(xDATA_sb, endptBuf, 64, portMAX_DELAY);
 
-        if(usb_state() == USB_Configured && usb_dtr()) {
-            usb_write(endptBuf, BUFF_SIZE);
+        gpio_toggle_pin_level(LED_GREEN);
+        if(usb_state() == USB_Configured) {
+            if(usb_dtr()){
+                do {
+                    err = cdcdf_acm_write(endptBuf, 64);
+                } while(err != ERR_NONE);
+            }
         }
+//         else {
+//             /* Write data to external flash device. */
+//             flash_io_write(&seal_flash_descriptor, endptBuf, PAGE_SIZE_LESS);
+//         }
     }
 }

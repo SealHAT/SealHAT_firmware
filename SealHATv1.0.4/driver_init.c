@@ -13,6 +13,8 @@
 
 struct spi_m_sync_descriptor SPI_MEMORY;
 
+struct flash_descriptor FLASH_NVM;
+
 struct calendar_descriptor RTC_CALENDAR;
 
 struct i2c_m_sync_desc I2C_GPS;
@@ -92,6 +94,18 @@ void EXTERNAL_IRQ_init(void)
 	gpio_set_pin_function(IMU_INT_MAG, PINMUX_PA27A_EIC_EXTINT15);
 
 	ext_irq_init();
+}
+
+void FLASH_NVM_CLOCK_init(void)
+{
+
+	hri_mclk_set_AHBMASK_NVMCTRL_bit(MCLK);
+}
+
+void FLASH_NVM_init(void)
+{
+	FLASH_NVM_CLOCK_init();
+	flash_init(&FLASH_NVM, NVMCTRL);
 }
 
 void RTC_CALENDAR_CLOCK_init(void)
@@ -580,6 +594,8 @@ void system_init(void)
 	gpio_set_pin_function(GPS_RESET, GPIO_PIN_FUNCTION_OFF);
 
 	EXTERNAL_IRQ_init();
+
+	FLASH_NVM_init();
 
 	RTC_CALENDAR_init();
 

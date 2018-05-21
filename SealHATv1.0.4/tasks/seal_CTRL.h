@@ -5,15 +5,15 @@
  *  Author: Ethan
  */
 #include "seal_RTOS.h"
-#include "seal_Types.h"
-#include "seal_USB.h"
-#include "sealPrint.h"
 
 #ifndef SEAL_MSG_H_
 #define SEAL_MSG_H_
 
-#define MSG_STACK_SIZE                  (750 / sizeof(portSTACK_TYPE))
+#define MSG_STACK_SIZE                  (3000 / sizeof(portSTACK_TYPE))
 #define MSG_TASK_PRI                    (tskIDLE_PRIORITY + 1)
+#define DATA_QUEUE_LENGTH               (2000)
+
+#define CONFIG_BLOCK_BASE_ADDR          (0x3F840)   /* First writable page address of on-chip EEPROM. */
 
 // 24-bit system wide event group. NEVER use the numbers directly, they are subject to change. Use the names.
 typedef enum {
@@ -32,14 +32,14 @@ typedef enum {
     // Consumers of these flags are responsible for clearing them
     EVENT_MOTION_SHIFT   = 8,
     EVENT_MASK_IMU       = 0x0000FF00, // mask for watching the IMU bits
-    EVENT_MOTION_BACK    = 0x00000100,
-    EVENT_MOTION_FORWARD = 0x00000200,
-    EVENT_MOTION_LEFT    = 0x00000400,
-    EVENT_MOTION_RIGHT   = 0x00000800,
-    EVENT_MOTION_DOWN    = 0x00001000,
-    EVENT_MOTION_UP      = 0x00002000,
-    EVENT_IMU_UNK_1      = 0x00004000,
-    EVENT_IMU_UNK_2      = 0x00008000,
+    EVENT_MOTION_XLOW    = 0x00000100,
+    EVENT_MOTION_XHI     = 0x00000200,
+    EVENT_MOTION_YLOW    = 0x00000400,
+    EVENT_MOTION_YHI     = 0x00000800,
+    EVENT_MOTION_ZLOW    = 0x00001000,
+    EVENT_MOTION_ZHI     = 0x00002000,
+    EVENT_IMU_ACTIVE     = 0x00004000,
+    EVENT_IMU_IDLE       = 0x00008000,
 
     EVENT_UNUSED_7      = 0x00010000,
     EVENT_UNUSED_8      = 0x00020000,
@@ -49,7 +49,6 @@ typedef enum {
     EVENT_UNUSED_12     = 0x00200000,
     EVENT_UNUSED_13     = 0x00400000,
     EVENT_UNUSED_14     = 0x00800000,
-
     EVENT_MASK_ALL      = 0x00FFFFFF  // mask for all bits
 } SYSTEM_EVENT_FLAGS_t;
 
@@ -102,10 +101,9 @@ int32_t ctrlLog_writeISR(uint8_t* buff, const uint32_t LEN);
 /**
  * Initializes the resources needed for the control task.
  *
- * @param qLength [IN] the length of the control data queue in bytes. Memory for this queue will be reserved dynamically.
  * @return system error code. ERR_NONE if successful, or negative if failure (ERR_NO_MEMORY likely).
  */
-int32_t CTRL_task_init(uint32_t qLength);
+int32_t CTRL_task_init(void);
 
 /**
  * The control task. Only use as a task in RTOS, never call directly.
