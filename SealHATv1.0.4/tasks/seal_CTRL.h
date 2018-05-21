@@ -17,8 +17,6 @@
 #define MSG_STACK_SIZE                  (3000 / sizeof(portSTACK_TYPE))
 #define MSG_TASK_PRI                    (tskIDLE_PRIORITY + 1)
 
-#define CONFIG_BLOCK_BASE_ADDR          (0x3F840)   /* First writable page address of on-chip EEPROM. */
-
 // 24-bit system wide event group. NEVER use the numbers directly, they are subject to change. Use the names.
 typedef enum {
     // System state alerts
@@ -56,10 +54,11 @@ typedef enum {
     EVENT_MASK_ALL      = 0x00FFFFFF  // mask for all bits
 } SYSTEM_EVENT_FLAGS_t;
 
-extern TaskHandle_t         xCTRL_th;      // Message accumulator for USB/MEM
-extern EventGroupHandle_t   xCTRL_eg;      // IMU event group
-extern SemaphoreHandle_t    DATA_mutex;    // Mutex to control access to USB terminal
-extern StreamBufferHandle_t xDATA_sb;      // stream buffer for getting data into FLASH or USB
+extern TaskHandle_t         xCTRL_th;           // Message accumulator for USB/MEM
+extern EventGroupHandle_t   xCTRL_eg;           // IMU event group
+extern SemaphoreHandle_t    DATA_mutex;         // Mutex to control access to USB terminal
+extern StreamBufferHandle_t xDATA_sb;           // stream buffer for getting data into FLASH or USB
+extern SENSOR_CONFIGS       config_settings;    //struct containing sensor and SealHAT configurations 
 
 /**
  * This function is the ISR callback intended for use with the VBUS interrupt.

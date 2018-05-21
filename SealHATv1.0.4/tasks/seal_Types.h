@@ -12,6 +12,14 @@
 
 #define MSG_START_SYM           (0xADDE)
 
+#include "sensor_header/LSM303AGR.h"
+#include "sensor_header/LSM303AGRTypes.h"
+#include "sensor_header/gps.h"
+#include "sensor_header/max30003types.h"
+#include "sensor_header/max44009.h"
+#include "sensor_header/max44009Types.h"
+#include "hal/include/hpl_calendar.h"
+
 /** Sensor types */
 typedef enum {
     DEVICE_ID_RESERVED          = 0x00,
@@ -52,13 +60,72 @@ typedef enum {
     DEVICE_ERR_MASK             = 0x0F
 } DEVICE_ERR_CODES_t;
 
+enum SENSOR_OP {
+    XCEL_OP              = 1,
+    MAG_OP               = 2,
+    GPS_OP               = 3,
+    EKG_OP               = 4,
+    TEMPERATURE_OP       = 5,
+    LIGHT_OP             = 6,
+};
+
 /** Header for data packets from the device **/
 typedef struct __attribute__((__packed__)){
     uint16_t startSym;    // symbol to indicate start of packet
-    uint16_t id;	    // Upper four bits is the device ID, lower four are device specific event flags
-    uint32_t timestamp; // timestamp. how many bits?
-    uint16_t msTime;    // timestamp ms part
-    uint16_t size;		// size of data packet to follow in bytes
+    uint16_t id;	      // Upper four bits is the device ID, lower four are device specific event flags
+    uint32_t timestamp;   // timestamp. how many bits?
+    uint16_t msTime;      // timestamp ms part
+    uint16_t size;		  // size of data packet to follow in bytes
 } DATA_HEADER_t;
+
+/***********************GUI------------->MICROCONTROLLER*****************/
+typedef struct{
+   DATA_HEADER_t    acc_headerData;
+   uint32_t         xcel_activeHour;
+   ACC_FULL_SCALE_t acc_scale;
+   ACC_OPMODE_t     acc_mode;
+   uint8_t          acc_sensitivity;
+   uint16_t         threshold;
+   uint8_t          duration;
+} Xcel_TX;
+
+typedef struct{
+   DATA_HEADER_t    mag_headerData;
+   uint32_t         mag_activeHour;
+   MAG_OPMODE_t     mag_mode;
+} Mag_TX;
+
+
+typedef struct{
+   DATA_HEADER_t    temp_headerData;
+   uint32_t         temp_activeHour;
+   uint16_t         temp_samplePeriod;
+} Temp_TX;
+
+typedef struct{
+   DATA_HEADER_t    ekg_headerData;
+   uint32_t         ekg_activeHour;
+   CNFGECG_RATE_VAL ekg_sampleRate;
+   CNFGECG_GAIN_VAL ekg_gain;
+   CNFGECG_DLPF_VAL ekg_lpFreq;
+} Ekg_TX;
+
+typedef struct{
+   DATA_HEADER_t    gps_headerData;
+   uint32_t         gps_activeHour;
+   GPS_PROFILE      default_profile;
+} GPS_TX;
+
+typedef struct __attribute__((__packed__)){
+    DATA_HEADER_t        config_header;        // packet header for all configuration data
+    uint8_t              num_flash_chips;      // number of flash chips installed on device
+    struct calendar_date start_logging_day;    // day the device should begin data collection
+    uint32_t             start_logging_time;   // time the device will start on the day given by start_logging_day
+    Xcel_TX              accelerometer_config; // configuration data for the accelerometer
+    Mag_TX               magnetometer_config;  // configuration data for the magnetometer
+    Temp_TX              temperature_config;   // configuration data for the temperature sensor
+    Ekg_TX               ekg_config;           // configuration data for the EKG
+    GPS_TX               gps_config;           // configuration data for the GPS
+} SENSOR_CONFIGS;
 
 #endif /* SEAL_TYPES_H_ */

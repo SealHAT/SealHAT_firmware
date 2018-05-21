@@ -7,10 +7,11 @@
 
 #include "seal_CTRL.h"
 
-TaskHandle_t         xCTRL_th;     // Message accumulator for USB/MEM
-EventGroupHandle_t   xCTRL_eg;     // IMU event group
-SemaphoreHandle_t    DATA_mutex;   // mutex to control access to USB terminal
-StreamBufferHandle_t xDATA_sb;     // stream buffer for getting data into FLASH or USB
+TaskHandle_t         xCTRL_th;          // Message accumulator for USB/MEM
+EventGroupHandle_t   xCTRL_eg;          // IMU event group
+SemaphoreHandle_t    DATA_mutex;        // mutex to control access to USB terminal
+StreamBufferHandle_t xDATA_sb;          // stream buffer for getting data into FLASH or USB
+SENSOR_CONFIGS       config_settings;   //struct containing sensor and SealHAT configurations 
 
 static FLASH_DESCRIPTOR seal_flash_descriptor; /* Declare flash descriptor. */
 
@@ -100,7 +101,7 @@ int32_t CTRL_task_init(uint32_t qLength)
     struct calendar_time time;
     int32_t err = ERR_NONE;
     static uint8_t readBuf[64]; // TODO: delete this array after configuration struct has been added to code base
-    int retVal;
+    uint32_t retVal;
 
     // create 24-bit system event group
     xCTRL_eg = xEventGroupCreate();
@@ -124,13 +125,6 @@ int32_t CTRL_task_init(uint32_t qLength)
     err = calendar_set_time(&RTC_CALENDAR, &time);
     if(err != ERR_NONE) { return err; }
 
-    // initialize (clear all) event group and check current VBUS level
-    xEventGroupClearBits(xCTRL_eg, EVENT_MASK_ALL);
-    if(gpio_get_pin_level(VBUS_DETECT)) {
-        usb_start();
-        xEventGroupSetBits(xCTRL_eg, EVENT_VBUS);
-    }
-
     DATA_mutex = xSemaphoreCreateMutex();
     if (DATA_mutex == NULL) {
         return ERR_NO_MEMORY;
@@ -141,9 +135,18 @@ int32_t CTRL_task_init(uint32_t qLength)
         return ERR_NO_MEMORY;
     }
     
-    /* TODO: This is a stand-in read for reading the config struct from the EEPROM. Once the config struct
-     * is set up, this call should be updated to read data into said struct on device startup. */
-    retVal = flash_read(&FLASH_NVM, CONFIG_BLOCK_BASE_ADDR, readBuf, NVMCTRL_PAGE_SIZE);
+    /* Read stored device settings from EEPROM and make them accessible to all devices. */
+    retVal = read_sensor_configs(&config_settings);
+    
+    /* Initialize flash device(s). */
+    //flash_io_init(&seal_flash_descriptor, PAGE_SIZE_LESS);
+    
+    // initialize (clear all) event group and check current VBUS level
+    xEventGroupClearBits(xCTRL_eg, EVENT_MASK_ALL);
+    if(gpio_get_pin_level(VBUS_DETECT)) {
+        usb_start();
+        xEventGroupSetBits(xCTRL_eg, EVENT_VBUS);
+    }
 
     return ( xTaskCreate(CTRL_task, "MSG", MSG_STACK_SIZE, NULL, MSG_TASK_PRI, &xCTRL_th) == pdPASS ? ERR_NONE : ERR_NO_MEMORY);
 }
@@ -152,9 +155,6 @@ void CTRL_task(void* pvParameters)
 {
     static uint8_t endptBuf[PAGE_SIZE_EXTRA];       // hold the received messages
     (void)pvParameters;
-    
-    /* Initialize flash device(s). */
-    flash_io_init(&seal_flash_descriptor, PAGE_SIZE_LESS);
 
     // register VBUS detection interrupt
     ext_irq_register(VBUS_DETECT, vbus_detection_cb);
@@ -169,6 +169,6 @@ void CTRL_task(void* pvParameters)
         xStreamBufferReceive(xDATA_sb, endptBuf, PAGE_SIZE_LESS, portMAX_DELAY);
         
         /* Write data to external flash device. */
-        flash_io_write(&seal_flash_descriptor, endptBuf, PAGE_SIZE_LESS);
+        //flash_io_write(&seal_flash_descriptor, endptBuf, PAGE_SIZE_LESS);
     }
 }
