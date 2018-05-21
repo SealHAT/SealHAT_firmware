@@ -147,7 +147,7 @@ int32_t CTRL_task_init(void)
 
     
     /* Initialize flash device(s). */
-    //flash_io_init(&seal_flash_descriptor, PAGE_SIZE_LESS);
+    flash_io_init(&seal_flash_descriptor, PAGE_SIZE_LESS);
 
     // initialize (clear all) event group and check current VBUS level
     xEventGroupClearBits(xCTRL_eg, EVENT_MASK_ALL);
@@ -185,9 +185,9 @@ void CTRL_task(void* pvParameters)
                 } while(err != ERR_NONE);
             }
         }
-//         else {
-//             /* Write data to external flash device. */
-//             flash_io_write(&seal_flash_descriptor, endptBuf, PAGE_SIZE_LESS);
-//         }
+        else {
+            /* Write data to external flash device. */
+            flash_io_write(&seal_flash_descriptor, endptBuf, PAGE_SIZE_LESS);
+        }
     }
 }
