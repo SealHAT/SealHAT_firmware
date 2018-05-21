@@ -24,6 +24,7 @@
       <Value>../hpl/evsys</Value>
       <Value>../hpl/gclk</Value>
       <Value>../hpl/mclk</Value>
+      <Value>../hpl/nvmctrl</Value>
       <Value>../hpl/osc32kctrl</Value>
       <Value>../hpl/oscctrl</Value>
       <Value>../hpl/pm</Value>
@@ -75,6 +76,7 @@
       <Value>../hpl/evsys</Value>
       <Value>../hpl/gclk</Value>
       <Value>../hpl/mclk</Value>
+      <Value>../hpl/nvmctrl</Value>
       <Value>../hpl/osc32kctrl</Value>
       <Value>../hpl/oscctrl</Value>
       <Value>../hpl/pm</Value>
@@ -110,6 +112,7 @@
       <Value>../hpl/evsys</Value>
       <Value>../hpl/gclk</Value>
       <Value>../hpl/mclk</Value>
+      <Value>../hpl/nvmctrl</Value>
       <Value>../hpl/osc32kctrl</Value>
       <Value>../hpl/oscctrl</Value>
       <Value>../hpl/pm</Value>

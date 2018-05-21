@@ -128,7 +128,7 @@ void I2C_GPS_PORT_init(void)
 	                       // <GPIO_PULL_OFF"> Off
 	                       // <GPIO_PULL_UP"> Pull-up
 	                       // <GPIO_PULL_DOWN"> Pull-down
-	                       GPIO_PULL_DOWN);
+	                       GPIO_PULL_OFF);
 
 	gpio_set_pin_function(GPS_SDA, PINMUX_PA16C_SERCOM1_PAD0);
 
@@ -138,7 +138,7 @@ void I2C_GPS_PORT_init(void)
 	                       // <GPIO_PULL_OFF"> Off
 	                       // <GPIO_PULL_UP"> Pull-up
 	                       // <GPIO_PULL_DOWN"> Pull-down
-	                       GPIO_PULL_DOWN);
+	                       GPIO_PULL_OFF);
 
 	gpio_set_pin_function(GPS_SCL, PINMUX_PA17C_SERCOM1_PAD1);
 }

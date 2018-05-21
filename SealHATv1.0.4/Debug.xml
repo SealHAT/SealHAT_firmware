@@ -25,6 +25,7 @@
       <Value>../hpl/evsys</Value>
       <Value>../hpl/gclk</Value>
       <Value>../hpl/mclk</Value>
+      <Value>../hpl/nvmctrl</Value>
       <Value>../hpl/osc32kctrl</Value>
       <Value>../hpl/oscctrl</Value>
       <Value>../hpl/pm</Value>
@@ -64,6 +65,11 @@
   <armgcc.linker.optimization.GarbageCollectUnusedSections>True</armgcc.linker.optimization.GarbageCollectUnusedSections>
   <armgcc.linker.memorysettings.ExternalRAM />
   <armgcc.linker.miscellaneous.LinkerFlags>-Tsaml21g18b_flash.ld</armgcc.linker.miscellaneous.LinkerFlags>
+  <armgcc.linker.miscellaneous.OtherObjects>
+    <ListValues>
+      <Value>-Wl,--cref</Value>
+    </ListValues>
+  </armgcc.linker.miscellaneous.OtherObjects>
   <armgcc.assembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\arm\cmsis\5.0.1\CMSIS\Include\</Value>
@@ -79,6 +85,7 @@
       <Value>../hpl/evsys</Value>
       <Value>../hpl/gclk</Value>
       <Value>../hpl/mclk</Value>
+      <Value>../hpl/nvmctrl</Value>
       <Value>../hpl/osc32kctrl</Value>
       <Value>../hpl/oscctrl</Value>
       <Value>../hpl/pm</Value>
@@ -115,6 +122,7 @@
       <Value>../hpl/evsys</Value>
       <Value>../hpl/gclk</Value>
       <Value>../hpl/mclk</Value>
+      <Value>../hpl/nvmctrl</Value>
       <Value>../hpl/osc32kctrl</Value>
       <Value>../hpl/oscctrl</Value>
       <Value>../hpl/pm</Value>

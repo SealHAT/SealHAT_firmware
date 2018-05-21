@@ -147,7 +147,7 @@ int32_t CTRL_task_init(void)
 
     
     /* Initialize flash device(s). */
-    flash_io_init(&seal_flash_descriptor, PAGE_SIZE_LESS);
+    //flash_io_init(&seal_flash_descriptor, PAGE_SIZE_LESS);
 
     // initialize (clear all) event group and check current VBUS level
     xEventGroupClearBits(xCTRL_eg, EVENT_MASK_ALL);

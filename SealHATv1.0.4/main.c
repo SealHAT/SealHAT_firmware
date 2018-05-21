@@ -12,9 +12,9 @@
 int main(void)
 {
     // clear the I2C busses. I2C devices can lock up the bus if there was a reset during a transaction.
-    i2c_unblock_bus(IMU_SDA, IMU_SCL);
-    i2c_unblock_bus(GPS_SDA, GPS_SCL);
     i2c_unblock_bus(ENV_SDA, ENV_SCL);
+	i2c_unblock_bus(GPS_SDA, GPS_SCL);
+	i2c_unblock_bus(IMU_SDA, IMU_SCL);
 
     // initialize the system and set low power mode
 	system_init();
@@ -28,20 +28,18 @@ int main(void)
     // start the environmental sensors
 //     if(ENV_task_init() != ERR_NONE) {
 //         while(1) {;}
-//     }
-// 
-//     if(IMU_task_init(1) != ERR_NONE) {
+//     
+	// GPS task init
+	if(GPS_task_init(0) != ERR_NONE) {
+		while(1) {;}
+	}
+	
+    // IMU task init.
+//     if(IMU_task_init() != ERR_NONE) {
 //         while(1) {;}
 //     }
-
-    // IMU task init.
-    if(IMU_task_init() != ERR_NONE) {
-        while(1) {;}
-    }
     
-    if(GPS_task_init() != ERR_NONE) {
-        while(1) {;}
-    }
+
     // Start the freeRTOS scheduler, this will never return.
 	vTaskStartScheduler();
 

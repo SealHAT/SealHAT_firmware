@@ -27,9 +27,10 @@ void GPS_task(void *pvParameters)
 
     
     /* initialize the GPS module */
-	gpio_set_pin_level(GPS_TXD, true);
+	
 	portENTER_CRITICAL();
 	err = gps_init_i2c(&I2C_GPS) || gps_selftest() ? ERR_NOT_INITIALIZED : ERR_NONE;
+	gpio_set_pin_level(GPS_TXD, true);
 	portEXIT_CRITICAL();
     // TODO what to do if this fails? Will be handled in SW
     if (err) { 
@@ -40,7 +41,7 @@ void GPS_task(void *pvParameters)
     xMaxBlockTime = pdMS_TO_TICKS(26000);	// TODO calculate based on registers
 
     /* initialize the message header */
-    gps_msg.header.srtSym       = MSG_START_SYM;
+    gps_msg.header.startSym     = MSG_START_SYM;
     gps_msg.header.id           = DEVICE_ID_GPS;
     gps_msg.header.timestamp    = 0;
     gps_msg.header.msTime       = 0;
@@ -91,7 +92,6 @@ void GPS_task(void *pvParameters)
 			} else {
 				gpio_toggle_pin_level(LED_RED); 
 			}
-
         }
     } // END FOREVER LOOP
 }

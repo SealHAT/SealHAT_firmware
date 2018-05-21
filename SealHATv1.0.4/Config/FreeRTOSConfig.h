@@ -41,7 +41,7 @@ void assert_triggered(const char *file, uint32_t line);
 // <i> Default: 2400
 // <id> freertos_total_heap_size
 #ifndef configTOTAL_HEAP_SIZE
-#define configTOTAL_HEAP_SIZE ((size_t)(16384))
+#define configTOTAL_HEAP_SIZE ((size_t)(10672))
 #endif
 
 // <q> Enable mutex
