@@ -25,12 +25,12 @@ int main(void)
     }
 
     // start the environmental sensors
-    if(ENV_task_init() != ERR_NONE) {
+    if(ENV_task_init(1) != ERR_NONE) {
         while(1) {;}
     }
 
     // IMU task init.
-    if(IMU_task_init() != ERR_NONE) {
+    if(IMU_task_init(ACC_SCALE_2G, ACC_HR_50_HZ, MAG_LP_50_HZ) != ERR_NONE) {
         while(1) {;}
     }
 

@@ -64,7 +64,7 @@ typedef struct __attribute__((__packed__)){
     uint16_t size;		// size of data packet to follow in bytes
 } DATA_HEADER_t;
 
-#define USB_PACKET_START_SYM           (0xCAFED00D)
+#define USB_PACKET_START_SYM           (0x0DD0FECA)
 
 /** Packet that gets sent over USB to the host computer **/
 typedef struct __attribute__((__packed__)){

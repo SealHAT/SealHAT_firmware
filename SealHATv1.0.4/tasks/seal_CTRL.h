@@ -55,10 +55,10 @@ typedef enum {
     EVENT_MASK_ALL      = 0x00FFFFFF  // mask for all bits
 } SYSTEM_EVENT_FLAGS_t;
 
-extern TaskHandle_t         xCTRL_th;      // Message accumulator for USB/MEM
-extern EventGroupHandle_t   xCTRL_eg;      // IMU event group
-extern SemaphoreHandle_t    DATA_mutex;    // Mutex to control access to USB terminal
-extern StreamBufferHandle_t xDATA_sb;      // stream buffer for getting data into FLASH or USB
+extern TaskHandle_t         xCTRL_th;           // Message accumulator for USB/MEM
+extern EventGroupHandle_t   xSYSEVENTS_handle;  // IMU event group
+extern SemaphoreHandle_t    DATA_mutex;         // Mutex to control access to USB terminal
+extern StreamBufferHandle_t xDATA_sb;           // stream buffer for getting data into FLASH or USB
 
 /**
  * This function is the ISR callback intended for use with the VBUS interrupt.

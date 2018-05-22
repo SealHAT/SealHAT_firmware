@@ -28,7 +28,7 @@ void assert_triggered(const char *file, uint32_t line);
 #endif
 
 // <o> Minimal stack size<64-1024>
-// <i> Defines minimal number of stack size
+// <i> Defines minimal number of stack size (used for idle task)
 // <i> Default: 64
 // <id> freertos_minimal_stack_size
 #ifndef configMINIMAL_STACK_SIZE
@@ -36,7 +36,7 @@ void assert_triggered(const char *file, uint32_t line);
 #endif
 
 #ifndef configSUPPORT_STATIC_ALLOCATION
-#define configSUPPORT_STATIC_ALLOCATION 0
+#define configSUPPORT_STATIC_ALLOCATION 1
 #endif
 
 #ifndef configSUPPORT_DYNAMIC_ALLOCATION
@@ -49,7 +49,7 @@ void assert_triggered(const char *file, uint32_t line);
 // <i> Default: 2400
 // <id> freertos_total_heap_size
 #ifndef configTOTAL_HEAP_SIZE
-#define configTOTAL_HEAP_SIZE ((size_t)(10000))
+#define configTOTAL_HEAP_SIZE ((size_t)(3600))
 #endif
 
 // <q> Enable mutex

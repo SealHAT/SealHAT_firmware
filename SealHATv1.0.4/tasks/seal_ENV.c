@@ -9,12 +9,16 @@
 
 #define TEMP_READ_TIME      (pdMS_TO_TICKS(8)) // time to block between reading start and get in ms
 
-TaskHandle_t      xENV_th;      // environmental sensors task (light and temp)
+TaskHandle_t xENV_th;                       // environmental sensors task (light and temp)
+StaticTask_t xENV_taskbuf;                  // task buffer for the ENV task
+StackType_t  xENV_stack[ENV_STACK_SIZE];    // static stack allocation for ENV task
 
-int32_t ENV_task_init(void)
+int32_t ENV_task_init(const int32_t period)
 {
-    const int32_t period = 1;   // TODO: used the user data to set the period
-    return (xTaskCreate(ENV_task, "ENV", ENV_STACK_SIZE, (void*)period, ENV_TASK_PRI, &xENV_th) == pdPASS ? ERR_NONE : ERR_NO_MEMORY);
+    xENV_th = xTaskCreateStatic(ENV_task, "ENV", ENV_STACK_SIZE, (void*)period, ENV_TASK_PRI, xENV_stack, &xENV_taskbuf);
+    configASSERT(xENV_th);
+
+    return ERR_NONE;
 }
 
 void ENV_task(void* pvParameters)
