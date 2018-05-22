@@ -21,6 +21,7 @@ extern "C" {
 #include <hal_io.h>
 #include <hal_sleep.h>
 
+#include <hal_crc_sync.h>
 #include <hal_ext_irq.h>
 
 #include <hal_flash.h>
@@ -38,6 +39,8 @@ extern "C" {
 #include <hal_evsys.h>
 
 #include "hal_usb_device.h"
+
+extern struct crc_sync_descriptor CRC_0;
 
 extern struct flash_descriptor FLASH_NVM;
 

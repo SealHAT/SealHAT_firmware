@@ -1768,6 +1768,10 @@
 
 // </e>
 
+// <h>  Event User Security Attribution Settings
+
+//</h>
+
 // <h> PORT events
 // <o> Channel selection for PORT event 0
 // <0x0=>No channel output selected
@@ -1848,7 +1852,6 @@
 #ifndef CONF_CHANNEL_3
 #define CONF_CHANNEL_3 0
 #endif
-
 //</h>
 
 // <h> DMAC events
@@ -2011,7 +2014,6 @@
 #ifndef CONF_CHANNEL_11
 #define CONF_CHANNEL_11 0
 #endif
-
 //</h>
 
 // <h> TCC events
@@ -2294,7 +2296,6 @@
 #ifndef CONF_CHANNEL_25
 #define CONF_CHANNEL_25 0
 #endif
-
 //</h>
 
 // <h> TC events
@@ -2397,7 +2398,6 @@
 #ifndef CONF_CHANNEL_30
 #define CONF_CHANNEL_30 1
 #endif
-
 //</h>
 
 // <h> ADC events
@@ -2440,7 +2440,6 @@
 #ifndef CONF_CHANNEL_32
 #define CONF_CHANNEL_32 0
 #endif
-
 //</h>
 
 // <h> AC events
@@ -2483,7 +2482,6 @@
 #ifndef CONF_CHANNEL_34
 #define CONF_CHANNEL_34 0
 #endif
-
 //</h>
 
 // <h> DAC events
@@ -2526,7 +2524,6 @@
 #ifndef CONF_CHANNEL_36
 #define CONF_CHANNEL_36 0
 #endif
-
 //</h>
 
 // <h> PTC events
@@ -2549,7 +2546,6 @@
 #ifndef CONF_CHANNEL_37
 #define CONF_CHANNEL_37 0
 #endif
-
 //</h>
 
 // <h> CCL events
@@ -2632,14 +2628,12 @@
 #ifndef CONF_CHANNEL_41
 #define CONF_CHANNEL_41 0
 #endif
-
 //</h>
 
 // <h> Reserved
 #ifndef CONF_CHANNEL_42
 #define CONF_CHANNEL_42 0
 #endif
-
 //</h>
 
 // <h> MTB Events
@@ -2682,7 +2676,6 @@
 #ifndef CONF_CHANNEL_44
 #define CONF_CHANNEL_44 0
 #endif
-
 //</h>
 
 // <<< end of configuration section >>>

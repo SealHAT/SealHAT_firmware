@@ -12,6 +12,8 @@
 extern "C" {
 #endif
 
+void CRC_0_example(void);
+
 void EXTERNAL_IRQ_example(void);
 
 void FLASH_NVM_example(void);
