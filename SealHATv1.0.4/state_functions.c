@@ -144,16 +144,20 @@ CMD_RETURN_TYPES configure_device_state()
 /*************************************************************
  * FUNCTION: retrieve_data_state()
  * -----------------------------------------------------------
- * This function 
+ * This function streams all data from the device's external
+ * flash to the PC via USB connection. One page's worth of 
+ * data is sent at a time.
  *
  * Parameters: none
  *
- * Returns: void
+ * Returns:
+ *      Success or failure code.
  *************************************************************/
 CMD_RETURN_TYPES retrieve_data_state()
 {
     uint32_t pageIndex;         /* Loop control for iterating over flash pages. */
     uint32_t numPagesWritten;   /* Total number of pages currently written to flash. */
+    uint32_t retVal;            /* USB return value for error checking/handling. */
     
     /* Initializations */
     numPagesWritten = num_pages_written();
@@ -163,7 +167,12 @@ CMD_RETURN_TYPES retrieve_data_state()
      * TODO: send address or page index here too for crash recovery. */
     while(pageIndex < numPagesWritten)
     {
+        // read data from flash
         
+        //write data to usb
+        do {
+            //retVal = usb_write(void* outData, uint32_t BUFFER_SIZE);
+        } while((retVal != USB_OK) || (!usb_dtr()));            
     }
 }
 

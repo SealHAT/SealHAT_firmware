@@ -46,6 +46,13 @@ SYSTEM_COMMANDS listen_for_commands();
  *************************************************************/
 CMD_RETURN_TYPES configure_device_state();
 
+/*************************************************************
+ * FUNCTION: retrieve_data_state()
+ * -----------------------------------------------------------
+ * This function streams all data from the device's external
+ * flash to the PC via USB connection. One page's worth of 
+ * data is sent at a time.
+ *************************************************************/
 CMD_RETURN_TYPES retrieve_data_state();
 
 CMD_RETURN_TYPES stream_data_state();
