@@ -13,8 +13,6 @@ SemaphoreHandle_t    DATA_mutex;        // mutex to control access to USB termin
 StreamBufferHandle_t xDATA_sb;          // stream buffer for getting data into FLASH or USB
 SENSOR_CONFIGS       config_settings;   //struct containing sensor and SealHAT configurations 
 
-static FLASH_DESCRIPTOR seal_flash_descriptor; /* Declare flash descriptor. */
-
 void vbus_detection_cb(void)
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;

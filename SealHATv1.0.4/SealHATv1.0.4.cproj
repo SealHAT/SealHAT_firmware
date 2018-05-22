@@ -1093,6 +1093,42 @@
     <Compile Include="sensor_header\ubx.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="sensor_header\ubx\ubx.h">
+      <SubType>compile</SubType>
+      <Link>SealHATv1.0.4\ubx\ubx.h</Link>
+    </Compile>
+    <Compile Include="sensor_header\ubx\ubxaid.h">
+      <SubType>compile</SubType>
+      <Link>SealHATv1.0.4\ubx\ubxaid.h</Link>
+    </Compile>
+    <Compile Include="sensor_header\ubx\ubxcfg.h">
+      <SubType>compile</SubType>
+      <Link>SealHATv1.0.4\ubx\ubxcfg.h</Link>
+    </Compile>
+    <Compile Include="sensor_header\ubx\ubxlog.h">
+      <SubType>compile</SubType>
+      <Link>SealHATv1.0.4\ubx\ubxlog.h</Link>
+    </Compile>
+    <Compile Include="sensor_header\ubx\ubxmessage.h">
+      <SubType>compile</SubType>
+      <Link>SealHATv1.0.4\ubx\ubxmessage.h</Link>
+    </Compile>
+    <Compile Include="sensor_header\ubx\ubxmon.h">
+      <SubType>compile</SubType>
+      <Link>SealHATv1.0.4\ubx\ubxmon.h</Link>
+    </Compile>
+    <Compile Include="sensor_header\ubx\ubxnav.h">
+      <SubType>compile</SubType>
+      <Link>SealHATv1.0.4\ubx\ubxnav.h</Link>
+    </Compile>
+    <Compile Include="sensor_header\ubx\ubxrxm.h">
+      <SubType>compile</SubType>
+      <Link>SealHATv1.0.4\ubx\ubxrxm.h</Link>
+    </Compile>
+    <Compile Include="sensor_header\ubx\ubxutils.h">
+      <SubType>compile</SubType>
+      <Link>SealHATv1.0.4\ubx\ubxutils.h</Link>
+    </Compile>
     <Compile Include="si705x\si705x.c">
       <SubType>compile</SubType>
     </Compile>

@@ -10,6 +10,7 @@
 
 #include "utilities/seal_USB.h"
 #include "tasks/seal_CTRL.h"
+#include "storage/flash_io.h"
 
 typedef enum {
     NO_COMMAND      = 0,
@@ -26,6 +27,7 @@ typedef enum {
 
 extern bool STOP_LISTENING;     /* This should be set to true if the device should no longer listen for incoming commands. */
 extern char READY_TO_RECEIVE;
+extern FLASH_DESCRIPTOR seal_flash_descriptor; /* Declare flash descriptor. */
 
 /*************************************************************
  * FUNCTION: listen_for_commands()
@@ -42,7 +44,7 @@ SYSTEM_COMMANDS listen_for_commands();
  * This function receives configuration data and sets it 
  * within the SealHAT device.
  *************************************************************/
-CMD_RETURN_TYPES configure_device_state()
+CMD_RETURN_TYPES configure_device_state();
 
 CMD_RETURN_TYPES retrieve_data_state();
 

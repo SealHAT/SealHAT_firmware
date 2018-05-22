@@ -7,6 +7,8 @@
 
 #include "state_functions.h"
 
+FLASH_DESCRIPTOR seal_flash_descriptor; /* Declare flash descriptor. */
+
 char READY_TO_RECEIVE = 'r';    /* Character sent over USB to device to initiate packet transfer */
 
 bool STOP_LISTENING;            /* This should be set to true if the device should no longer listen for incoming commands. */
@@ -102,7 +104,6 @@ CMD_RETURN_TYPES configure_device_state()
 {
     SENSOR_CONFIGS   tempConfigStruct;  /* Hold configuration settings read over USB. */
     CMD_RETURN_TYPES retVal;            /* Return value for the function call. */
-    uint32_t         retVal;            /* Return val for USB communiques. */
     bool             packetOK;          /* Checking for incoming packet integrity. */
     
     /* Initialize return value. */
@@ -132,7 +133,7 @@ CMD_RETURN_TYPES configure_device_state()
         /* Save new configuration settings. */
         save_sensor_configs(&config_settings);
         
-        //TODO: restart sensors with new config data? restart device?
+        // TODO: restart sensors with new config data? restart device?
         
         retVal = NO_ERROR;
     }
@@ -151,7 +152,19 @@ CMD_RETURN_TYPES configure_device_state()
  *************************************************************/
 CMD_RETURN_TYPES retrieve_data_state()
 {
+    uint32_t pageIndex;         /* Loop control for iterating over flash pages. */
+    uint32_t numPagesWritten;   /* Total number of pages currently written to flash. */
     
+    /* Initializations */
+    numPagesWritten = num_pages_written();
+    pageIndex = 0;
+    
+    /* Loop through every page that has data and send it over USB in PAGE_SIZE buffers.
+     * TODO: send address or page index here too for crash recovery. */
+    while(pageIndex < numPagesWritten)
+    {
+        
+    }
 }
 
 /*************************************************************
