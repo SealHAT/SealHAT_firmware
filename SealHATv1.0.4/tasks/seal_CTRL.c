@@ -115,6 +115,11 @@ int32_t CTRL_task_init(void)
         return ERR_NO_MEMORY;
     }
 
+    // enable CRC generator. This function does nothing apparently, 
+    // but we call it to remain consistant with API.
+    crc_sync_enable(&CRC_0);
+
+    // enable the calendar driver
     calendar_enable(&RTC_CALENDAR);
 
     date.year  = 2018;
@@ -136,7 +141,7 @@ int32_t CTRL_task_init(void)
         return ERR_NO_MEMORY;
     }
 
-    xDATA_sb = xStreamBufferCreate(DATA_QUEUE_LENGTH, 64);
+    xDATA_sb = xStreamBufferCreate(DATA_QUEUE_LENGTH, PAGE_SIZE_LESS);
     if(xDATA_sb == NULL) {
         return ERR_NO_MEMORY;
     }
@@ -161,9 +166,7 @@ int32_t CTRL_task_init(void)
 
 void CTRL_task(void* pvParameters)
 {
-    static uint8_t endptBuf[64];       // hold the received messages
-    static char marines[] = "From the Halls of Montezuma; To the shores of Tripoli;\nWe fight our country's battles\nIn the air, on land, and sea;\nFirst to fight for right and freedom\nAnd to keep our honor clean;\nWe are proud to claim the title\nOf United States Marine.\n\nOur flag's unfurled to every breeze\nFrom dawn to setting sun;\nWe have fought in every clime and place\nWhere we could take a gun;\nIn the snow of far-off Northern lands\nAnd in sunny tropic scenes,\nYou will find us always on the job\nThe United States Marines.\n\nHere's health to you and to our Corps\nWhich we are proud to serve;\nIn many a strife we've fought for life\nAnd never lost our nerve.\nIf the Army and the Navy\nEver look on Heaven's scenes,\nThey will find the streets are guarded\nBy United States Marines.\n\nRealizing it is my choice and my choice alone to be a Reconnaissance Marine, I accept all challenges involved with this profession. Forever shall I strive to maintain the tremendous reputation of those who went before me.\nExceeding beyond the limitations set down by others shall be my goal. Sacrificing personal comforts and dedicating myself to the completion of the reconnaissance mission shall be my life. Physical fitness, mental attitude, and high ethics --\nThe title of Recon Marine is my honor.\nConquering all obstacles, both large and small, I shall never quit. To quit, to surrender, to give up is to fail. To be a Recon Marine is to surpass failure; To overcome, to adapt and to do whatever it takes to complete the mission.\nOn the battlefield, as in all areas of life, I shall stand tall above the competition. Through professional pride, integrity, and teamwork, I shall be the example for all Marines to emulate.\nNever shall I forget the principles I accepted to become a Recon Marine. Honor, Perseverance, Spirit and Heart.\nA Recon Marine can speak without saying a word and achieve what others can only imagine.\nIrregular Warfare is not a new concept to the United States Marine Corps, employing direct action with indigenous forces\n";
-    const char* errmsg;
+    static DATA_TRANSMISSION_t usbPacket; // TEST DATA -> = {USB_PACKET_START_SYM, "From the Halls of Montezuma; To the shores of Tripoli;\nWe fight our country's battles\nIn the air, on land, and sea;\nFirst to fight for right and freedom\nAnd to keep our honor clean;\nWe are proud to claim the title\nOf United States Marine.\n\nOur flag's unfurled to every breeze\nFrom dawn to setting sun;\nWe have fought in every clime and place\nWhere we could take a gun;\nIn the snow of far-off Northern lands\nAnd in sunny tropic scenes,\nYou will find us always on the job\nThe United States Marines.\n\nHere's health to you and to our Corps\nWhich we are proud to serve;\nIn many a strife we've fought for life\nAnd never lost our nerve.\nIf the Army and the Navy\nEver look on Heaven's scenes,\nThey will find the streets are guarded\nBy United States Marines.\n\nRealizing it is my choice and my choice alone to be a Reconnaissance Marine, I accept all challenges involved with this profession. Forever shall I strive to maintain the tremendous reputation of those who went before me.\nExceeding beyond the limitations set down by others shall be my goal. Sacrificing personal comforts and dedicating myself to the completion of the reconnaissance mission shall be my life. Physical fitness, mental attitude, and high ethics --\nThe title of Recon Marine is my honor.\nConquering all obstacles, both large and small, I shall never quit. To quit, to surrender, to give up is to fail. To be a Recon Marine is to surpass failure; To overcome, to adapt and to do whatever it takes to complete the mission.\nOn the battlefield, as in all areas of life, I shall stand tall above the competition. Through professional pride, integrity, and teamwork, I shall be the example for all Marines to emulate.\nNever shall I forget the principles I accepted to become a Recon Marine. Honor, Perseverance, Spirit and Heart.\nA Recon Marine can speak without saying a word and achieve what others can only imagine.\nIrregular Warfare is not a new concept to the United States Marine Corps, employing direct action with indigenous forces\nThis is extra text to make it fit in the buff!\n\n", 0xFFFFFFFF};
     int32_t err;
     (void)pvParameters;
 
@@ -171,21 +174,29 @@ void CTRL_task(void* pvParameters)
     ext_irq_register(VBUS_DETECT, vbus_detection_cb);
 
     // set the stream buffer trigger level for USB
-    xStreamBufferSetTriggerLevel(xDATA_sb, 64);
+    xStreamBufferSetTriggerLevel(xDATA_sb, PAGE_SIZE_LESS);
 
     /* Receive and write data forever. */
     for(;;)
     {
         /* Receive a page worth of data. */
-        //xStreamBufferReceive(xDATA_sb, endptBuf, 64, portMAX_DELAY);
+        xStreamBufferReceive(xDATA_sb, usbPacket.data, PAGE_SIZE_LESS, portMAX_DELAY);
+
+        // setup the packet header and CRC start value, then perform CRC32
+        usbPacket.startSymbol = USB_PACKET_START_SYM;
+        usbPacket.crc = 0xFFFFFFFF;
+        crc_sync_crc32(&CRC_0, (uint32_t*)usbPacket.data, PAGE_SIZE_LESS/sizeof(uint32_t), &usbPacket.crc);
+
+        // complement CRC to match standard CRC32 implementations
+        usbPacket.crc ^= 0xFFFFFFFF;
 
         if(usb_state() == USB_Configured) {
             if(usb_dtr()) {
-                err = usb_write(marines, strlen(marines));
+                err = usb_write(&usbPacket, sizeof(DATA_TRANSMISSION_t));
                 if(err != ERR_NONE && err != ERR_BUSY) {
+                    // TODO: log usb errors, however rare they are
                     gpio_set_pin_level(LED_GREEN, false);
                 }
-                os_sleep(pdMS_TO_TICKS(5));
             }
             else {
                 usb_flushTx();

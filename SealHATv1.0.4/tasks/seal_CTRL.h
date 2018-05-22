@@ -11,7 +11,7 @@
 
 #define CTRL_STACK_SIZE                 (4000 / sizeof(portSTACK_TYPE))
 #define CTRL_TASK_PRI                   (tskIDLE_PRIORITY + 1)
-#define DATA_QUEUE_LENGTH               (2000)
+#define DATA_QUEUE_LENGTH               (3000)
 
 #define CONFIG_BLOCK_BASE_ADDR          (0x3F840)   /* First writable page address of on-chip EEPROM. */
 
