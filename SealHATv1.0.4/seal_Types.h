@@ -10,7 +10,8 @@
 
 #define SEAL_HAT_VERSION        (1.0)
 
-#define MSG_START_SYM           (0xADDE)
+#define PAGE_SIZE_EXTRA         (2176)              /* Maximum NAND Flash page size (*including* extra space) */
+#define PAGE_SIZE_LESS          (2048)              /* Maximum NAND Flash page size (*excluding* extra space) */
 
 /** Sensor types */
 typedef enum {
@@ -52,6 +53,8 @@ typedef enum {
     DEVICE_ERR_MASK             = 0x0F
 } DEVICE_ERR_CODES_t;
 
+#define MSG_START_SYM           (0xADDE)
+
 /** Header for data packets from the device **/
 typedef struct __attribute__((__packed__)){
     uint16_t startSym;    // symbol to indicate start of packet
@@ -60,5 +63,14 @@ typedef struct __attribute__((__packed__)){
     uint16_t msTime;    // timestamp ms part
     uint16_t size;		// size of data packet to follow in bytes
 } DATA_HEADER_t;
+
+#define USB_PACKET_START_SYM           (0xCAFED00D)
+
+/** Packet that gets sent over USB to the host computer **/
+typedef struct __attribute__((__packed__)){
+    uint32_t startSymbol;           // start symbol for the data transmission
+    uint8_t  data[PAGE_SIZE_LESS];  // one page of data from flash
+    uint32_t crc;                   // crc32 of the DATA (not the start symbol) using IEEE CRC32 polynomial
+} DATA_TRANSMISSION_t;
 
 #endif /* SEAL_TYPES_H_ */
