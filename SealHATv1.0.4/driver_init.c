@@ -11,6 +11,7 @@
 #include <utils.h>
 #include <hal_init.h>
 
+struct crc_sync_descriptor   CRC_0;
 struct spi_m_sync_descriptor SPI_MEMORY;
 
 struct flash_descriptor FLASH_NVM;
@@ -22,6 +23,17 @@ struct i2c_m_sync_desc I2C_GPS;
 struct i2c_m_sync_desc I2C_ENV;
 
 struct i2c_m_sync_desc I2C_IMU;
+
+/**
+ * \brief CRC initialization function
+ *
+ * Enables CRC peripheral, clocks and initializes CRC driver
+ */
+void CRC_0_init(void)
+{
+	hri_mclk_set_APBBMASK_DSU_bit(MCLK);
+	crc_sync_init(&CRC_0, DSU);
+}
 
 void EXTERNAL_IRQ_init(void)
 {
@@ -593,6 +605,7 @@ void system_init(void)
 
 	gpio_set_pin_function(GPS_RESET, GPIO_PIN_FUNCTION_OFF);
 
+	CRC_0_init();
 	EXTERNAL_IRQ_init();
 
 	FLASH_NVM_init();

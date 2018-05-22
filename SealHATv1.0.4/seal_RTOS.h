@@ -15,6 +15,7 @@
 #include "hal_rtos.h"
 
 #include "seal_Types.h"
+#include "seal_UTIL.h"
 
 #ifndef SEAL_RTOS_H_
 #define SEAL_RTOS_H_

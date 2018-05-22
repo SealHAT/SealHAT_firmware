@@ -306,6 +306,7 @@
       <Value>../hal/utils/include</Value>
       <Value>../hpl/core</Value>
       <Value>../hpl/dmac</Value>
+      <Value>../hpl/dsu</Value>
       <Value>../hpl/eic</Value>
       <Value>../hpl/evsys</Value>
       <Value>../hpl/gclk</Value>
@@ -313,6 +314,7 @@
       <Value>../hpl/nvmctrl</Value>
       <Value>../hpl/osc32kctrl</Value>
       <Value>../hpl/oscctrl</Value>
+      <Value>../hpl/pac</Value>
       <Value>../hpl/pm</Value>
       <Value>../hpl/port</Value>
       <Value>../hpl/rtc</Value>
@@ -358,6 +360,7 @@
       <Value>../hal/utils/include</Value>
       <Value>../hpl/core</Value>
       <Value>../hpl/dmac</Value>
+      <Value>../hpl/dsu</Value>
       <Value>../hpl/eic</Value>
       <Value>../hpl/evsys</Value>
       <Value>../hpl/gclk</Value>
@@ -365,6 +368,7 @@
       <Value>../hpl/nvmctrl</Value>
       <Value>../hpl/osc32kctrl</Value>
       <Value>../hpl/oscctrl</Value>
+      <Value>../hpl/pac</Value>
       <Value>../hpl/pm</Value>
       <Value>../hpl/port</Value>
       <Value>../hpl/rtc</Value>
@@ -394,6 +398,7 @@
       <Value>../hal/utils/include</Value>
       <Value>../hpl/core</Value>
       <Value>../hpl/dmac</Value>
+      <Value>../hpl/dsu</Value>
       <Value>../hpl/eic</Value>
       <Value>../hpl/evsys</Value>
       <Value>../hpl/gclk</Value>
@@ -401,6 +406,7 @@
       <Value>../hpl/nvmctrl</Value>
       <Value>../hpl/osc32kctrl</Value>
       <Value>../hpl/oscctrl</Value>
+      <Value>../hpl/pac</Value>
       <Value>../hpl/pm</Value>
       <Value>../hpl/port</Value>
       <Value>../hpl/rtc</Value>
@@ -447,6 +453,7 @@
       <Value>../hal/utils/include</Value>
       <Value>../hpl/core</Value>
       <Value>../hpl/dmac</Value>
+      <Value>../hpl/dsu</Value>
       <Value>../hpl/eic</Value>
       <Value>../hpl/evsys</Value>
       <Value>../hpl/gclk</Value>
@@ -454,6 +461,7 @@
       <Value>../hpl/nvmctrl</Value>
       <Value>../hpl/osc32kctrl</Value>
       <Value>../hpl/oscctrl</Value>
+      <Value>../hpl/pac</Value>
       <Value>../hpl/pm</Value>
       <Value>../hpl/port</Value>
       <Value>../hpl/rtc</Value>
@@ -507,6 +515,7 @@
       <Value>../hal/utils/include</Value>
       <Value>../hpl/core</Value>
       <Value>../hpl/dmac</Value>
+      <Value>../hpl/dsu</Value>
       <Value>../hpl/eic</Value>
       <Value>../hpl/evsys</Value>
       <Value>../hpl/gclk</Value>
@@ -514,6 +523,7 @@
       <Value>../hpl/nvmctrl</Value>
       <Value>../hpl/osc32kctrl</Value>
       <Value>../hpl/oscctrl</Value>
+      <Value>../hpl/pac</Value>
       <Value>../hpl/pm</Value>
       <Value>../hpl/port</Value>
       <Value>../hpl/rtc</Value>
@@ -544,6 +554,7 @@
       <Value>../hal/utils/include</Value>
       <Value>../hpl/core</Value>
       <Value>../hpl/dmac</Value>
+      <Value>../hpl/dsu</Value>
       <Value>../hpl/eic</Value>
       <Value>../hpl/evsys</Value>
       <Value>../hpl/gclk</Value>
@@ -551,6 +562,7 @@
       <Value>../hpl/nvmctrl</Value>
       <Value>../hpl/osc32kctrl</Value>
       <Value>../hpl/oscctrl</Value>
+      <Value>../hpl/pac</Value>
       <Value>../hpl/pm</Value>
       <Value>../hpl/port</Value>
       <Value>../hpl/rtc</Value>
@@ -652,6 +664,9 @@
     <Compile Include="hal\include\hal_calendar.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="hal\include\hal_crc_sync.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="hal\include\hal_delay.h">
       <SubType>compile</SubType>
     </Compile>
@@ -691,6 +706,9 @@
     <Compile Include="hal\include\hpl_core.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="hal\include\hpl_crc_sync.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="hal\include\hpl_delay.h">
       <SubType>compile</SubType>
     </Compile>
@@ -728,6 +746,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hal\include\hpl_missing_features.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hal\include\hpl_pac.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hal\include\hpl_reset.h">
@@ -791,6 +812,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hal\src\hal_calendar.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hal\src\hal_crc_sync.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hal\src\hal_delay.c">
@@ -886,6 +910,9 @@
     <Compile Include="hpl\dmac\hpl_dmac.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="hpl\dsu\hpl_dsu.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="hpl\eic\hpl_eic.c">
       <SubType>compile</SubType>
     </Compile>
@@ -908,6 +935,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hpl\oscctrl\hpl_oscctrl.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hpl\pac\hpl_pac.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hpl\pm\hpl_pm.c">
@@ -1326,6 +1356,7 @@
     <Folder Include="hpl\" />
     <Folder Include="hpl\core\" />
     <Folder Include="hpl\dmac\" />
+    <Folder Include="hpl\dsu\" />
     <Folder Include="hpl\eic\" />
     <Folder Include="hpl\evsys\" />
     <Folder Include="hpl\gclk\" />
@@ -1333,6 +1364,7 @@
     <Folder Include="hpl\nvmctrl\" />
     <Folder Include="hpl\osc32kctrl\" />
     <Folder Include="hpl\oscctrl\" />
+    <Folder Include="hpl\pac\" />
     <Folder Include="hpl\pm\" />
     <Folder Include="hpl\port\" />
     <Folder Include="hpl\rtc\" />

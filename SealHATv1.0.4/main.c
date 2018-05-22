@@ -34,15 +34,14 @@ int main(void)
     if(GPS_task_init(0) != ERR_NONE) {
         while(1) {;}
     }
-	
+  
     // IMU task init.
     if(IMU_task_init() != ERR_NONE) {
         while(1) {;}
     }
-    
 
     // Start the freeRTOS scheduler, this will never return.
     vTaskStartScheduler();
 
-	return 0;
+    return 0;
 }
