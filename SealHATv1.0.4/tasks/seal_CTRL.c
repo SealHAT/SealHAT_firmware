@@ -147,7 +147,7 @@ int32_t CTRL_task_init(void)
 
     
     /* Initialize flash device(s). */
-    flash_io_init(&seal_flash_descriptor, PAGE_SIZE_LESS);
+    //flash_io_init(&seal_flash_descriptor, PAGE_SIZE_LESS);
 
     // initialize (clear all) event group and check current VBUS level
     xEventGroupClearBits(xCTRL_eg, EVENT_MASK_ALL);
@@ -156,12 +156,14 @@ int32_t CTRL_task_init(void)
         xEventGroupSetBits(xCTRL_eg, EVENT_VBUS);
     }
 
-    return ( xTaskCreate(CTRL_task, "MSG", MSG_STACK_SIZE, NULL, MSG_TASK_PRI, &xCTRL_th) == pdPASS ? ERR_NONE : ERR_NO_MEMORY);
+    return ( xTaskCreate(CTRL_task, "MSG", CTRL_STACK_SIZE, NULL, CTRL_TASK_PRI, &xCTRL_th) == pdPASS ? ERR_NONE : ERR_NO_MEMORY);
 }
 
 void CTRL_task(void* pvParameters)
 {
     static uint8_t endptBuf[64];       // hold the received messages
+    static char marines[] = "From the Halls of Montezuma; To the shores of Tripoli;\nWe fight our country's battles\nIn the air, on land, and sea;\nFirst to fight for right and freedom\nAnd to keep our honor clean;\nWe are proud to claim the title\nOf United States Marine.\n\nOur flag's unfurled to every breeze\nFrom dawn to setting sun;\nWe have fought in every clime and place\nWhere we could take a gun;\nIn the snow of far-off Northern lands\nAnd in sunny tropic scenes,\nYou will find us always on the job\nThe United States Marines.\n\nHere's health to you and to our Corps\nWhich we are proud to serve;\nIn many a strife we've fought for life\nAnd never lost our nerve.\nIf the Army and the Navy\nEver look on Heaven's scenes,\nThey will find the streets are guarded\nBy United States Marines.\n\nRealizing it is my choice and my choice alone to be a Reconnaissance Marine, I accept all challenges involved with this profession. Forever shall I strive to maintain the tremendous reputation of those who went before me.\nExceeding beyond the limitations set down by others shall be my goal. Sacrificing personal comforts and dedicating myself to the completion of the reconnaissance mission shall be my life. Physical fitness, mental attitude, and high ethics --\nThe title of Recon Marine is my honor.\nConquering all obstacles, both large and small, I shall never quit. To quit, to surrender, to give up is to fail. To be a Recon Marine is to surpass failure; To overcome, to adapt and to do whatever it takes to complete the mission.\nOn the battlefield, as in all areas of life, I shall stand tall above the competition. Through professional pride, integrity, and teamwork, I shall be the example for all Marines to emulate.\nNever shall I forget the principles I accepted to become a Recon Marine. Honor, Perseverance, Spirit and Heart.\nA Recon Marine can speak without saying a word and achieve what others can only imagine.\nIrregular Warfare is not a new concept to the United States Marine Corps, employing direct action with indigenous forces\n";
+    const char* errmsg;
     int32_t err;
     (void)pvParameters;
 
@@ -175,14 +177,18 @@ void CTRL_task(void* pvParameters)
     for(;;)
     {
         /* Receive a page worth of data. */
-        xStreamBufferReceive(xDATA_sb, endptBuf, 64, portMAX_DELAY);
+        //xStreamBufferReceive(xDATA_sb, endptBuf, 64, portMAX_DELAY);
 
-        gpio_toggle_pin_level(LED_GREEN);
         if(usb_state() == USB_Configured) {
-            if(usb_dtr()){
-                do {
-                    err = cdcdf_acm_write(endptBuf, 64);
-                } while(err != ERR_NONE);
+            if(usb_dtr()) {
+                err = usb_write(marines, strlen(marines));
+                if(err != ERR_NONE && err != ERR_BUSY) {
+                    gpio_set_pin_level(LED_GREEN, false);
+                }
+                os_sleep(pdMS_TO_TICKS(5));
+            }
+            else {
+                usb_flushTx();
             }
         }
 //         else {

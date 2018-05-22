@@ -9,8 +9,8 @@
 #ifndef SEAL_MSG_H_
 #define SEAL_MSG_H_
 
-#define MSG_STACK_SIZE                  (3000 / sizeof(portSTACK_TYPE))
-#define MSG_TASK_PRI                    (tskIDLE_PRIORITY + 1)
+#define CTRL_STACK_SIZE                 (4000 / sizeof(portSTACK_TYPE))
+#define CTRL_TASK_PRI                   (tskIDLE_PRIORITY + 1)
 #define DATA_QUEUE_LENGTH               (2000)
 
 #define CONFIG_BLOCK_BASE_ADDR          (0x3F840)   /* First writable page address of on-chip EEPROM. */
@@ -20,9 +20,9 @@ typedef enum {
     // System state alerts
     EVENT_VBUS          = 0x00000001, // indicated the current VBUS level, use USB API to check USB state
     EVENT_LOW_BATTERY   = 0x00000002, // Indicates the battery has reached a critically low level according to settings
-    EVENT_SYS_1         = 0x00000004,
-    EVENT_SYS_2         = 0x00000008,
-    EVENT_SYS_3         = 0x00000010,
+    EVENT_LOGTOFLASH    = 0x00000004, // This bit indicates that the system should be logging data to the flash memory
+    EVENT_LOGTOUSB      = 0x00000008, // This bit indicates that the device should be streaming data over USB
+    EVENT_DEBUG         = 0x00000010, // This bit indicates that the device is in debug mode. this overrides the other modes.
     EVENT_SYS_4         = 0x00000020,
     EVENT_SYS_5         = 0x00000040,
     EVENT_SYS_6         = 0x00000080,
@@ -30,16 +30,19 @@ typedef enum {
 
     // IMU events. names assume pin 1 of the IMU is in the upper right
     // Consumers of these flags are responsible for clearing them
-    EVENT_MOTION_SHIFT   = 8,
-    EVENT_MASK_IMU       = 0x0000FF00, // mask for watching the IMU bits
-    EVENT_MOTION_XLOW    = 0x00000100,
-    EVENT_MOTION_XHI     = 0x00000200,
-    EVENT_MOTION_YLOW    = 0x00000400,
-    EVENT_MOTION_YHI     = 0x00000800,
-    EVENT_MOTION_ZLOW    = 0x00001000,
-    EVENT_MOTION_ZHI     = 0x00002000,
-    EVENT_IMU_ACTIVE     = 0x00004000,
-    EVENT_IMU_IDLE       = 0x00008000,
+    EVENT_MOTION_SHIFT  = 8,          // number of bits to shift the LSM303 motion alerts register to match these bits
+    EVENT_MASK_IMU      = 0x0000FF00, // mask for watching the IMU bits
+    EVENT_MASK_IMU_X    = 0x00000300, // mask for isolating the IMU X axis
+    EVENT_MASK_IMU_Y    = 0x00000C00, // mask for isolating the IMU X axis
+    EVENT_MASK_IMU_Z    = 0x00003000, // mask for isolating the IMU X axis
+    EVENT_MOTION_XLOW   = 0x00000100,
+    EVENT_MOTION_XHI    = 0x00000200,
+    EVENT_MOTION_YLOW   = 0x00000400,
+    EVENT_MOTION_YHI    = 0x00000800,
+    EVENT_MOTION_ZLOW   = 0x00001000,
+    EVENT_MOTION_ZHI    = 0x00002000,
+    EVENT_IMU_ACTIVE    = 0x00004000,
+    EVENT_IMU_IDLE      = 0x00008000,
 
     EVENT_UNUSED_7      = 0x00010000,
     EVENT_UNUSED_8      = 0x00020000,
