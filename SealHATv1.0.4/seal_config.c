@@ -33,7 +33,7 @@ uint32_t save_sensor_configs(SENSOR_CONFIGS *config_settings)
      * Otherwise, return the error value. */
     if(retVal == ERR_NONE)
     {
-        retVal = flash_write(&FLASH_NVM, CONFIG_BLOCK_BASE_ADDR, &config_settings, sizeof(SENSOR_CONFIGS));
+        retVal = flash_write(&FLASH_NVM, CONFIG_BLOCK_BASE_ADDR, (uint8_t *) config_settings, sizeof(SENSOR_CONFIGS));
     }
     
     return (retVal);
@@ -53,5 +53,5 @@ uint32_t save_sensor_configs(SENSOR_CONFIGS *config_settings)
  *************************************************************/
 uint32_t read_sensor_configs(SENSOR_CONFIGS *config_settings)
 {
-    return(flash_read(&FLASH_NVM, CONFIG_BLOCK_BASE_ADDR, &config_settings, sizeof(SENSOR_CONFIGS)));
+    return(flash_read(&FLASH_NVM, CONFIG_BLOCK_BASE_ADDR, (uint8_t *) config_settings, sizeof(SENSOR_CONFIGS)));
 }

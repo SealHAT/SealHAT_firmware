@@ -13,7 +13,7 @@
 TaskHandle_t         xCTRL_th;          // Message accumulator for USB/MEM
 EventGroupHandle_t   xCTRL_eg;          // event group
 SemaphoreHandle_t    DATA_mutex;        // mutex to control access to USB terminal
-//StreamBufferHandle_t xDATA_sb;          // stream buffer for getting data into FLASH or USB
+StreamBufferHandle_t xDATA_sb;          // stream buffer for getting data into FLASH or USB
 SENSOR_CONFIGS       config_settings;   //struct containing sensor and SealHAT configurations 
 
 void vbus_detection_cb(void)
@@ -105,8 +105,12 @@ int32_t CTRL_task_init(void)
     struct calendar_date date;
     struct calendar_time time;
     int32_t err = ERR_NONE;
+    static uint8_t readBuf[64]; // TODO: delete this array after configuration struct has been added to code base
+<<<<<<< HEAD
     uint32_t retVal;
-    StreamBufferHandle_t xDATA_sb_temp;
+=======
+    int retVal; // TODO: do something with this value or remove it
+>>>>>>> 7968d37d5aeaea33cdd06d90062a685c10295d91
 
     // create 24-bit system event group
     xCTRL_eg = xEventGroupCreate();
@@ -115,7 +119,7 @@ int32_t CTRL_task_init(void)
     }
 
     // enable CRC generator. This function does nothing apparently, 
-    // but we call it to remain consistent with API.
+    // but we call it to remain consistant with API.
     crc_sync_enable(&CRC_0);
 
     // enable the calendar driver
@@ -140,8 +144,8 @@ int32_t CTRL_task_init(void)
         return ERR_NO_MEMORY;
     }
 
-    xDATA_sb_temp = xStreamBufferCreate(DATA_QUEUE_LENGTH, PAGE_SIZE_LESS);
-    if(xDATA_sb_temp == NULL) {
+    xDATA_sb = xStreamBufferCreate(DATA_QUEUE_LENGTH, PAGE_SIZE_LESS);
+    if(xDATA_sb == NULL) {
         return ERR_NO_MEMORY;
     }
     
@@ -158,6 +162,7 @@ int32_t CTRL_task_init(void)
         xEventGroupSetBits(xCTRL_eg, EVENT_VBUS);
     }
 
+    
     /* Initialize flash device(s). */
     //flash_io_init(&seal_flash_descriptor, PAGE_SIZE_LESS);
 
@@ -187,6 +192,12 @@ void CTRL_task(void* pvParameters)
     for(;;)
     {
         /* Receive a page worth of data. */
+<<<<<<< HEAD
+        xStreamBufferReceive(xDATA_sb, endptBuf, PAGE_SIZE_LESS, portMAX_DELAY);
+        
+        /* Write data to external flash device. */
+        //flash_io_write(&seal_flash_descriptor, endptBuf, PAGE_SIZE_LESS);
+=======
         xStreamBufferReceive(xDATA_sb, usbPacket.data, PAGE_SIZE_LESS, portMAX_DELAY);
 
         // setup the packet header and CRC start value, then perform CRC32
@@ -213,5 +224,6 @@ void CTRL_task(void* pvParameters)
 //             /* Write data to external flash device. */
 //             flash_io_write(&seal_flash_descriptor, endptBuf, PAGE_SIZE_LESS);
 //         }
+>>>>>>> 7968d37d5aeaea33cdd06d90062a685c10295d91
     }
 }

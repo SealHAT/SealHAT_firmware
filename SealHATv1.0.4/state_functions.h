@@ -9,8 +9,11 @@
 #define STATE_FUNCTIONS_H_
 
 #include "utilities/seal_USB.h"
-#include "tasks/seal_CTRL.h"
+#include "seal_RTOS.h"
 #include "storage/flash_io.h"
+#include "seal_config.h"
+
+#define DATA_QUEUE_LENGTH (3000)
 
 typedef enum {
     NO_COMMAND      = 0,
@@ -28,6 +31,14 @@ typedef enum {
 extern bool STOP_LISTENING;     /* This should be set to true if the device should no longer listen for incoming commands. */
 extern char READY_TO_RECEIVE;
 extern FLASH_DESCRIPTOR seal_flash_descriptor; /* Declare flash descriptor. */
+
+extern StreamBufferHandle_t xDATA_sb;           // stream buffer for getting data into FLASH or USB
+
+
+
+
+StreamBufferHandle_t init_stream_buffer();
+void set_buffer_trig_level();
 
 /*************************************************************
  * FUNCTION: listen_for_commands()

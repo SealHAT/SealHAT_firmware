@@ -8,7 +8,7 @@
 #ifndef SEAL_CONFIG_H_
 #define SEAL_CONFIG_H_
 
-#include "tasks/seal_Types.h"
+#include "seal_Types.h"
 #include "driver_init.h"
 
 /*************************************************************

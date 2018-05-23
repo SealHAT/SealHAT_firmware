@@ -7,11 +7,25 @@
 
 #include "state_functions.h"
 
-FLASH_DESCRIPTOR seal_flash_descriptor; /* Declare flash descriptor. */
+StreamBufferHandle_t xDATA_sb;              // stream buffer for getting data into FLASH or USB
+FLASH_DESCRIPTOR     seal_flash_descriptor; /* Declare flash descriptor. */
 
 char READY_TO_RECEIVE = 'r';    /* Character sent over USB to device to initiate packet transfer */
-
 bool STOP_LISTENING;            /* This should be set to true if the device should no longer listen for incoming commands. */
+uint8_t dataAr[PAGE_SIZE_EXTRA];
+
+StreamBufferHandle_t init_stream_buffer()
+{
+    xDATA_sb = xStreamBufferCreate(DATA_QUEUE_LENGTH, PAGE_SIZE_LESS);
+
+    return (xDATA_sb);
+}
+
+void set_buffer_trig_level()
+{
+    xStreamBufferSetTriggerLevel(xDATA_sb, PAGE_SIZE_LESS);
+}
+
 
 /*************************************************************
  * FUNCTION: listen_for_commands()
@@ -103,11 +117,12 @@ CMD_RETURN_TYPES call_state_function(SYSTEM_COMMANDS command)
 CMD_RETURN_TYPES configure_device_state()
 {
     SENSOR_CONFIGS   tempConfigStruct;  /* Hold configuration settings read over USB. */
-    CMD_RETURN_TYPES retVal;            /* Return value for the function call. */
+    CMD_RETURN_TYPES errVal;            /* Return value for the function call. */
     bool             packetOK;          /* Checking for incoming packet integrity. */
+    uint32_t         retVal;            /* Return value of USB function calls. */
     
     /* Initialize return value. */
-    retVal = CMD_ERROR;
+    errVal = CMD_ERROR;
     
     /* Reinitialize loop control variable. */
     STOP_LISTENING = false;
@@ -124,6 +139,7 @@ CMD_RETURN_TYPES configure_device_state()
     } while((retVal == 0) || (STOP_LISTENING == true));
     
     // TODO: error check packet
+    packetOK = true; //for testing. will actually need to be checked.
     
     if(packetOK)
     {
@@ -135,10 +151,10 @@ CMD_RETURN_TYPES configure_device_state()
         
         // TODO: restart sensors with new config data? restart device?
         
-        retVal = NO_ERROR;
+        errVal = NO_ERROR;
     }
     
-    return (retVal);
+    return (errVal);
 }
 
 /*************************************************************
@@ -155,6 +171,7 @@ CMD_RETURN_TYPES configure_device_state()
  *************************************************************/
 CMD_RETURN_TYPES retrieve_data_state()
 {
+    CMD_RETURN_TYPES errVal;    /* Return value for the function call. */
     uint32_t pageIndex;         /* Loop control for iterating over flash pages. */
     uint32_t numPagesWritten;   /* Total number of pages currently written to flash. */
     uint32_t retVal;            /* USB return value for error checking/handling. */
@@ -167,11 +184,12 @@ CMD_RETURN_TYPES retrieve_data_state()
      * TODO: send address or page index here too for crash recovery. */
     while(pageIndex < numPagesWritten)
     {
-        // read data from flash
+        /* Read a page of data from external flash. */
+        retVal = flash_io_read(&seal_flash_descriptor, seal_flash_descriptor.buf_0, PAGE_SIZE_LESS);
         
-        //write data to usb
+        /* Write data to USB. */
         do {
-            //retVal = usb_write(void* outData, uint32_t BUFFER_SIZE);
+           retVal = usb_write(seal_flash_descriptor.buf_0, PAGE_SIZE_LESS);
         } while((retVal != USB_OK) || (!usb_dtr()));            
     }
 }
@@ -187,5 +205,52 @@ CMD_RETURN_TYPES retrieve_data_state()
  *************************************************************/
 CMD_RETURN_TYPES stream_data_state()
 {
-    
+    int32_t err;
+
+    xStreamBufferReceive(xDATA_sb, dataAr, PAGE_SIZE_LESS, portMAX_DELAY);
+
+    if(usb_state() == USB_Configured) 
+    {
+        if(usb_dtr()) 
+        {
+            err = usb_write(dataAr, PAGE_SIZE_LESS);
+            if(err != ERR_NONE && err != ERR_BUSY) 
+            {
+                // TODO: log USB errors, however rare they are
+                gpio_set_pin_level(LED_GREEN, false);
+            }
+        }
+        else 
+        {
+            usb_flushTx();
+        }
+    }
+}
+
+/*************************************************************
+ * FUNCTION: log_data_state()
+ * -----------------------------------------------------------
+ * This function
+ *
+ * Parameters: none
+ *
+ * Returns: void
+ *************************************************************/
+CMD_RETURN_TYPES log_data_state()
+{
+       
+}
+
+/*************************************************************
+ * FUNCTION: log_and_stream_state()
+ * -----------------------------------------------------------
+ * This function
+ *
+ * Parameters: none
+ *
+ * Returns: void
+ *************************************************************/
+CMD_RETURN_TYPES log_and_stream_state()
+{
+       
 }
