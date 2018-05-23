@@ -8,7 +8,6 @@
  #include "seal_GPS.h"
 
 TaskHandle_t        xGPS_th;    /* GPS task handle */
-GPS_MSG_t			gps_msg;	/* holds the GPS message to store in flash  */
 
 int32_t GPS_task_init(void *profile)
 {
@@ -18,21 +17,22 @@ int32_t GPS_task_init(void *profile)
 
 void GPS_task(void *pvParameters)
 {
-    
-    int32_t     err     = ERR_NONE;     /* for catching API errors                  */
-    BaseType_t  xResult;                /* holds return value of blocking function  */
-    TickType_t  xMaxBlockTime;          /* max time to wait for the task to resume  */
-    uint32_t    ulNotifyValue;          /* holds the notification bits from the ISR */
-    uint16_t    logcount;               /* how many log entries were parsed         */
+    uint32_t    ulNotifyValue;      /* holds the notification bits from the ISR */
+    int32_t     err;                /* for catching API errors                  */
+    BaseType_t  xResult;            /* holds return value of blocking function  */
+    TickType_t  xMaxBlockTime;      /* max time to wait for the task to resume  */
+    static GPS_MSG_t gps_msg;	    /* holds the GPS message to store in flash  */
 
-    
+    (void)pvParameters;
+    err = ERR_NONE;
+
     /* initialize the GPS module */
-	
 	portENTER_CRITICAL();
 	err = gps_init_i2c(&I2C_GPS) || gps_selftest() ? ERR_NOT_INITIALIZED : ERR_NONE;
 	gpio_set_pin_level(GPS_TXD, true);
 	portEXIT_CRITICAL();
-    // TODO what to do if this fails? Will be handled in SW
+	
+    // TODO what to do if this fails? Should be handled in SW
     if (err) { 
 		gpio_toggle_pin_level(LED_RED); 
 	}
@@ -45,7 +45,7 @@ void GPS_task(void *pvParameters)
     gps_msg.header.id           = DEVICE_ID_GPS;
     gps_msg.header.timestamp    = 0;
     gps_msg.header.msTime       = 0;
-    gps_msg.header.size         = sizeof(gps_log_t)*GPS_LOGSIZE;
+    gps_msg.header.size         = 0;
     
     /* enable the data ready interrupt (TxReady) */
     ext_irq_register(GPS_TXD, GPS_isr_dataready);
@@ -54,44 +54,35 @@ void GPS_task(void *pvParameters)
         /* wait for notification from ISR, returns `pdTRUE` if task, else `pdFALSE` */
         xResult = xTaskNotifyWait( GPS_NOTIFY_NONE, /* bits to clear on entry       */
                                    GPS_NOTIFY_ALL,  /* bits to clear on exit        */
-                                   &ulNotifyValue,   /* stores the notification bits */
+                                   &ulNotifyValue,  /* stores the notification bits */
                                    xMaxBlockTime ); /* max wait time before error   */
         
-        if (pdPASS == xResult) {
+        if (pdPASS == xResult) { /* there was an interrupt */
             /* if the ISR indicated that data is ready */
             if ( GPS_NOTIFY_TXRDY & ulNotifyValue) {
+
                 /* copy the GPS FIFO over I2C */
                 portENTER_CRITICAL();
                 err = gps_readfifo() ? ERR_TIMEOUT : ERR_NONE;
                 portEXIT_CRITICAL();
-                
-                /* set the timestamp and any error flags to the log message */
-                timestamp_FillHeader(&gps_msg.header);
-                if (ERR_NONE != err) { /* log error */
-                    gps_msg.header.id |= DEVICE_ERR_COMMUNICATIONS;
-                    gps_msg.header.size = 0;
-                    err = ctrlLog_write((uint8_t*)&gps_msg, sizeof(DATA_HEADER_t));
-                    if (err < 0) { 
-						gpio_toggle_pin_level(LED_RED); 
-					}
-                } else { /* no error */
-                    logcount = gps_parsefifo(GPS_FIFO, gps_msg.log, GPS_LOGSIZE);
-                    // TODO - snoop the logs and do something if consistently invalid
-                    gps_msg.header.size = logcount * sizeof(gps_log_t);
-                    err = ctrlLog_write((uint8_t*)&gps_msg, sizeof(DATA_HEADER_t) + gps_msg.header.size);
-                    if (err < 0) { 
-						gpio_toggle_pin_level(LED_RED); 
-					}
-                }
+
+                /* and log it, noting communication error if needed */
+                GPS_log(&gps_msg, &err, DEVICE_ERR_COMMUNICATIONS);
             }
-        } else { /* the interrupt timed out */
-            // TODO - implement FIFO ready count (in gps.c) and do something with that
-			err = gps_checkfifo();
-			if (err < 0) {
-				gpio_toggle_pin_level(LED_RED); 	
-			} else {
-				gpio_toggle_pin_level(LED_RED); 
-			}
+        } else { /* the interrupt timed out, figure out why and log */
+            /* check how many samples are in the FIFO */
+            portENTER_CRITICAL();
+            err = gps_checkfifo();
+            portEXIT_CRITICAL();
+
+            /* log the error based on FIFO state */
+            if (GPS_FIFOSIZE < err) {
+                err = ERR_OVERFLOW;
+                GPS_log(&gps_msg, &err, DEVICE_ERR_OVERFLOW | DEVICE_ERR_TIMEOUT);
+            } else {
+                err = ERR_TIMEOUT;
+                GPS_log(&gps_msg, &err, DEVICE_ERR_TIMEOUT);
+            } // TODO expand to handle unchanged FIFO (maybe readout and reset)
         }
     } // END FOREVER LOOP
 }
@@ -109,3 +100,29 @@ void GPS_isr_dataready(void)
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
+void GPS_log(GPS_MSG_t *msg, int32_t *err, const DEVICE_ERR_CODES_t ERR_CODES)
+{
+    uint16_t    logcount;           /* how many log entries were parsed */
+    uint16_t    logsize;            /* size in bytes of the log message */
+
+    /* set the timestamp and any error flags to the log message */
+    timestamp_FillHeader(&msg->header);
+
+    if (*err < 0) {
+        /* if an error occurred with the FIFO, log the error */
+        msg->header.id  |= ERR_CODES;
+        msg->header.size = 0;
+        logsize = sizeof(DATA_HEADER_t);
+    } else { 
+        /* otherwise, extract the GPS data and log it */
+        logcount = gps_parsefifo(GPS_FIFO, msg->log, GPS_LOGSIZE);
+        msg->header.size = logcount * sizeof(gps_log_t);
+        logsize = sizeof(DATA_HEADER_t) + msg->header.size;
+    }
+
+    /* write the message to flash */
+    *err = ctrlLog_write((uint8_t*)msg, logsize);
+    if (*err < 0) { // TODO handle incomplete logs elsewhere
+        gpio_toggle_pin_level(LED_RED);
+    }
+}
