@@ -10,6 +10,7 @@
 #include "limits.h"
 #include "event_groups.h"
 #include "stream_buffer.h"
+#include "tasks/seal_CTRL.h"
 
 #include "hal_io.h"
 #include "hal_rtos.h"

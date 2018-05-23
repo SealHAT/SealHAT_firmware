@@ -8,7 +8,7 @@
 #include "seal_CTRL.h"
 
 TaskHandle_t         xCTRL_th;          // Message accumulator for USB/MEM
-EventGroupHandle_t   xCTRL_eg;          // IMU event group
+EventGroupHandle_t   xCTRL_eg;          // event group
 SemaphoreHandle_t    DATA_mutex;        // mutex to control access to USB terminal
 StreamBufferHandle_t xDATA_sb;          // stream buffer for getting data into FLASH or USB
 SENSOR_CONFIGS       config_settings;   //struct containing sensor and SealHAT configurations 

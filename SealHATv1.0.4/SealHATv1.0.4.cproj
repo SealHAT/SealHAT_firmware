@@ -1396,6 +1396,8 @@
     <Folder Include="hri\" />
     <Folder Include="max44009" />
     <Folder Include="lsm303" />
+    <Folder Include="SealHATv1.0.4\" />
+    <Folder Include="SealHATv1.0.4\ubx\" />
     <Folder Include="sensor_header" />
     <Folder Include="ubx" />
     <Folder Include="storage" />
