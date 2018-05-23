@@ -31,10 +31,9 @@ extern TaskHandle_t xENV_th;        // environmental sensors task (light and tem
 /**
  * Initializes the resources needed for the environmental sensor task.
  *
- * @param period [IN] the period to sample the sensor, in seconds
  * @return system error code. ERR_NONE if successful, or negative if failure (ERR_NO_MEMORY likely).
  */
-int32_t ENV_task_init(uint32_t period);
+int32_t ENV_task_init(void);
 
 /**
  * The environmental task. only use as a task in RTOS.

@@ -11,8 +11,9 @@
 
 TaskHandle_t      xENV_th;      // environmental sensors task (light and temp)
 
-int32_t ENV_task_init(uint32_t period)
+int32_t ENV_task_init(void)
 {
+    const int32_t period = 1;   // TODO: used the user data to set the period
     return (xTaskCreate(ENV_task, "ENV", ENV_STACK_SIZE, (void*)period, ENV_TASK_PRI, &xENV_th) == pdPASS ? ERR_NONE : ERR_NO_MEMORY);
 }
 
@@ -26,17 +27,17 @@ void ENV_task(void* pvParameters)
     (void)pvParameters;
 
     // initialize the temperature sensor
-    si705x_init(&I2C_ENV);
+    err = si705x_init(&I2C_ENV);
 
     // initialize the light sensor
-    max44009_init(&I2C_ENV, LIGHT_ADD_GND);
+    err = max44009_init(&I2C_ENV, LIGHT_ADD_GND);
 
     //    uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
 
     // set the header data
     msg.header.startSym = MSG_START_SYM;
-    msg.header.size   = ENV_PACKET_LEGTH * sizeof(ENV_DATA_t);
-    msg.header.id     = DEVICE_ID_ENVIRONMENTAL;
+    msg.header.size     = ENV_PACKET_LEGTH * sizeof(ENV_DATA_t);
+    msg.header.id       = DEVICE_ID_ENVIRONMENTAL;
 
     // Initialize the xLastWakeTime variable with the current time.
     xPeriod       = pdMS_TO_TICKS((uint32_t)pvParameters * 1000);
@@ -62,7 +63,7 @@ void ENV_task(void* pvParameters)
 
             //  read the light level
             portENTER_CRITICAL();
-            msg.data[i].light = max44009_read_uint16();
+            err = max44009_read(&msg.data[i].light);
             portEXIT_CRITICAL();
 
             //        uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
@@ -72,9 +73,9 @@ void ENV_task(void* pvParameters)
 
             // get temp
             portENTER_CRITICAL();
-            msg.data[i].temp = si705x_measure_asyncGet(&err);
+            err = si705x_measure_asyncGet(&msg.data[i].temp, 250, true);
             portEXIT_CRITICAL();
-            if(err < 0) {
+            if(ERR_BAD_DATA == err) {
                 msg.data[i].temp = -1;
                 msg.header.id   |= DEVICE_ERR_CRC;
             }
@@ -83,8 +84,5 @@ void ENV_task(void* pvParameters)
 
         // send data to the CTRL task once done
         err = ctrlLog_write((uint8_t*)&msg, sizeof(ENV_MSG_t));
-        if(err < ERR_NONE && usb_dtr()){
-            gpio_toggle_pin_level(LED_RED);
-        }
     }
 } 

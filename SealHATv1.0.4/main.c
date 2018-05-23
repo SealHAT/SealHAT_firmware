@@ -8,30 +8,33 @@
 #include "tasks/seal_IMU.h"
 #include "tasks/seal_CTRL.h"
 
-/*** Define the task handles for each system ***/
-//static TaskHandle_t      xGPS_th;               // GPS
-//static TaskHandle_t      xMOD_th;               // Modular port task
-
 int main(void)
 {
+    // clear the I2C busses. I2C devices can lock up the bus if there was a reset during a transaction.
     i2c_unblock_bus(IMU_SDA, IMU_SCL);
     i2c_unblock_bus(GPS_SDA, GPS_SCL);
     i2c_unblock_bus(ENV_SDA, ENV_SCL);
+
+    // initialize the system and set low power mode
 	system_init();
     set_lowPower_mode();
 
-    if(CTRL_task_init(2000) != ERR_NONE) {
+    // start the control task.
+    if(CTRL_task_init() != ERR_NONE) {
         while(1) {;}
     }
 
-    if(ENV_task_init(1) != ERR_NONE) {
+    // start the environmental sensors
+    if(ENV_task_init() != ERR_NONE) {
         while(1) {;}
     }
 
-    if(IMU_task_init(0xCAFED00D) != ERR_NONE) {
+    // IMU task init.
+    if(IMU_task_init() != ERR_NONE) {
         while(1) {;}
     }
 
+    // Start the freeRTOS scheduler, this will never return.
 	vTaskStartScheduler();
 
 	return 0;
