@@ -11,8 +11,6 @@ TaskHandle_t xGPS_th;                    // GPS task handle
 StaticTask_t xGPS_taskbuf;               // task buffer for the GPS task
 StackType_t  xGPS_stack[GPS_STACK_SIZE]; // static stack allocation for GPS task
 
-GPS_MSG_t			gps_msg;	/* holds the GPS message to store in flash  */
-
 int32_t GPS_task_init(void *profile)
 {
     /* create the task, return ERR_NONE or ERR_NO_MEMORY if the task creation failed */
@@ -24,7 +22,7 @@ int32_t GPS_task_init(void *profile)
 
 void GPS_task(void *pvParameters)
 {
-    
+    static GPS_MSG_t gps_msg;	        /* holds the GPS message to store in flash  */
     int32_t     err     = ERR_NONE;     /* for catching API errors                  */
     BaseType_t  xResult;                /* holds return value of blocking function  */
     TickType_t  xMaxBlockTime;          /* max time to wait for the task to resume  */

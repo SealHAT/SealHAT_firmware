@@ -477,6 +477,12 @@
       <Value>../usb/class/cdc</Value>
       <Value>../usb/class/cdc/device</Value>
       <Value>../usb/device</Value>
+      <Value>../lsm303</Value>
+      <Value>../max44009</Value>
+      <Value>../sam-m8q</Value>
+      <Value>../si705x</Value>
+      <Value>../storage</Value>
+      <Value>../tasks</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
   <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
@@ -1126,11 +1132,80 @@
     <Compile Include="sam-m8q\ubxproto\ubxutils.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="seal_config.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="seal_config.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="seal_RTOS.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="seal_RTOS.h">
       <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sensor_header\gps.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sensor_header\LSM303AGR.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sensor_header\LSM303AGRTypes.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sensor_header\max30003types.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sensor_header\max44009.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sensor_header\max44009Types.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sensor_header\si705x.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sensor_header\si705xTypes.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sensor_header\ubx.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sensor_header\ubx\ubx.h">
+      <SubType>compile</SubType>
+      <Link>SealHATv1.0.4\ubx\ubx.h</Link>
+    </Compile>
+    <Compile Include="sensor_header\ubx\ubxaid.h">
+      <SubType>compile</SubType>
+      <Link>SealHATv1.0.4\ubx\ubxaid.h</Link>
+    </Compile>
+    <Compile Include="sensor_header\ubx\ubxcfg.h">
+      <SubType>compile</SubType>
+      <Link>SealHATv1.0.4\ubx\ubxcfg.h</Link>
+    </Compile>
+    <Compile Include="sensor_header\ubx\ubxlog.h">
+      <SubType>compile</SubType>
+      <Link>SealHATv1.0.4\ubx\ubxlog.h</Link>
+    </Compile>
+    <Compile Include="sensor_header\ubx\ubxmessage.h">
+      <SubType>compile</SubType>
+      <Link>SealHATv1.0.4\ubx\ubxmessage.h</Link>
+    </Compile>
+    <Compile Include="sensor_header\ubx\ubxmon.h">
+      <SubType>compile</SubType>
+      <Link>SealHATv1.0.4\ubx\ubxmon.h</Link>
+    </Compile>
+    <Compile Include="sensor_header\ubx\ubxnav.h">
+      <SubType>compile</SubType>
+      <Link>SealHATv1.0.4\ubx\ubxnav.h</Link>
+    </Compile>
+    <Compile Include="sensor_header\ubx\ubxrxm.h">
+      <SubType>compile</SubType>
+      <Link>SealHATv1.0.4\ubx\ubxrxm.h</Link>
+    </Compile>
+    <Compile Include="sensor_header\ubx\ubxutils.h">
+      <SubType>compile</SubType>
+      <Link>SealHATv1.0.4\ubx\ubxutils.h</Link>
     </Compile>
     <Compile Include="seal_Types.h">
       <SubType>compile</SubType>
@@ -1142,6 +1217,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="si705x\si705xTypes.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="state_functions.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="state_functions.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="storage\flash_io.c">
@@ -1273,6 +1354,33 @@
     <Compile Include="thirdparty\RTOS\hal_rtos.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="ubx\ubx.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ubx\ubxaid.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ubx\ubxcfg.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ubx\ubxlog.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ubx\ubxmessage.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ubx\ubxmon.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ubx\ubxnav.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ubx\ubxrxm.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ubx\ubxutils.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="usb\class\cdc\device\cdcdf_acm.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1368,6 +1476,10 @@
     <Folder Include="hri\" />
     <Folder Include="max44009" />
     <Folder Include="lsm303" />
+    <Folder Include="SealHATv1.0.4\" />
+    <Folder Include="SealHATv1.0.4\ubx\" />
+    <Folder Include="sensor_header" />
+    <Folder Include="ubx" />
     <Folder Include="storage" />
     <Folder Include="tasks" />
     <Folder Include="thirdparty\" />
