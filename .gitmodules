@@ -13,3 +13,9 @@
 [submodule "SealHATv1.0.4/storage"]
 	path = SealHATv1.0.4/storage
 	url = https://github.com/SealHAT/storage.git
+
+[submodule "SealHATv1.0.4/sam-m8q"]
+
+	path = SealHATv1.0.4/sam-m8q
+
+	url = https://github.com/SealHAT/SAM-M8Q.git
