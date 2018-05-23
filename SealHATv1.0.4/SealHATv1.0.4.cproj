@@ -1084,6 +1084,48 @@
     <Compile Include="rtos_start.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="sam-m8q\gps.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sam-m8q\gps.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sam-m8q\ubxproto\portable_endian.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sam-m8q\ubxproto\ubx.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sam-m8q\ubxproto\ubx.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sam-m8q\ubxproto\ubxaid.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sam-m8q\ubxproto\ubxcfg.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sam-m8q\ubxproto\ubxlog.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sam-m8q\ubxproto\ubxmessage.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sam-m8q\ubxproto\ubxmon.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sam-m8q\ubxproto\ubxnav.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sam-m8q\ubxproto\ubxnav.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sam-m8q\ubxproto\ubxrxm.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sam-m8q\ubxproto\ubxutils.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="seal_RTOS.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1130,6 +1172,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="tasks\seal_ENV.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="tasks\seal_GPS.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="tasks\seal_GPS.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="tasks\seal_IMU.c">
@@ -1339,6 +1387,8 @@
     <Folder Include="usb\device\" />
     <Folder Include="utilities" />
     <Folder Include="si705x" />
+    <Folder Include="sam-m8q" />
+    <Folder Include="sam-m8q\ubxproto" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Device_Startup\saml21g18b_flash.ld">
