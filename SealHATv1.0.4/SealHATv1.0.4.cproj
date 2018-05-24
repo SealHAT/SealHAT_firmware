@@ -195,7 +195,7 @@
           <AcmeProjectActionInfo Action="File" Source="usb/usb_protocol.c" IsConfig="false" Hash="506QsMNqKwMw3St/nEXa8Q" />
           <AcmeProjectActionInfo Action="File" Source="usb/usb_protocol.h" IsConfig="false" Hash="IjsDWsLIdSQj3pFlkAX0UA" />
           <AcmeProjectActionInfo Action="File" Source="main.c" IsConfig="false" Hash="k0AH7j+BrmdFhBPzCCMptA" />
-          <AcmeProjectActionInfo Action="File" Source="driver_init.c" IsConfig="false" Hash="9u+bZAsqDXXgl6xXKcR/YA" />
+          <AcmeProjectActionInfo Action="File" Source="driver_init.c" IsConfig="false" Hash="rl4oB0mvpj9lmOJltJEtXg" />
           <AcmeProjectActionInfo Action="File" Source="driver_init.h" IsConfig="false" Hash="+arcMqTVRzP3u7AT8nSA3Q" />
           <AcmeProjectActionInfo Action="File" Source="atmel_start_pins.h" IsConfig="false" Hash="biIkNLcfJY9VgExxX9bfUw" />
           <AcmeProjectActionInfo Action="File" Source="examples/driver_examples.h" IsConfig="false" Hash="v1M2kN6s8MzobdHxIH8Njg" />
@@ -218,7 +218,6 @@
           <AcmeProjectActionInfo Action="File" Source="hpl/gclk/hpl_gclk.c" IsConfig="false" Hash="tM4AOXb+7ALB/L2IeO/vng" />
           <AcmeProjectActionInfo Action="File" Source="hpl/gclk/hpl_gclk_base.h" IsConfig="false" Hash="FNjePCljZtEX5ZWtAoTflQ" />
           <AcmeProjectActionInfo Action="File" Source="hpl/mclk/hpl_mclk.c" IsConfig="false" Hash="FWWPZ7b0BPNXmVkYDoYGsg" />
-          <AcmeProjectActionInfo Action="File" Source="hpl/nvmctrl/hpl_nvmctrl.c" IsConfig="false" Hash="neEpBvK1siix8eZ89ypgnA" />
           <AcmeProjectActionInfo Action="File" Source="hpl/osc32kctrl/hpl_osc32kctrl.c" IsConfig="false" Hash="9v1LKW3OyINR0Sa9DiQ8Jw" />
           <AcmeProjectActionInfo Action="File" Source="hpl/oscctrl/hpl_oscctrl.c" IsConfig="false" Hash="ahMR8yrtjwPrragByHyYrQ" />
           <AcmeProjectActionInfo Action="File" Source="hpl/pm/hpl_pm.c" IsConfig="false" Hash="SwW/JwEBwN1NtFIJAbrXbA" />
@@ -237,7 +236,7 @@
           <AcmeProjectActionInfo Action="File" Source="atmel_start.h" IsConfig="false" Hash="yViQX5q7TiAXagxCyetVQw" />
           <AcmeProjectActionInfo Action="File" Source="atmel_start.c" IsConfig="false" Hash="+nmaruIqTOrYG/L+7//fEA" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_dmac_config.h" IsConfig="true" Hash="7aL46a4HpySQ8gZc8jgJ8w" />
-          <AcmeProjectActionInfo Action="File" Source="config/hpl_eic_config.h" IsConfig="true" Hash="ge6bVz5Iu1dq74RuwX+Jzw" />
+          <AcmeProjectActionInfo Action="File" Source="config/hpl_eic_config.h" IsConfig="true" Hash="RWWCuSfANurU4rGMuLJxog" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_evsys_config.h" IsConfig="true" Hash="1LAtGZ0GeaXXUlfD/SAQ3w" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_gclk_config.h" IsConfig="true" Hash="LAX7E50kOPBlFsZrpBGJkQ" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_mclk_config.h" IsConfig="true" Hash="ypj6b88E67yiUigfMMA65A" />
@@ -266,7 +265,7 @@
         <JlinkConfigFile>C:\Users\kmcarrin\Documents\SealHAT_Repos\SealHAT_firmware\SealHATv1.0.4\jlink.config</JlinkConfigFile>
       </ToolOptions>
       <ToolType>com.atmel.avrdbg.tool.samice</ToolType>
-      <ToolNumber>801001700</ToolNumber>
+      <ToolNumber>801001322</ToolNumber>
       <ToolName>J-Link</ToolName>
     </com_atmel_avrdbg_tool_samice>
     <avrtoolinterfaceclock>4000000</avrtoolinterfaceclock>
@@ -478,6 +477,12 @@
       <Value>../usb/class/cdc</Value>
       <Value>../usb/class/cdc/device</Value>
       <Value>../usb/device</Value>
+      <Value>../lsm303</Value>
+      <Value>../max44009</Value>
+      <Value>../sam-m8q</Value>
+      <Value>../si705x</Value>
+      <Value>../storage</Value>
+      <Value>../tasks</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
   <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
@@ -499,11 +504,6 @@
   <armgcc.linker.optimization.GarbageCollectUnusedSections>True</armgcc.linker.optimization.GarbageCollectUnusedSections>
   <armgcc.linker.memorysettings.ExternalRAM />
   <armgcc.linker.miscellaneous.LinkerFlags>-Tsaml21g18b_flash.ld</armgcc.linker.miscellaneous.LinkerFlags>
-  <armgcc.linker.miscellaneous.OtherObjects>
-    <ListValues>
-      <Value>-Wl,--cref</Value>
-    </ListValues>
-  </armgcc.linker.miscellaneous.OtherObjects>
   <armgcc.assembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\arm\cmsis\5.0.1\CMSIS\Include\</Value>
@@ -1132,11 +1132,80 @@
     <Compile Include="sam-m8q\ubxproto\ubxutils.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="seal_config.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="seal_config.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="seal_RTOS.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="seal_RTOS.h">
       <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sensor_header\gps.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sensor_header\LSM303AGR.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sensor_header\LSM303AGRTypes.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sensor_header\max30003types.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sensor_header\max44009.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sensor_header\max44009Types.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sensor_header\si705x.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sensor_header\si705xTypes.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sensor_header\ubx.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sensor_header\ubx\ubx.h">
+      <SubType>compile</SubType>
+      <Link>SealHATv1.0.4\ubx\ubx.h</Link>
+    </Compile>
+    <Compile Include="sensor_header\ubx\ubxaid.h">
+      <SubType>compile</SubType>
+      <Link>SealHATv1.0.4\ubx\ubxaid.h</Link>
+    </Compile>
+    <Compile Include="sensor_header\ubx\ubxcfg.h">
+      <SubType>compile</SubType>
+      <Link>SealHATv1.0.4\ubx\ubxcfg.h</Link>
+    </Compile>
+    <Compile Include="sensor_header\ubx\ubxlog.h">
+      <SubType>compile</SubType>
+      <Link>SealHATv1.0.4\ubx\ubxlog.h</Link>
+    </Compile>
+    <Compile Include="sensor_header\ubx\ubxmessage.h">
+      <SubType>compile</SubType>
+      <Link>SealHATv1.0.4\ubx\ubxmessage.h</Link>
+    </Compile>
+    <Compile Include="sensor_header\ubx\ubxmon.h">
+      <SubType>compile</SubType>
+      <Link>SealHATv1.0.4\ubx\ubxmon.h</Link>
+    </Compile>
+    <Compile Include="sensor_header\ubx\ubxnav.h">
+      <SubType>compile</SubType>
+      <Link>SealHATv1.0.4\ubx\ubxnav.h</Link>
+    </Compile>
+    <Compile Include="sensor_header\ubx\ubxrxm.h">
+      <SubType>compile</SubType>
+      <Link>SealHATv1.0.4\ubx\ubxrxm.h</Link>
+    </Compile>
+    <Compile Include="sensor_header\ubx\ubxutils.h">
+      <SubType>compile</SubType>
+      <Link>SealHATv1.0.4\ubx\ubxutils.h</Link>
     </Compile>
     <Compile Include="seal_Types.h">
       <SubType>compile</SubType>
@@ -1148,6 +1217,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="si705x\si705xTypes.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="state_functions.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="state_functions.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="storage\flash_io.c">
@@ -1279,6 +1354,33 @@
     <Compile Include="thirdparty\RTOS\hal_rtos.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="ubx\ubx.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ubx\ubxaid.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ubx\ubxcfg.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ubx\ubxlog.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ubx\ubxmessage.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ubx\ubxmon.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ubx\ubxnav.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ubx\ubxrxm.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="ubx\ubxutils.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="usb\class\cdc\device\cdcdf_acm.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1374,9 +1476,11 @@
     <Folder Include="hri\" />
     <Folder Include="max44009" />
     <Folder Include="lsm303" />
+    <Folder Include="SealHATv1.0.4\" />
+    <Folder Include="SealHATv1.0.4\ubx\" />
+    <Folder Include="sensor_header" />
+    <Folder Include="ubx" />
     <Folder Include="storage" />
-    <Folder Include="sam-m8q" />
-    <Folder Include="sam-m8q\ubxproto" />
     <Folder Include="tasks" />
     <Folder Include="thirdparty\" />
     <Folder Include="thirdparty\RTOS\" />
@@ -1395,6 +1499,8 @@
     <Folder Include="usb\device\" />
     <Folder Include="utilities" />
     <Folder Include="si705x" />
+    <Folder Include="sam-m8q" />
+    <Folder Include="sam-m8q\ubxproto" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Device_Startup\saml21g18b_flash.ld">

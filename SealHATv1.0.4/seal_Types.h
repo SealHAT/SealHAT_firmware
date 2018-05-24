@@ -13,6 +13,14 @@
 #define PAGE_SIZE_EXTRA         (2176)              /* Maximum NAND Flash page size (*including* extra space) */
 #define PAGE_SIZE_LESS          (2048)              /* Maximum NAND Flash page size (*excluding* extra space) */
 
+#include "LSM303AGR.h"
+#include "LSM303AGRTypes.h"
+#include "gps.h"
+//#include "max30003types.h"
+#include "max44009.h"
+#include "max44009Types.h"
+#include "hal/include/hpl_calendar.h"
+
 /** Sensor types */
 typedef enum {
     DEVICE_ID_RESERVED          = 0x00,
@@ -53,18 +61,76 @@ typedef enum {
     DEVICE_ERR_MASK             = 0x0F
 } DEVICE_ERR_CODES_t;
 
+enum SENSOR_OP {
+    XCEL_OP              = 1,
+    MAG_OP               = 2,
+    GPS_OP               = 3,
+    EKG_OP               = 4,
+    TEMPERATURE_OP       = 5,
+    LIGHT_OP             = 6,
+};
 #define MSG_START_SYM           (0xADDE)
 
 /** Header for data packets from the device **/
 typedef struct __attribute__((__packed__)){
     uint16_t startSym;    // symbol to indicate start of packet
-    uint16_t id;	    // Upper four bits is the device ID, lower four are device specific event flags
-    uint32_t timestamp; // timestamp. how many bits?
-    uint16_t msTime;    // timestamp ms part
-    uint16_t size;		// size of data packet to follow in bytes
+    uint16_t id;	      // Upper four bits is the device ID, lower four are device specific event flags
+    uint32_t timestamp;   // timestamp. how many bits?
+    uint16_t msTime;      // timestamp ms part
+    uint16_t size;		  // size of data packet to follow in bytes
 } DATA_HEADER_t;
 
-#define USB_PACKET_START_SYM           (0xCAFED00D)
+#define USB_PACKET_START_SYM           (0x0DD0FECA)
+
+/***********************GUI------------->MICROCONTROLLER*****************/
+typedef struct{
+   DATA_HEADER_t    acc_headerData;
+   uint32_t         xcel_activeHour;
+   ACC_FULL_SCALE_t acc_scale;
+   ACC_OPMODE_t     acc_mode;
+   uint8_t          acc_sensitivity;
+   uint16_t         threshold;
+   uint8_t          duration;
+} Xcel_TX;
+
+typedef struct{
+   DATA_HEADER_t    mag_headerData;
+   uint32_t         mag_activeHour;
+   MAG_OPMODE_t     mag_mode;
+} Mag_TX;
+
+
+typedef struct{
+   DATA_HEADER_t    temp_headerData;
+   uint32_t         temp_activeHour;
+   uint16_t         temp_samplePeriod;
+} Temp_TX;
+
+typedef struct{
+   DATA_HEADER_t    ekg_headerData;
+   uint32_t         ekg_activeHour;
+//    CNFGECG_RATE_VAL ekg_sampleRate;
+//    CNFGECG_GAIN_VAL ekg_gain;
+//    CNFGECG_DLPF_VAL ekg_lpFreq;
+} Ekg_TX;
+
+typedef struct{
+   DATA_HEADER_t    gps_headerData;
+   uint32_t         gps_activeHour;
+   GPS_PROFILE      default_profile;
+} GPS_TX;
+
+typedef struct __attribute__((__packed__)){
+    DATA_HEADER_t        config_header;        // packet header for all configuration data
+    uint8_t              num_flash_chips;      // number of flash chips installed on device
+    struct calendar_date start_logging_day;    // day the device should begin data collection
+    uint32_t             start_logging_time;   // time the device will start on the day given by start_logging_day
+    Xcel_TX              accelerometer_config; // configuration data for the accelerometer
+    Mag_TX               magnetometer_config;  // configuration data for the magnetometer
+    Temp_TX              temperature_config;   // configuration data for the temperature sensor
+    Ekg_TX               ekg_config;           // configuration data for the EKG
+    GPS_TX               gps_config;           // configuration data for the GPS
+} SENSOR_CONFIGS;
 
 /** Packet that gets sent over USB to the host computer **/
 typedef struct __attribute__((__packed__)){

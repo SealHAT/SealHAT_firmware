@@ -44,7 +44,7 @@ void AccelerometerMotionISR(void);
  *
  * @return system error code. ERR_NONE if successful, or negative if failure (ERR_NO_MEMORY likely).
  */
-int32_t IMU_task_init(void);
+int32_t IMU_task_init(const ACC_FULL_SCALE_t RANGE, const ACC_OPMODE_t ACCMODE, const MAG_OPMODE_t MAGMODE);
 
 /**
  * Sets the IMU (accelerometer and magnetometer) to idle/low-power mode
