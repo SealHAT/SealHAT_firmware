@@ -10,21 +10,22 @@
 #include "sealPrint.h"
 #include "storage\flash_io.h"
 
-TaskHandle_t xCTRL_th;                      // Message accumulator for USB/MEM
-StaticTask_t xCTRL_taskbuf;                 // task buffer for the CTRL task
-StackType_t  xCTRL_stack[CTRL_STACK_SIZE];  // static stack allocation for CTRL task
+TaskHandle_t xCTRL_th;                                      // Message accumulator for USB/MEM
+StaticTask_t xCTRL_taskbuf;                                 // task buffer for the CTRL task
+StackType_t  xCTRL_stack[CTRL_STACK_SIZE];                  // static stack allocation for CTRL task
 
-EventGroupHandle_t xSYSEVENTS_handle;       // IMU event group
-StaticEventGroup_t xSYSEVENTS_eventgroup;   // static memory for the event group
+EventGroupHandle_t xSYSEVENTS_handle;                       // IMU event group
+StaticEventGroup_t xSYSEVENTS_eventgroup;                   // static memory for the event group
 
-SemaphoreHandle_t DATA_mutex;               // mutex to control access to USB terminal
-StaticSemaphore_t xDATA_mutexBuff;          // static memory for the mutex
+SemaphoreHandle_t DATA_mutex;                               // mutex to control access to USB terminal
+StaticSemaphore_t xDATA_mutexBuff;                          // static memory for the mutex
 
-StreamBufferHandle_t xDATA_sb;                      // stream buffer for getting data into FLASH or USB
-static uint8_t dataQueueStorage[DATA_QUEUE_LENGTH]; // static memory for the data queue
-StaticStreamBuffer_t xDataQueueStruct;              // static memory for data queue data structure
+StreamBufferHandle_t xDATA_sb;                              // stream buffer for getting data into FLASH or USB
+static uint8_t       dataQueueStorage[DATA_QUEUE_LENGTH];   // static memory for the data queue
+StaticStreamBuffer_t xDataQueueStruct;                      // static memory for data queue data structure
 
-SENSOR_CONFIGS          config_settings;            //struct containing sensor and SealHAT configurations 
+EEPROM_STORAGE_t eeprom_data;                               //struct containing sensor and SealHAT configurations
+FLASH_DESCRIPTOR seal_flash_descriptor;                     /* Declare flash descriptor. */
 
 void vbus_detection_cb(void)
 {
@@ -151,7 +152,7 @@ int32_t CTRL_task_init(void)
     configASSERT(xDATA_sb);
 
     /* Read stored device settings from EEPROM and make them accessible to all devices. */
-    retVal = read_sensor_configs(&config_settings);
+    retVal = read_sensor_configs(&eeprom_data.config_settings);
     
     /* Initialize flash device(s). */
     //flash_io_init(&seal_flash_descriptor, PAGE_SIZE_LESS);
@@ -194,29 +195,36 @@ void CTRL_task(void* pvParameters)
         /* Receive a page worth of data. */
         xStreamBufferReceive(xDATA_sb, usbPacket.data, PAGE_SIZE_LESS, portMAX_DELAY);
 
-        // setup the packet header and CRC start value, then perform CRC32
-        usbPacket.startSymbol = USB_PACKET_START_SYM;
-        usbPacket.crc = 0xFFFFFFFF;
-        crc_sync_crc32(&CRC_0, (uint32_t*)usbPacket.data, PAGE_SIZE_LESS/sizeof(uint32_t), &usbPacket.crc);
+        /* Write data to USB if the appropriate flag is set. */
+        if((xEventGroupGetBits(xSYSEVENTS_handle) & EVENT_LOGTOUSB) != 0)
+        {
+            // setup the packet header and CRC start value, then perform CRC32
+            usbPacket.startSymbol = USB_PACKET_START_SYM;
+            usbPacket.crc = 0xFFFFFFFF;
+            crc_sync_crc32(&CRC_0, (uint32_t*)usbPacket.data, PAGE_SIZE_LESS/sizeof(uint32_t), &usbPacket.crc);
 
-        // complement CRC to match standard CRC32 implementations
-        usbPacket.crc ^= 0xFFFFFFFF;
+            // complement CRC to match standard CRC32 implementations
+            usbPacket.crc ^= 0xFFFFFFFF;
 
-        if(usb_state() == USB_Configured) {
-            if(usb_dtr()) {
-                err = usb_write(&usbPacket, sizeof(DATA_TRANSMISSION_t));
-                if(err != ERR_NONE && err != ERR_BUSY) {
-                    // TODO: log usb errors, however rare they are
-                    gpio_set_pin_level(LED_GREEN, false);
+            if(usb_state() == USB_Configured) {
+                if(usb_dtr()) {
+                    err = usb_write(&usbPacket, sizeof(DATA_TRANSMISSION_t));
+                    if(err != ERR_NONE && err != ERR_BUSY) {
+                        // TODO: log usb errors, however rare they are
+                        gpio_set_pin_level(LED_GREEN, false);
+                    }
+                }
+                else {
+                    usb_flushTx();
                 }
             }
-            else {
-                usb_flushTx();
-            }
-        }
-        else {
+        }        
+        
+        /* Log data to flash if the appropriate flag is set. */
+        if((xEventGroupGetBits(xSYSEVENTS_handle) & EVENT_LOGTOFLASH) != 0)
+        {
             /* Write data to external flash device. */
-//            flash_io_write(&seal_flash_descriptor, usbPacket.data, PAGE_SIZE_LESS);
+            //flash_io_write(&seal_flash_descriptor, usbPacket.data, PAGE_SIZE_LESS);
         }
     }
 }

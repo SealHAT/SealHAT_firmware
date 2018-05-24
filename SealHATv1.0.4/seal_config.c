@@ -7,8 +7,6 @@
 
 #include "seal_config.h"
 
-#define CONFIG_BLOCK_BASE_ADDR          (0x3F840)   /* First writable page address of on-chip EEPROM. */
-
 /*************************************************************
  * FUNCTION: save_sensor_configs()
  * -----------------------------------------------------------

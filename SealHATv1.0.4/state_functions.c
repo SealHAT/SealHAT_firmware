@@ -7,12 +7,14 @@
 
 #include "state_functions.h"
 
-StreamBufferHandle_t xDATA_sb;              // stream buffer for getting data into FLASH or USB
-FLASH_DESCRIPTOR     seal_flash_descriptor; /* Declare flash descriptor. */
+//StreamBufferHandle_t xDATA_sb;              // stream buffer for getting data into FLASH or USB
 
 char READY_TO_RECEIVE = 'r';    /* Character sent over USB to device to initiate packet transfer */
 bool STOP_LISTENING;            /* This should be set to true if the device should no longer listen for incoming commands. */
 uint8_t dataAr[PAGE_SIZE_EXTRA];
+
+FLASH_DESCRIPTOR seal_flash_descriptor;                     /* Declare flash descriptor. */
+
 
 /*************************************************************
  * FUNCTION: listen_for_commands()
@@ -78,8 +80,6 @@ CMD_RETURN_TYPES call_state_function(SYSTEM_COMMANDS command)
         case CONFIGURE_DEV: retVal = configure_device_state();
             break;      
         case RETRIEVE_DATA: retVal = retrieve_data_state();
-            break;      
-        case STREAM_DATA: retVal = stream_data_state();
             break;
         default: retVal = UNDEFINED_CMD;
             break;
@@ -131,10 +131,10 @@ CMD_RETURN_TYPES configure_device_state()
     if(packetOK)
     {
         /* Temp struct has passed the test and may become the real struct. */
-        config_settings = tempConfigStruct;
+        eeprom_data.config_settings = tempConfigStruct;
         
         /* Save new configuration settings. */
-        save_sensor_configs(&config_settings);
+        save_sensor_configs(&eeprom_data.config_settings);
         
         // TODO: restart sensors with new config data? restart device?
         
@@ -183,70 +183,4 @@ CMD_RETURN_TYPES retrieve_data_state()
     }
     
     return (NO_ERROR);
-}
-
-/*************************************************************
- * FUNCTION: stream_data_state()
- * -----------------------------------------------------------
- * This function streams live data from all sensors to the PC
- * over USB. 
- *
- * Parameters: none
- *
- * Returns:
- *      Success or failure code.
- *************************************************************/
-void stream_data_state()
-{
-    int32_t err;
-
-    while()
-    {
-        xStreamBufferReceive(xDATA_sb, dataAr, PAGE_SIZE_LESS, portMAX_DELAY);
-
-        if(usb_state() == USB_Configured) 
-        {
-            if(usb_dtr()) 
-            {
-                err = usb_write(dataAr, PAGE_SIZE_LESS);
-                if(err != ERR_NONE && err != ERR_BUSY) 
-                {
-                    // TODO: log USB errors, however rare they are
-                    gpio_set_pin_level(LED_GREEN, false);
-                }
-            }
-            else 
-            {
-                usb_flushTx();
-            }
-        } /* END if(usb_state() == USB_Configured) */
-    } /* END while() */    
-}
-
-/*************************************************************
- * FUNCTION: log_data_state()
- * -----------------------------------------------------------
- * This function
- *
- * Parameters: none
- *
- * Returns: void
- *************************************************************/
-CMD_RETURN_TYPES log_data_state()
-{
-       
-}
-
-/*************************************************************
- * FUNCTION: log_and_stream_state()
- * -----------------------------------------------------------
- * This function
- *
- * Parameters: none
- *
- * Returns: void
- *************************************************************/
-CMD_RETURN_TYPES log_and_stream_state()
-{
-       
 }

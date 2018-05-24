@@ -32,8 +32,6 @@ extern bool STOP_LISTENING;     /* This should be set to true if the device shou
 extern char READY_TO_RECEIVE;
 // extern FLASH_DESCRIPTOR seal_flash_descriptor; /* Declare flash descriptor. */
 
-extern StreamBufferHandle_t xDATA_sb;           // stream buffer for getting data into FLASH or USB
-
 
 /*************************************************************
  * FUNCTION: listen_for_commands()
@@ -60,7 +58,5 @@ CMD_RETURN_TYPES configure_device_state();
  * data is sent at a time.
  *************************************************************/
 CMD_RETURN_TYPES retrieve_data_state();
-
-void stream_data_state();
 
 #endif /* STATE_FUNCTIONS_H_ */

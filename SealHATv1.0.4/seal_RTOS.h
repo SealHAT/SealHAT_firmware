@@ -61,9 +61,14 @@ typedef enum {
     EVENT_MASK_ALL      = 0x00FFFFFF    // mask for all bits
 } SYSTEM_EVENT_FLAGS_t;
 
-extern EventGroupHandle_t   xSYSEVENTS_handle;  // event group
-extern SENSOR_CONFIGS       config_settings;    //struct containing sensor and SealHAT configurations
+typedef struct __attribute__((__packed__)){
+    SENSOR_CONFIGS config_settings;
+    uint32_t       current_flash_addr;
+} EEPROM_STORAGE_t;
 
+extern EventGroupHandle_t   xSYSEVENTS_handle;  // event group
+extern EEPROM_STORAGE_t     eeprom_data;        //struct containing sensor and SealHAT configurations
+ 
 void vApplicationIdleHook(void);
 
 void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char *pcTaskName);
