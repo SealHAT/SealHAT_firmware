@@ -61,7 +61,7 @@ typedef enum {
     EVENT_MASK_ALL      = 0x00FFFFFF    // mask for all bits
 } SYSTEM_EVENT_FLAGS_t;
 
-extern EventGroupHandle_t   xCTRL_eg;           // event group
+extern EventGroupHandle_t   xSYSEVENTS_handle;  // event group
 extern SENSOR_CONFIGS       config_settings;    //struct containing sensor and SealHAT configurations
 
 void vApplicationIdleHook(void);

@@ -13,12 +13,12 @@
 #define PAGE_SIZE_EXTRA         (2176)              /* Maximum NAND Flash page size (*including* extra space) */
 #define PAGE_SIZE_LESS          (2048)              /* Maximum NAND Flash page size (*excluding* extra space) */
 
-#include "sensor_header/LSM303AGR.h"
-#include "sensor_header/LSM303AGRTypes.h"
-#include "sensor_header/gps.h"
-#include "sensor_header/max30003types.h"
-#include "sensor_header/max44009.h"
-#include "sensor_header/max44009Types.h"
+#include "LSM303AGR.h"
+#include "LSM303AGRTypes.h"
+#include "gps.h"
+//#include "max30003types.h"
+#include "max44009.h"
+#include "max44009Types.h"
 #include "hal/include/hpl_calendar.h"
 
 /** Sensor types */
@@ -80,6 +80,8 @@ typedef struct __attribute__((__packed__)){
     uint16_t size;		  // size of data packet to follow in bytes
 } DATA_HEADER_t;
 
+#define USB_PACKET_START_SYM           (0x0DD0FECA)
+
 /***********************GUI------------->MICROCONTROLLER*****************/
 typedef struct{
    DATA_HEADER_t    acc_headerData;
@@ -107,9 +109,9 @@ typedef struct{
 typedef struct{
    DATA_HEADER_t    ekg_headerData;
    uint32_t         ekg_activeHour;
-   CNFGECG_RATE_VAL ekg_sampleRate;
-   CNFGECG_GAIN_VAL ekg_gain;
-   CNFGECG_DLPF_VAL ekg_lpFreq;
+//    CNFGECG_RATE_VAL ekg_sampleRate;
+//    CNFGECG_GAIN_VAL ekg_gain;
+//    CNFGECG_DLPF_VAL ekg_lpFreq;
 } Ekg_TX;
 
 typedef struct{
@@ -129,8 +131,6 @@ typedef struct __attribute__((__packed__)){
     Ekg_TX               ekg_config;           // configuration data for the EKG
     GPS_TX               gps_config;           // configuration data for the GPS
 } SENSOR_CONFIGS;
-
-#define USB_PACKET_START_SYM           (0xCAFED00D)
 
 /** Packet that gets sent over USB to the host computer **/
 typedef struct __attribute__((__packed__)){

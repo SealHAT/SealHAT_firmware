@@ -21,8 +21,7 @@
 #define CTRL_TASK_PRI                   (tskIDLE_PRIORITY + 1)
 //#define DATA_QUEUE_LENGTH               (3000)
 
-extern TaskHandle_t         xCTRL_th;           // Message accumulator for USB/MEM
-extern SemaphoreHandle_t    DATA_mutex;         // Mutex to control access to USB terminal
+extern TaskHandle_t       xCTRL_th;           // Message accumulator for USB/MEM
 
 /**
  * This function is the ISR callback intended for use with the VBUS interrupt.
