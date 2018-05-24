@@ -5,7 +5,6 @@
  *  Author: Ethan
  */
 #include "seal_RTOS.h"
-#include "seal_UTIL.h"
 
 void vApplicationIdleHook(void)
 {
@@ -17,10 +16,17 @@ void vApplicationTickHook(void)
     gpio_toggle_pin_level(MOD2);
 }
 
+#define STACK_OVERFLOW_DATA_SIZE        (configMAX_TASK_NAME_LEN)
+typedef struct __attribute__((__packed__)){
+    DATA_HEADER_t header;   // data header
+    uint8_t       buff[STACK_OVERFLOW_DATA_SIZE];
+} STACK_OVERFLOW_PACKET_t;
+
 void vApplicationStackOverflowHook( TaskHandle_t xTask, signed char *pcTaskName )
 {
-    TaskHandle_t xHandle;
-    TaskStatus_t xTaskDetails;
+    TaskHandle_t            xHandle;
+    TaskStatus_t            xTaskDetails;
+    STACK_OVERFLOW_PACKET_t msg;
     (void)xTask;
 
     /* Obtain the handle of a task from its name. */
@@ -30,18 +36,22 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask, signed char *pcTaskName 
     configASSERT(xHandle);
 
     /* Use the handle to obtain further information about the task. */
-    vTaskGetInfo( /* The handle of the task being queried. */
-                  xHandle,
-                  /* The TaskStatus_t structure to complete with information
-                  on xTask. */
-                  &xTaskDetails,
-                  /* Include the stack high water mark value in the
-                  TaskStatus_t structure. */
-                  pdTRUE,
-                  /* Include the task state in the TaskStatus_t structure. */
-                  eInvalid );
+    vTaskGetInfo(xHandle,           // task handle to get info about
+                 &xTaskDetails,    // Return structure
+                 pdFALSE,          // Don't get high water mark since we are obviously overflown
+                 eInvalid );       // Don't get task state since it has died and we are about to revive it
 
-    while(1) {;}
+    msg.header.startSym = MSG_START_SYM;
+    msg.header.id       = DEVICE_ID_SYSTEM | DEVICE_ERR_OVERFLOW;
+    timestamp_FillHeader(&msg.header);
+    msg.header.size     = STACK_OVERFLOW_DATA_SIZE;
+    strncpy(&msg.buff[1], pcTaskName, (STACK_OVERFLOW_DATA_SIZE-1));
+    
+    // TODO: write the error message to the EEPROM so that it can be logged to flash on reboot
+    ctrlLog_write(&msg, sizeof(STACK_OVERFLOW_PACKET_t));
+
+    // TODO: either use this reset function, let watchdog trigger, or both.
+    NVIC_SystemReset();
 }
 
 /* configSUPPORT_STATIC_ALLOCATION is set to 1, so the application must provide an
