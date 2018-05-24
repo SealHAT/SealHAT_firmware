@@ -35,11 +35,6 @@ extern FLASH_DESCRIPTOR seal_flash_descriptor; /* Declare flash descriptor. */
 extern StreamBufferHandle_t xDATA_sb;           // stream buffer for getting data into FLASH or USB
 
 
-
-
-StreamBufferHandle_t init_stream_buffer();
-void set_buffer_trig_level();
-
 /*************************************************************
  * FUNCTION: listen_for_commands()
  * -----------------------------------------------------------

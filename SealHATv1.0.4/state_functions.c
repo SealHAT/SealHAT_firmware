@@ -14,19 +14,6 @@ char READY_TO_RECEIVE = 'r';    /* Character sent over USB to device to initiate
 bool STOP_LISTENING;            /* This should be set to true if the device should no longer listen for incoming commands. */
 uint8_t dataAr[PAGE_SIZE_EXTRA];
 
-StreamBufferHandle_t init_stream_buffer()
-{
-    xDATA_sb = xStreamBufferCreate(DATA_QUEUE_LENGTH, PAGE_SIZE_LESS);
-
-    return (xDATA_sb);
-}
-
-void set_buffer_trig_level()
-{
-    xStreamBufferSetTriggerLevel(xDATA_sb, PAGE_SIZE_LESS);
-}
-
-
 /*************************************************************
  * FUNCTION: listen_for_commands()
  * -----------------------------------------------------------
