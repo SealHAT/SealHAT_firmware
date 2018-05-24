@@ -204,7 +204,7 @@ void CTRL_task(void* pvParameters)
         }
         else {
             /* Write data to external flash device. */
-            flash_io_write(&seal_flash_descriptor, endptBuf, PAGE_SIZE_LESS);
+            flash_io_write(&seal_flash_descriptor, usbPacket.data, PAGE_SIZE_LESS);
         }
     }
 }
