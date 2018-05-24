@@ -180,7 +180,7 @@
 // <e> Interrupt 3 Settings
 // <id> eic_arch_enable_irq_setting3
 #ifndef CONF_EIC_ENABLE_IRQ_SETTING3
-#define CONF_EIC_ENABLE_IRQ_SETTING3 0
+#define CONF_EIC_ENABLE_IRQ_SETTING3 1
 #endif
 
 // <q> External Interrupt 3 Filter Enable
@@ -207,7 +207,7 @@
 // <i> This defines input sense trigger
 // <id> eic_arch_sense3
 #ifndef CONF_EIC_SENSE3
-#define CONF_EIC_SENSE3 EIC_NMICTRL_NMISENSE_RISE_Val
+#define CONF_EIC_SENSE3 EIC_NMICTRL_NMISENSE_FALL_Val
 #endif
 
 // <q> External Interrupt 3 Asynchronous Edge Detection Mode

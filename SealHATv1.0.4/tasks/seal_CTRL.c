@@ -206,9 +206,9 @@ void CTRL_task(void* pvParameters)
                 usb_flushTx();
             }
         }
-//         else {
-//             /* Write data to external flash device. */
-//             flash_io_write(&seal_flash_descriptor, endptBuf, PAGE_SIZE_LESS);
-//         }
+        else {
+            /* Write data to external flash device. */
+            flash_io_write(&seal_flash_descriptor, endptBuf, PAGE_SIZE_LESS);
+        }
     }
 }

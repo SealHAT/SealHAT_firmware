@@ -469,7 +469,7 @@ drivers:
       eic_arch_enable_irq_setting14: false
       eic_arch_enable_irq_setting15: true
       eic_arch_enable_irq_setting2: false
-      eic_arch_enable_irq_setting3: false
+      eic_arch_enable_irq_setting3: true
       eic_arch_enable_irq_setting4: true
       eic_arch_enable_irq_setting5: true
       eic_arch_enable_irq_setting6: false
@@ -521,7 +521,7 @@ drivers:
       eic_arch_sense14: No detection
       eic_arch_sense15: Rising-edge detection
       eic_arch_sense2: No detection
-      eic_arch_sense3: Rising-edge detection
+      eic_arch_sense3: Falling-edge detection
       eic_arch_sense4: Rising-edge detection
       eic_arch_sense5: Rising-edge detection
       eic_arch_sense6: No detection
@@ -1419,7 +1419,8 @@ pads:
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PB23
     mode: Digital output
     user_label: GPS_RESET
-    configuration: null
+    configuration:
+      pad_initial_level: High
   IMU_INT_MAG:
     name: PA27
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PA27
