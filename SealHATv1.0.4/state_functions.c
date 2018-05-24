@@ -190,41 +190,50 @@ CMD_RETURN_TYPES retrieve_data_state()
         /* Write data to USB. */
         do {
            retVal = usb_write(seal_flash_descriptor.buf_0, PAGE_SIZE_LESS);
-        } while((retVal != USB_OK) || (!usb_dtr()));            
+        } while((retVal != USB_OK) || (!usb_dtr()));    
+        
+        pageIndex++;        
     }
+    
+    return (NO_ERROR);
 }
 
 /*************************************************************
  * FUNCTION: stream_data_state()
  * -----------------------------------------------------------
- * This function
+ * This function streams live data from all sensors to the PC
+ * over USB. 
  *
  * Parameters: none
  *
- * Returns: void
+ * Returns:
+ *      Success or failure code.
  *************************************************************/
-CMD_RETURN_TYPES stream_data_state()
+void stream_data_state()
 {
     int32_t err;
 
-    xStreamBufferReceive(xDATA_sb, dataAr, PAGE_SIZE_LESS, portMAX_DELAY);
-
-    if(usb_state() == USB_Configured) 
+    while()
     {
-        if(usb_dtr()) 
+        xStreamBufferReceive(xDATA_sb, dataAr, PAGE_SIZE_LESS, portMAX_DELAY);
+
+        if(usb_state() == USB_Configured) 
         {
-            err = usb_write(dataAr, PAGE_SIZE_LESS);
-            if(err != ERR_NONE && err != ERR_BUSY) 
+            if(usb_dtr()) 
             {
-                // TODO: log USB errors, however rare they are
-                gpio_set_pin_level(LED_GREEN, false);
+                err = usb_write(dataAr, PAGE_SIZE_LESS);
+                if(err != ERR_NONE && err != ERR_BUSY) 
+                {
+                    // TODO: log USB errors, however rare they are
+                    gpio_set_pin_level(LED_GREEN, false);
+                }
             }
-        }
-        else 
-        {
-            usb_flushTx();
-        }
-    }
+            else 
+            {
+                usb_flushTx();
+            }
+        } /* END if(usb_state() == USB_Configured) */
+    } /* END while() */    
 }
 
 /*************************************************************

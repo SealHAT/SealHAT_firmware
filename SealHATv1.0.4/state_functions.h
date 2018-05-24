@@ -66,6 +66,6 @@ CMD_RETURN_TYPES configure_device_state();
  *************************************************************/
 CMD_RETURN_TYPES retrieve_data_state();
 
-CMD_RETURN_TYPES stream_data_state();
+void stream_data_state();
 
 #endif /* STATE_FUNCTIONS_H_ */
