@@ -7,12 +7,17 @@
 
  #include "seal_GPS.h"
 
-TaskHandle_t        xGPS_th;    /* GPS task handle */
+TaskHandle_t xGPS_th;                    // GPS task handle
+StaticTask_t xGPS_taskbuf;               // task buffer for the GPS task
+StackType_t  xGPS_stack[GPS_STACK_SIZE]; // static stack allocation for GPS task
 
 int32_t GPS_task_init(void *profile)
 {
     /* create the task, return ERR_NONE or ERR_NO_MEMORY if the task creation failed */
-    return ( xTaskCreate(GPS_task, "GPS", GPS_STACK_SIZE, (void *)profile, GPS_TASK_PRI, &xGPS_th) == pdPASS ? ERR_NONE : ERR_NO_MEMORY);
+    xGPS_th = xTaskCreateStatic(GPS_task, "GPS", GPS_STACK_SIZE, (void *)profile, GPS_TASK_PRI, xGPS_stack, &xGPS_taskbuf);
+    configASSERT(xGPS_th);
+
+    return ERR_NONE;
 }
 
 void GPS_task(void *pvParameters)

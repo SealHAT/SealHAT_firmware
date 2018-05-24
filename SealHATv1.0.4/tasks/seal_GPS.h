@@ -26,7 +26,6 @@ typedef struct __attribute__((__packed__)) {
 } GPS_MSG_t;
 
 extern TaskHandle_t xGPS_th;
-extern GPS_MSG_t   gps_msg;         /* holds the GPS message to store in flash  */
 
 int32_t GPS_task_init(void *profile);   // TODO restrict to enumerated type or struct
 void    GPS_task(void *pvParameters);

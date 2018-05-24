@@ -33,7 +33,7 @@ extern TaskHandle_t xENV_th;        // environmental sensors task (light and tem
  *
  * @return system error code. ERR_NONE if successful, or negative if failure (ERR_NO_MEMORY likely).
  */
-int32_t ENV_task_init(void);
+int32_t ENV_task_init(const int32_t period);
 
 /**
  * The environmental task. only use as a task in RTOS.
