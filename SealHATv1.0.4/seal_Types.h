@@ -46,8 +46,7 @@ typedef enum {
     DEVICE_ERR_NONE             = 0x00,
     DEVICE_ERR_COMMUNICATIONS   = 0x01,
     DEVICE_ERR_TIMEOUT          = 0x02,
-    DEVICE_ERR_OVERFLOW         = 0x03,
-    DEVICE_ERR_CRC              = 0x04,
+    DEVICE_ERR_OVERFLOW         = 0x04,
     DEVICE_ERR_MASK             = 0x0F
 } DEVICE_ERR_CODES_t;
 

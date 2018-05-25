@@ -16,12 +16,6 @@ void vApplicationTickHook(void)
     gpio_toggle_pin_level(MOD2);
 }
 
-#define STACK_OVERFLOW_DATA_SIZE        (configMAX_TASK_NAME_LEN)
-typedef struct __attribute__((__packed__)){
-    DATA_HEADER_t header;   // data header
-    uint8_t       buff[STACK_OVERFLOW_DATA_SIZE];
-} STACK_OVERFLOW_PACKET_t;
-
 void vApplicationStackOverflowHook( TaskHandle_t xTask, signed char *pcTaskName )
 {
     TaskHandle_t            xHandle;
@@ -44,9 +38,9 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask, signed char *pcTaskName 
     msg.header.startSym = MSG_START_SYM;
     msg.header.id       = DEVICE_ID_SYSTEM | DEVICE_ERR_OVERFLOW;
     timestamp_FillHeader(&msg.header);
-    msg.header.size     = STACK_OVERFLOW_DATA_SIZE;
-    strncpy(&msg.buff[1], pcTaskName, (STACK_OVERFLOW_DATA_SIZE-1));
-    
+    msg.header.size     = snprintf(msg.buff, STACK_OVERFLOW_DATA_SIZE, "OVF,%s", pcTaskName);
+    msg.header.size     = (msg.header.size > STACK_OVERFLOW_DATA_SIZE ? STACK_OVERFLOW_DATA_SIZE : msg.header.size);
+
     // TODO: write the error message to the EEPROM so that it can be logged to flash on reboot
     ctrlLog_write(&msg, sizeof(STACK_OVERFLOW_PACKET_t));
 

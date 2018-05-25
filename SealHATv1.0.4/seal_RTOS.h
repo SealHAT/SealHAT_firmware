@@ -61,6 +61,12 @@ typedef enum {
     EVENT_MASK_ALL      = 0x00FFFFFF    // mask for all bits
 } SYSTEM_EVENT_FLAGS_t;
 
+#define STACK_OVERFLOW_DATA_SIZE        (configMAX_TASK_NAME_LEN*3)
+typedef struct __attribute__((__packed__)){
+    DATA_HEADER_t header;   // data header
+    uint8_t       buff[STACK_OVERFLOW_DATA_SIZE];
+} STACK_OVERFLOW_PACKET_t;
+
 extern EventGroupHandle_t   xSYSEVENTS_handle;  // event group
 extern SENSOR_CONFIGS       config_settings;    //struct containing sensor and SealHAT configurations
 
