@@ -78,9 +78,7 @@ typedef struct{
    uint32_t         xcel_activeHour;
    ACC_FULL_SCALE_t acc_scale;
    ACC_OPMODE_t     acc_mode;
-   uint8_t          acc_sensitivity;
-   uint16_t         threshold;
-   uint8_t          duration;
+   MOTION_DETECT_t  motionDetection;
 } Xcel_TX;
 
 typedef struct{
