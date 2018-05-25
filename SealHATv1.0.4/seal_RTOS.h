@@ -74,4 +74,18 @@ void vApplicationIdleHook(void);
 
 void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char *pcTaskName);
 
+/**
+ * Function to check the reason for the last reset and deal with it accordingly.
+ * Possible Return values:
+ *      	Power On Reset         = 1
+ *          Brownout Detection 12  = 2
+ *          Brownout Detection 33  = 4
+ *          External Reset         = 16
+ *          Watch Dog Timer        = 32
+ *          System Reset Request   = 64
+ *          Backup reset           = 128
+ * @returns the reset reason enumeration
+ */
+int32_t checkResetReason(void);
+
 #endif /* SEAL_RTOS_H_ */

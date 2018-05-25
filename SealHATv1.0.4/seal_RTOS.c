@@ -45,9 +45,37 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask, signed char *pcTaskName 
     ctrlLog_write(&msg, sizeof(STACK_OVERFLOW_PACKET_t));
 
     // TODO: either use this reset function, let watchdog trigger, or both.
-    NVIC_SystemReset();
+    _reset_mcu();
 }
 
+void checkResetReason(void) {
+    enum reset_reason cause;
+    cause = _get_reset_reason();
+
+    switch(cause) {
+        case RESET_REASON_WDT    :
+                                   break;
+        case RESET_REASON_SYST   :
+                                   break;
+        case RESET_REASON_POR    :
+                                   break;
+        case RESET_REASON_BOD12  :
+                                   break;
+        case RESET_REASON_BOD33  :
+                                   break;
+        case RESET_REASON_EXT    :
+                                   break;
+        case RESET_REASON_WDT    :
+                                   break;
+        case RESET_REASON_SYST   :
+                                   break;
+        case RESET_REASON_BACKUP :
+                                   break;
+        default:
+    };
+
+    return (int32_t)cause;
+}
 /* configSUPPORT_STATIC_ALLOCATION is set to 1, so the application must provide an
 implementation of vApplicationGetIdleTaskMemory() to provide the memory that is
 used by the Idle task. */
