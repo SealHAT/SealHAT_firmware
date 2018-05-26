@@ -15,11 +15,20 @@
 #include "event_groups.h"
 #include "stream_buffer.h"
 
-#include "hal_io.h"
+#include "driver_init.h"
+#include "atmel_start_pins.h"
 #include "hal_rtos.h"
 
 #include "seal_Types.h"
 #include "seal_UTIL.h"
+
+#include "tasks/seal_ENV.h"
+#include "tasks/seal_IMU.h"
+#include "tasks/seal_CTRL.h"
+#include "tasks/seal_GPS.h"
+#include "tasks/seal_DATA.h"
+
+#define CONFIG_BLOCK_BASE_ADDR          (0x3F840)   /* First writable page address of on-chip EEPROM. */
 
 // 24-bit system wide event group. NEVER use the numbers directly, they are subject to change. Use the names.
 typedef enum {
@@ -87,5 +96,27 @@ void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char *pcTaskName);
  * @returns the reset reason enumeration
  */
 int32_t checkResetReason(void);
+
+/**
+ * This function fills a header with the current timestamp with seconds and milliseconds.
+ * @param header [IN] pointer to a data header struct to fill with the time.
+ */
+void timestamp_FillHeader(DATA_HEADER_t* header);
+
+/*************************************************************
+ * FUNCTION: save_sensor_configs()
+ * -----------------------------------------------------------
+ * This function writes the SealHAT device's sensor and
+ * configuration data out to the chip's onboard EEPROM.
+ *************************************************************/
+uint32_t save_sensor_configs(SENSOR_CONFIGS *config_settings);
+
+/*************************************************************
+ * FUNCTION: read_sensor_configs()
+ * -----------------------------------------------------------
+ * This function reads the SealHAT device's sensor and
+ * configuration settings from the onboard EEPROM.
+ *************************************************************/
+uint32_t read_sensor_configs(SENSOR_CONFIGS *config_settings);
 
 #endif /* SEAL_RTOS_H_ */
