@@ -15,7 +15,6 @@ uint8_t dataAr[PAGE_SIZE_EXTRA];
 
 FLASH_DESCRIPTOR seal_flash_descriptor;                     /* Declare flash descriptor. */
 
-
 /*************************************************************
  * FUNCTION: listen_for_commands()
  * -----------------------------------------------------------

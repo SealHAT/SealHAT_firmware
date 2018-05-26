@@ -64,6 +64,7 @@ typedef enum {
 typedef struct __attribute__((__packed__)){
     SENSOR_CONFIGS config_settings;
     uint32_t       current_flash_addr;
+    uint8_t        current_flash_chip;
 } EEPROM_STORAGE_t;
 
 extern EventGroupHandle_t   xSYSEVENTS_handle;  // event group

@@ -15,7 +15,7 @@
 
 #include "LSM303AGR.h"
 #include "LSM303AGRTypes.h"
-#include "gps.h"
+#include "sam-m8q/gps.h"
 //#include "max30003types.h"
 #include "max44009.h"
 #include "max44009Types.h"

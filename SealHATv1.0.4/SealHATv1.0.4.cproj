@@ -1093,7 +1093,7 @@
     <Compile Include="seal_config.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="seal_config.h">	    
+    <Compile Include="seal_config.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="sam-m8q\gps.c">

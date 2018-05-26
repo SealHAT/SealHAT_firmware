@@ -13,7 +13,7 @@
 #include "seal_Types.h"
 #include "seal_USB.h"
 #include "sealPrint.h"
-//#include "storage\flash_io.h"
+#include "storage\flash_io.h"
 #include "driver_init.h"
 #include "state_functions.h"
 
