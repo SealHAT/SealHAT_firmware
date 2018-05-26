@@ -23,10 +23,9 @@ int32_t ENV_task_init(const int32_t period)
 
 void ENV_task(void* pvParameters)
 {
-    //    UBaseType_t uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
-    int32_t     err     = ERR_NONE;     // for catching API errors
+    static ENV_MSG_t   msg;             // data buffer for storing sample to send
+    int32_t     err;                    // for catching API errors
     TickType_t  xPeriod;                // the period of the sampling in seconds
-    ENV_MSG_t   msg;                    // reads the data
     TickType_t  xLastWakeTime;          // last wake time variable for timing
     (void)pvParameters;
 
@@ -35,8 +34,6 @@ void ENV_task(void* pvParameters)
 
     // initialize the light sensor
     err = max44009_init(&I2C_ENV, LIGHT_ADD_GND);
-
-    //    uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
 
     // set the header data
     msg.header.startSym = MSG_START_SYM;
@@ -70,8 +67,6 @@ void ENV_task(void* pvParameters)
             err = max44009_read(&msg.data[i].light);
             portEXIT_CRITICAL();
 
-            //        uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
-
             // wait for the temperature sensor to finish
             os_sleep(TEMP_READ_TIME);
 
@@ -81,7 +76,7 @@ void ENV_task(void* pvParameters)
             portEXIT_CRITICAL();
             if(ERR_BAD_DATA == err) {
                 msg.data[i].temp = -1;
-                msg.header.id   |= DEVICE_ERR_CRC;
+                msg.header.id   |= DEVICE_ERR_COMMUNICATIONS;
             }
 
         } // for loop filling the packet

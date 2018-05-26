@@ -1,13 +1,4 @@
-#include "driver_init.h"
-#include "atmel_start_pins.h"
-
-#include "seal_UTIL.h"
 #include "seal_RTOS.h"
-#include "seal_USB.h"
-#include "tasks/seal_ENV.h"
-#include "tasks/seal_IMU.h"
-#include "tasks/seal_CTRL.h"
-#include "tasks/seal_GPS.h"
 
 int main(void)
 {
@@ -20,8 +11,16 @@ int main(void)
     system_init();
     set_lowPower_mode();
 
+    // enable the calendar driver. this function ALWAYS returns ERR_NONE.
+    calendar_enable(&RTC_CALENDAR);
+
     // start the control task.
     if(CTRL_task_init() != ERR_NONE) {
+        while(1) {;}
+    }
+
+    // start the data aggregation task
+    if(DATA_task_init() != ERR_NONE) {
         while(1) {;}
     }
 
@@ -29,12 +28,12 @@ int main(void)
     if(ENV_task_init(1) != ERR_NONE) {
         while(1) {;}
     }
-     
+
     // GPS task init
     if(GPS_task_init(0) != ERR_NONE) {
         while(1) {;}
     }
-  
+
     // IMU task init.
     if(IMU_task_init(ACC_SCALE_2G, ACC_HR_50_HZ, MAG_LP_50_HZ) != ERR_NONE) {
         while(1) {;}

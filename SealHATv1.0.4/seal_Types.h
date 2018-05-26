@@ -46,18 +46,7 @@ typedef enum {
     DEVICE_ERR_NONE             = 0x00,
     DEVICE_ERR_COMMUNICATIONS   = 0x01,
     DEVICE_ERR_TIMEOUT          = 0x02,
-    DEVICE_ERR_OVERFLOW         = 0x03,
-    DEVICE_ERR_CRC              = 0x04,
-    DEVICE_ERR_UNK2             = 0x05,
-    DEVICE_ERR_UNK3             = 0x06,
-    DEVICE_ERR_UNK4             = 0x07,
-    DEVICE_ERR_UNK5             = 0x08,
-    DEVICE_ERR_UNK6             = 0x09,
-    DEVICE_ERR_UNK7             = 0x0A,
-    DEVICE_ERR_UNK8             = 0x0B,
-    DEVICE_ERR_UNK9             = 0x0C,
-    DEVICE_ERR_UNK10            = 0x0D,
-    DEVICE_ERR_UNK11            = 0x0E,
+    DEVICE_ERR_OVERFLOW         = 0x04,
     DEVICE_ERR_MASK             = 0x0F
 } DEVICE_ERR_CODES_t;
 
@@ -69,7 +58,9 @@ enum SENSOR_OP {
     TEMPERATURE_OP       = 5,
     LIGHT_OP             = 6,
 };
+
 #define MSG_START_SYM           (0xADDE)
+#define USB_PACKET_START_SYM    (0x0DD0FECA)
 
 /** Header for data packets from the device **/
 typedef struct __attribute__((__packed__)){
@@ -80,18 +71,13 @@ typedef struct __attribute__((__packed__)){
     uint16_t size;		  // size of data packet to follow in bytes
 } DATA_HEADER_t;
 
-#define USB_PACKET_START_SYM            (0x0DD0FECA)
-#define CONFIG_BLOCK_BASE_ADDR          (0x3F840)       /* First writable page address of on-chip EEPROM. */
-
 /***********************GUI------------->MICROCONTROLLER*****************/
 typedef struct{
    DATA_HEADER_t    acc_headerData;
    uint32_t         xcel_activeHour;
    ACC_FULL_SCALE_t acc_scale;
    ACC_OPMODE_t     acc_mode;
-   uint8_t          acc_sensitivity;
-   uint16_t         threshold;
-   uint8_t          duration;
+   MOTION_DETECT_t  motionDetection;
 } Xcel_TX;
 
 typedef struct{

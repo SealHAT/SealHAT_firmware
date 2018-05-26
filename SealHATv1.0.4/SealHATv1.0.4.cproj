@@ -586,12 +586,6 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="atmel_start.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="atmel_start.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="atmel_start_pins.h">
       <SubType>compile</SubType>
     </Compile>
@@ -1084,18 +1078,6 @@
     <Compile Include="max44009\max44009Types.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="rtos_start.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="rtos_start.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="seal_config.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="seal_config.h">	    
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="sam-m8q\gps.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1142,33 +1124,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="seal_RTOS.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="sensor_header\gps.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="sensor_header\LSM303AGR.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="sensor_header\LSM303AGRTypes.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="sensor_header\max30003types.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="sensor_header\max44009.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="sensor_header\max44009Types.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="sensor_header\si705x.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="sensor_header\si705xTypes.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="sensor_header\ubx.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="sensor_header\ubx\ubx.h">
@@ -1219,12 +1174,6 @@
     <Compile Include="si705x\si705xTypes.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="state_functions.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="state_functions.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="storage\flash_io.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1247,6 +1196,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="tasks\seal_CTRL.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="tasks\seal_DATA.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="tasks\seal_DATA.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="tasks\seal_ENV.c">
@@ -1414,18 +1369,6 @@
     <Compile Include="usb\usb_protocol.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="usb_start.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="usb_start.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="utilities\sealhat_menu.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="utilities\sealhat_menu.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="utilities\sealPrint.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1478,7 +1421,6 @@
     <Folder Include="lsm303" />
     <Folder Include="SealHATv1.0.4\" />
     <Folder Include="SealHATv1.0.4\ubx\" />
-    <Folder Include="sensor_header" />
     <Folder Include="ubx" />
     <Folder Include="storage" />
     <Folder Include="tasks" />
