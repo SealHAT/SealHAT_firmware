@@ -7,13 +7,9 @@
 
 #include "state_functions.h"
 
-//StreamBufferHandle_t xDATA_sb;              // stream buffer for getting data into FLASH or USB
-
 char READY_TO_RECEIVE = 'r';    /* Character sent over USB to device to initiate packet transfer */
 bool STOP_LISTENING;            /* This should be set to true if the device should no longer listen for incoming commands. */
 uint8_t dataAr[PAGE_SIZE_EXTRA];
-
-FLASH_DESCRIPTOR seal_flash_descriptor;                     /* Declare flash descriptor. */
 
 /*************************************************************
  * FUNCTION: listen_for_commands()

@@ -15,13 +15,14 @@
 #include "sealPrint.h"
 #include "storage\flash_io.h"
 #include "driver_init.h"
-#include "state_functions.h"
+#include "seal_config.h"
 
 #define CTRL_STACK_SIZE                 (4000 / sizeof(portSTACK_TYPE))
 #define CTRL_TASK_PRI                   (tskIDLE_PRIORITY + 1)
-//#define DATA_QUEUE_LENGTH               (3000)
+#define DATA_QUEUE_LENGTH               (3000)
 
 extern TaskHandle_t       xCTRL_th;           // Message accumulator for USB/MEM
+extern FLASH_DESCRIPTOR seal_flash_descriptor; /* Declare flash descriptor. */
 
 /**
  * This function is the ISR callback intended for use with the VBUS interrupt.
