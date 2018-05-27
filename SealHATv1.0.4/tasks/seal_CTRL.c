@@ -68,9 +68,18 @@ void CTRL_task(void* pvParameters)
     // register VBUS detection interrupt
     ext_irq_register(VBUS_DETECT, vbus_detection_cb);
 
+    gpio_toggle_pin_level(LED_GREEN);
+    delay_ms(100);
+    gpio_toggle_pin_level(LED_GREEN);
+
+    // enable watchdog timer
+    //wdt_set_timeout_period(&WATCHDOG, 100)
+    wdt_enable(&WATCHDOG);
+
     /* Receive and write data forever. */
     for(;;) {
         // ADD CONTROL CODE HERE
-        os_sleep(pdMS_TO_TICKS(500));
+        wdt_feed(&WATCHDOG);
+        os_sleep(pdMS_TO_TICKS(900));
     }
 }
