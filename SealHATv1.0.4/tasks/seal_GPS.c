@@ -43,7 +43,7 @@ void GPS_task(void *pvParameters)
 	}
 
     /* update the maximum blocking time to current FIFO full time + <max sensor time> */
-    xMaxBlockTime = pdMS_TO_TICKS(26000);	// TODO calculate based on registers
+    xMaxBlockTime = pdMS_TO_TICKS(260000);	// TODO calculate based on registers
 
     /* initialize the message header */
     gps_msg.header.startSym     = MSG_START_SYM;
@@ -84,6 +84,7 @@ void GPS_task(void *pvParameters)
             if (GPS_FIFOSIZE < err) {
                 err = ERR_OVERFLOW;
                 GPS_log(&gps_msg, &err, DEVICE_ERR_OVERFLOW | DEVICE_ERR_TIMEOUT);
+                gps_readfifo();
             } else {
                 err = ERR_TIMEOUT;
                 GPS_log(&gps_msg, &err, DEVICE_ERR_TIMEOUT);

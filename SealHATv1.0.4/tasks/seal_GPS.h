@@ -11,7 +11,7 @@
 #ifndef SEAL_GPS_H_
 #define SEAL_GPS_H_
 
-#define GPS_STACK_SIZE  (2048 / sizeof(portSTACK_TYPE))	/* number of 32-bit words to reserve for task */
+#define GPS_STACK_SIZE  (1900 / sizeof(portSTACK_TYPE))	/* number of 32-bit words to reserve for task */
 #define GPS_TASK_PRI    (tskIDLE_PRIORITY + 3)
 
 typedef enum GPS_NOTIFY_VALS {
