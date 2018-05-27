@@ -7,7 +7,7 @@
 
 #include "seal_CTRL.h"
 
-EEPROM_STORAGE_t eeprom_data;                               //struct containing sensor and SealHAT configurations
+EEPROM_STORAGE_t eeprom_data;                       //struct containing sensor and SealHAT configurations
 
 TaskHandle_t        xCTRL_th;                       // Message accumulator for USB/MEM
 static StaticTask_t xCTRL_taskbuf;                  // task buffer for the CTRL task

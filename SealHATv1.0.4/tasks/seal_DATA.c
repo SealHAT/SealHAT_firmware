@@ -6,18 +6,18 @@
  */
 #include "seal_DATA.h"
 
-TaskHandle_t        xDATA_th;                       // Message accumulator for USB/MEM
-static StaticTask_t xDATA_taskbuf;                  // task buffer for the CTRL task
-static StackType_t  xDATA_stack[DATA_STACK_SIZE];   // static stack allocation for CTRL task
+TaskHandle_t        xDATA_th;                                       // Message accumulator for USB/MEM
+static StaticTask_t xDATA_taskbuf;                                  // task buffer for the CTRL task
+static StackType_t  xDATA_stack[DATA_STACK_SIZE];                   // static stack allocation for CTRL task
 
-static SemaphoreHandle_t DATA_mutex;                // mutex to control access to USB terminal
-static StaticSemaphore_t xDATA_mutexBuff;           // static memory for the mutex
+static SemaphoreHandle_t DATA_mutex;                                // mutex to control access to USB terminal
+static StaticSemaphore_t xDATA_mutexBuff;                           // static memory for the mutex
 
-static StreamBufferHandle_t xDATA_sb;                            // stream buffer for getting data into FLASH or USB
-static uint8_t              dataQueueStorage[DATA_QUEUE_LENGTH]; // static memory for the data queue
-static StaticStreamBuffer_t xDataQueueStruct;                    // static memory for data queue data structure
+static StreamBufferHandle_t xDATA_sb;                               // stream buffer for getting data into FLASH or USB
+static uint8_t              dataQueueStorage[DATA_QUEUE_LENGTH];    // static memory for the data queue
+static StaticStreamBuffer_t xDataQueueStruct;                       // static memory for data queue data structure
 
-FLASH_DESCRIPTOR seal_flash_descriptor;                     /* Declare flash descriptor. */
+FLASH_DESCRIPTOR seal_flash_descriptor;                             /* Declare flash descriptor. */
 
 int32_t ctrlLog_write(uint8_t* buff, const uint32_t LEN)
 {
