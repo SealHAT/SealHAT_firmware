@@ -15,7 +15,7 @@
 
 #include "LSM303AGR.h"
 #include "LSM303AGRTypes.h"
-#include "gps.h"
+#include "sam-m8q/gps.h"
 //#include "max30003types.h"
 #include "max44009.h"
 #include "max44009Types.h"
@@ -77,7 +77,7 @@ typedef struct{
    uint32_t         xcel_activeHour;
    ACC_FULL_SCALE_t acc_scale;
    ACC_OPMODE_t     acc_mode;
-   MOTION_DETECT_t  motionDetection;
+   //MOTION_DETECT_t  motionDetection;
 } Xcel_TX;
 
 typedef struct{
@@ -122,7 +122,7 @@ typedef struct __attribute__((__packed__)){
 /** Packet that gets sent over USB to the host computer **/
 typedef struct __attribute__((__packed__)){
     uint32_t startSymbol;           // start symbol for the data transmission
-    uint8_t  data[PAGE_SIZE_LESS];  // one page of data from flash
+    uint8_t  data[PAGE_SIZE_EXTRA]; // one page of data from flash
     uint32_t crc;                   // crc32 of the DATA (not the start symbol) using IEEE CRC32 polynomial
 } DATA_TRANSMISSION_t;
 

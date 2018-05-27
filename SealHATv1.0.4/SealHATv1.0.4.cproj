@@ -1174,6 +1174,12 @@
     <Compile Include="si705x\si705xTypes.h">
       <SubType>compile</SubType>
     </Compile>
+    <None Include="state_functions.c">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="state_functions.h">
+      <SubType>compile</SubType>
+    </None>
     <Compile Include="storage\flash_io.c">
       <SubType>compile</SubType>
     </Compile>
