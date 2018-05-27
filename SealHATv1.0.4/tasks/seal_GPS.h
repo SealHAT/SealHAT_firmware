@@ -6,6 +6,7 @@
  */
  #include "seal_RTOS.h"
  #include "seal_CTRL.h"
+ #include "seal_DATA.h"
  #include "sam-m8q/gps.h"
 
 #ifndef SEAL_GPS_H_

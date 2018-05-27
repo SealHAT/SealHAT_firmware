@@ -1,5 +1,11 @@
 #include "seal_RTOS.h"
 
+#include "tasks/seal_ENV.h"
+#include "tasks/seal_IMU.h"
+#include "tasks/seal_CTRL.h"
+#include "tasks/seal_GPS.h"
+#include "tasks/seal_DATA.h"
+
 int main(void)
 {
     // clear the I2C busses. I2C devices can lock up the bus if there was a reset during a transaction.

@@ -17,6 +17,8 @@ static StreamBufferHandle_t xDATA_sb;                            // stream buffe
 static uint8_t              dataQueueStorage[DATA_QUEUE_LENGTH]; // static memory for the data queue
 static StaticStreamBuffer_t xDataQueueStruct;                    // static memory for data queue data structure
 
+FLASH_DESCRIPTOR seal_flash_descriptor;                     /* Declare flash descriptor. */
+
 int32_t ctrlLog_write(uint8_t* buff, const uint32_t LEN)
 {
     uint32_t err;
@@ -101,7 +103,7 @@ int32_t DATA_task_init(void)
     configASSERT(xDATA_sb);
 
     /* Initialize flash device(s). */
-    //flash_io_init(&seal_flash_descriptor, PAGE_SIZE_LESS);
+    flash_io_init(&seal_flash_descriptor, PAGE_SIZE_LESS);
 
     xDATA_th = xTaskCreateStatic(DATA_task, "DATA", DATA_STACK_SIZE, NULL, DATA_TASK_PRI, xDATA_stack, &xDATA_taskbuf);
     configASSERT(xDATA_th);
@@ -121,29 +123,37 @@ void DATA_task(void* pvParameters)
         /* Receive a page worth of data. */
         xStreamBufferReceive(xDATA_sb, usbPacket.data, PAGE_SIZE_LESS, portMAX_DELAY);
 
-        // setup the packet header and CRC start value, then perform CRC32
-        usbPacket.startSymbol = USB_PACKET_START_SYM;
-        usbPacket.crc = 0xFFFFFFFF;
-        crc_sync_crc32(&CRC_0, (uint32_t*)usbPacket.data, PAGE_SIZE_LESS/sizeof(uint32_t), &usbPacket.crc);
+         /* Write data to USB if the appropriate flag is set. */
+         if((xEventGroupGetBits(xSYSEVENTS_handle) & EVENT_LOGTOUSB) != 0)
+         {
 
-        // complement CRC to match standard CRC32 implementations
-        usbPacket.crc ^= 0xFFFFFFFF;
+            // setup the packet header and CRC start value, then perform CRC32
+            usbPacket.startSymbol = USB_PACKET_START_SYM;
+            usbPacket.crc = 0xFFFFFFFF;
+            crc_sync_crc32(&CRC_0, (uint32_t*)usbPacket.data, PAGE_SIZE_LESS/sizeof(uint32_t), &usbPacket.crc);
 
-        if(usb_state() == USB_Configured) {
-            if(usb_dtr()) {
-                err = usb_write(&usbPacket, sizeof(DATA_TRANSMISSION_t));
-                if(err != ERR_NONE && err != ERR_BUSY) {
-                    // TODO: log usb errors, however rare they are
-                    gpio_set_pin_level(LED_GREEN, false);
+            // complement CRC to match standard CRC32 implementations
+            usbPacket.crc ^= 0xFFFFFFFF;
+
+            if(usb_state() == USB_Configured) {
+                if(usb_dtr()) {
+                    err = usb_write(&usbPacket, sizeof(DATA_TRANSMISSION_t));
+                    if(err != ERR_NONE && err != ERR_BUSY) {
+                        // TODO: log usb errors, however rare they are
+                        gpio_set_pin_level(LED_GREEN, false);
+                    }
+                }
+                else {
+                    usb_flushTx();
                 }
             }
-            else {
-                usb_flushTx();
-            }
-        }
-        else {
-            /* Write data to external flash device. */
-            //            flash_io_write(&seal_flash_descriptor, usbPacket.data, PAGE_SIZE_LESS);
-        }
+         }
+         
+         /* Log data to flash if the appropriate flag is set. */
+         if((xEventGroupGetBits(xSYSEVENTS_handle) & EVENT_LOGTOFLASH) != 0)
+         {
+             /* Write data to external flash device. */
+             //flash_io_write(&seal_flash_descriptor, usbPacket.data, PAGE_SIZE_LESS);
+         }       
     }
 }

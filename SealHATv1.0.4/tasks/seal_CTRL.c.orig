@@ -1,0 +1,148 @@
+/*
+ * seal_MSG.c
+ *
+ * Created: 30-Apr-18 22:53:41
+ *  Author: Ethan
+ */
+
+#include "seal_CTRL.h"
+
+<<<<<<< HEAD
+TaskHandle_t xCTRL_th;                                      // Message accumulator for USB/MEM
+StaticTask_t xCTRL_taskbuf;                                 // task buffer for the CTRL task
+StackType_t  xCTRL_stack[CTRL_STACK_SIZE];                  // static stack allocation for CTRL task
+
+EventGroupHandle_t xSYSEVENTS_handle;                       // IMU event group
+StaticEventGroup_t xSYSEVENTS_eventgroup;                   // static memory for the event group
+
+SemaphoreHandle_t DATA_mutex;                               // mutex to control access to USB terminal
+StaticSemaphore_t xDATA_mutexBuff;                          // static memory for the mutex
+
+StreamBufferHandle_t xDATA_sb;                              // stream buffer for getting data into FLASH or USB
+static uint8_t       dataQueueStorage[DATA_QUEUE_LENGTH];   // static memory for the data queue
+StaticStreamBuffer_t xDataQueueStruct;                      // static memory for data queue data structure
+
+EEPROM_STORAGE_t eeprom_data;                               //struct containing sensor and SealHAT configurations
+FLASH_DESCRIPTOR seal_flash_descriptor;                     /* Declare flash descriptor. */
+=======
+TaskHandle_t        xCTRL_th;                       // Message accumulator for USB/MEM
+static StaticTask_t xCTRL_taskbuf;                  // task buffer for the CTRL task
+static StackType_t  xCTRL_stack[CTRL_STACK_SIZE];   // static stack allocation for CTRL task
+
+EventGroupHandle_t        xSYSEVENTS_handle;        // IMU event group
+static StaticEventGroup_t xSYSEVENTS_eventgroup;    // static memory for the event group
+
+SENSOR_CONFIGS            config_settings;          //struct containing sensor and SealHAT configurations
+>>>>>>> origin/master
+
+void vbus_detection_cb(void)
+{
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    BaseType_t xResult;
+
+    if( gpio_get_pin_level(VBUS_DETECT) ) {
+        usb_start();
+        xResult = xEventGroupSetBitsFromISR(xSYSEVENTS_handle, EVENT_VBUS, &xHigherPriorityTaskWoken);
+    }
+    else {
+        usb_stop();
+        xResult = xEventGroupClearBitsFromISR(xSYSEVENTS_handle, EVENT_VBUS);
+    }
+
+    if(xResult != pdFAIL) {
+        /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context switch should be requested. */
+        portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+    }
+}
+
+int32_t CTRL_task_init(void)
+{
+    int32_t err = ERR_NONE;
+
+    // create 24-bit system event group for system alerts
+    xSYSEVENTS_handle = xEventGroupCreateStatic(&xSYSEVENTS_eventgroup);
+    configASSERT(xSYSEVENTS_handle);
+
+    /* Read stored device settings from EEPROM and make them accessible to all devices. */
+<<<<<<< HEAD
+    retVal = read_sensor_configs(&eeprom_data.config_settings);
+    
+    /* Initialize flash device(s). */
+    //flash_io_init(&seal_flash_descriptor, PAGE_SIZE_LESS);
+    
+    // initialize (clear all) event group and check current VBUS level
+    xEventGroupClearBits(xSYSEVENTS_handle, EVENT_MASK_ALL);
+    if(gpio_get_pin_level(VBUS_DETECT)) {
+        usb_start();
+        xEventGroupSetBits(xSYSEVENTS_handle, EVENT_VBUS);
+    }
+=======
+    err = read_sensor_configs(&config_settings);
+>>>>>>> origin/master
+
+    // initialize (clear all) event group and check current VBUS level
+    xEventGroupClearBits(xSYSEVENTS_handle, EVENT_MASK_ALL);
+    if(gpio_get_pin_level(VBUS_DETECT)) {
+        usb_start();
+        xEventGroupSetBits(xSYSEVENTS_handle, EVENT_VBUS);
+    }
+
+    xCTRL_th = xTaskCreateStatic(CTRL_task, "CTRL", CTRL_STACK_SIZE, NULL, CTRL_TASK_PRI, xCTRL_stack, &xCTRL_taskbuf);
+    configASSERT(xCTRL_th);
+
+    return err;
+}
+
+void CTRL_task(void* pvParameters)
+{
+    int32_t err;
+    (void)pvParameters;
+
+    // register VBUS detection interrupt
+    ext_irq_register(VBUS_DETECT, vbus_detection_cb);
+
+    /* Receive and write data forever. */
+<<<<<<< HEAD
+    for(;;)
+    {
+        /* Receive a page worth of data. */
+        xStreamBufferReceive(xDATA_sb, usbPacket.data, PAGE_SIZE_LESS, portMAX_DELAY);
+
+        /* Write data to USB if the appropriate flag is set. */
+        if((xEventGroupGetBits(xSYSEVENTS_handle) & EVENT_LOGTOUSB) != 0)
+        {
+            // setup the packet header and CRC start value, then perform CRC32
+            usbPacket.startSymbol = USB_PACKET_START_SYM;
+            usbPacket.crc = 0xFFFFFFFF;
+            crc_sync_crc32(&CRC_0, (uint32_t*)usbPacket.data, PAGE_SIZE_LESS/sizeof(uint32_t), &usbPacket.crc);
+
+            // complement CRC to match standard CRC32 implementations
+            usbPacket.crc ^= 0xFFFFFFFF;
+
+            if(usb_state() == USB_Configured) {
+                if(usb_dtr()) {
+                    err = usb_write(&usbPacket, sizeof(DATA_TRANSMISSION_t));
+                    if(err != ERR_NONE && err != ERR_BUSY) {
+                        // TODO: log usb errors, however rare they are
+                        gpio_set_pin_level(LED_GREEN, false);
+                    }
+                }
+                else {
+                    usb_flushTx();
+                }
+            }
+        }        
+        
+        /* Log data to flash if the appropriate flag is set. */
+        if((xEventGroupGetBits(xSYSEVENTS_handle) & EVENT_LOGTOFLASH) != 0)
+        {
+            /* Write data to external flash device. */
+            //flash_io_write(&seal_flash_descriptor, usbPacket.data, PAGE_SIZE_LESS);
+        }
+=======
+    for(;;) {
+        // ADD CONTROL CODE HERE
+        os_sleep(pdMS_TO_TICKS(500));
+>>>>>>> origin/master
+    }
+}

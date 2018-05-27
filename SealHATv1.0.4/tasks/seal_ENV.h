@@ -7,6 +7,7 @@
 #include "seal_CTRL.h"
 #include "max44009/max44009.h"
 #include "si705x/si705x.h"
+#include "seal_DATA.h"
 
 #ifndef SEAL_ENV_H_
 #define SEAL_ENV_H_

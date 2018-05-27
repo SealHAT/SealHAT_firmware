@@ -5,7 +5,6 @@
  *  Author: Ethan
  */
 
-
 #ifndef SEAL_MSG_H_
 #define SEAL_MSG_H_
 
