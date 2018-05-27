@@ -8,12 +8,6 @@
 #include "seal_CTRL.h"
 
 EEPROM_STORAGE_t eeprom_data;                               //struct containing sensor and SealHAT configurations
-TaskHandle_t xCTRL_th;                                      // Message accumulator for USB/MEM
-StaticTask_t xCTRL_taskbuf;                                 // task buffer for the CTRL task
-StackType_t  xCTRL_stack[CTRL_STACK_SIZE];                  // static stack allocation for CTRL task
-
-EventGroupHandle_t xSYSEVENTS_handle;                       // (not IMU) event group
-StaticEventGroup_t xSYSEVENTS_eventgroup;                   // static memory for the event group
 
 TaskHandle_t        xCTRL_th;                       // Message accumulator for USB/MEM
 static StaticTask_t xCTRL_taskbuf;                  // task buffer for the CTRL task
@@ -51,7 +45,7 @@ int32_t CTRL_task_init(void)
     configASSERT(xSYSEVENTS_handle);
 
     /* Read stored device settings from EEPROM and make them accessible to all devices. */
-    err = eeprom_read_configs(&eeprom_data.config_settings);
+    err = eeprom_read_configs(&eeprom_data);
 
     // initialize (clear all) event group and check current VBUS level
     xEventGroupClearBits(xSYSEVENTS_handle, EVENT_MASK_ALL);
