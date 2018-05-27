@@ -3,7 +3,7 @@
  *
  * Created: 5/11/2018 2:36:10 PM
  *  Author: Anthony Koutroulis
- */ 
+ */
 
  #include "seal_GPS.h"
 
@@ -54,7 +54,7 @@ void GPS_task(void *pvParameters)
     
     /* enable the data ready interrupt (TxReady) */
     ext_irq_register(GPS_TXD, GPS_isr_dataready);
-    
+
     for (;;) {
         /* wait for notification from ISR, returns `pdTRUE` if task, else `pdFALSE` */
         xResult = xTaskNotifyWait( GPS_NOTIFY_NONE, /* bits to clear on entry       */

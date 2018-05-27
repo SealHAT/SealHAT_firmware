@@ -76,13 +76,12 @@ int32_t IMU_task_deinit(void)
 
 void IMU_task(void* pvParameters)
 {
-//    UBaseType_t uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
     const TickType_t xMaxBlockTime = pdMS_TO_TICKS( 3500 );     // max block time, set to slightly more than accelerometer ISR period
+    static IMU_MSG_t   accMsg;                 // data Packet for the accelerometer
+    static IMU_MSG_t   magMsg;                 // data Packet for the magnetometer
     BaseType_t  xResult;                // holds return value of blocking function
     int32_t     err = 0;                // for catching API errors
     uint32_t    ulNotifyValue;          // notification value from ISRs
-    IMU_MSG_t   accMsg;                 // data Packet for the accelerometer
-    IMU_MSG_t   magMsg;                 // data Packet for the magnetometer
     (void)pvParameters;
 
     // initialize the IMU
@@ -103,7 +102,6 @@ void IMU_task(void* pvParameters)
     magMsg.header.id       = DEVICE_ID_MAGNETIC_FIELD;
     magMsg.header.size     = sizeof(AxesRaw_t)*25;
 
-//    uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
     for(;;) {
 
         xResult = xTaskNotifyWait( pdFALSE,          /* Don't clear bits on entry. */

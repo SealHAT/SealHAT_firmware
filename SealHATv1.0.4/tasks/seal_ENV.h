@@ -11,7 +11,7 @@
 #ifndef SEAL_ENV_H_
 #define SEAL_ENV_H_
 
-#define ENV_STACK_SIZE                  (500 / sizeof(portSTACK_TYPE))
+#define ENV_STACK_SIZE                  (500 / sizeof(portSTACK_TYPE))  // high water mark of 47 on 26MAY18
 #define ENV_TASK_PRI                    (tskIDLE_PRIORITY + 2)
 
 #define ENV_PACKET_LEGTH                (12)

@@ -3,7 +3,7 @@
  *
  * Created: 5/11/2018 2:35:55 PM
  *  Author: Anthony Koutroulis
- */ 
+ */
  #include "seal_RTOS.h"
  #include "seal_CTRL.h"
  #include "sam-m8q/gps.h"
@@ -22,7 +22,7 @@ typedef enum GPS_NOTIFY_VALS {
 
 typedef struct __attribute__((__packed__)) {
     DATA_HEADER_t header;
-    gps_log_t     log[GPS_LOGSIZE]; 
+    gps_log_t     log[GPS_LOGSIZE];
 } GPS_MSG_t;
 
 extern TaskHandle_t xGPS_th;

@@ -197,7 +197,7 @@ void assert_triggered(const char *file, uint32_t line);
 #endif
 
 #define configPRIO_BITS 2       // Cortex M0+ has 2 priority bits allowing for 4 levels
-#define configMAX_TASK_NAME_LEN (8)
+#define configMAX_TASK_NAME_LEN (5)
 #define configIDLE_SHOULD_YIELD 1
 #define configQUEUE_REGISTRY_SIZE 0
 #define configUSE_QUEUE_SETS 1
