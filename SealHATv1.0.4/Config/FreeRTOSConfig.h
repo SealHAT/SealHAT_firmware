@@ -193,7 +193,7 @@ void assert_triggered(const char *file, uint32_t line);
 // <i> Default is 64
 // <id> freertos_timer_task_stack_depth
 #ifndef TIMER_TASK_STACK_DEPTH
-#define configTIMER_TASK_STACK_DEPTH (64)
+#define configTIMER_TASK_STACK_DEPTH (128)
 #endif
 
 #define configPRIO_BITS 2       // Cortex M0+ has 2 priority bits allowing for 4 levels

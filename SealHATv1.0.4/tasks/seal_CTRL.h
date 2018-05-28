@@ -15,10 +15,11 @@
 #include "storage\flash_io.h"
 #include "driver_init.h"
 
-#define CTRL_STACK_SIZE                 (1000 / sizeof(portSTACK_TYPE))
-#define CTRL_TASK_PRI                   (tskIDLE_PRIORITY + 1)
+#define CTRL_STACK_SIZE                 (900 / sizeof(portSTACK_TYPE))
+#define CTRL_TASK_PRI                   (tskIDLE_PRIORITY + 3)
 
 #define DATA_QUEUE_LENGTH               (3000)
+#define HOUR_MS                         (10000)
 
 extern TaskHandle_t       xCTRL_th;           // Message accumulator for USB/MEM
 
@@ -38,5 +39,15 @@ int32_t CTRL_task_init(void);
  * The control task. Only use as a task in RTOS, never call directly.
  */
 void CTRL_task(void* pvParameters);
+
+/**
+ *  Updates the hourly timer used in sensor scheduling
+ */
+void CTRL_timer_update(TimerHandle_t xTimer);
+
+/**
+ *  Updates time from GPS, checks and sets active tasks
+ */
+void vHourlyTimerCallback( TimerHandle_t xTimer );
 
 #endif /* SEAL_MSG_H_ */

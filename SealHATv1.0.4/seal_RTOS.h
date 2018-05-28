@@ -32,7 +32,7 @@ typedef enum {
     EVENT_LOGTOFLASH    = 0x00000004, // This bit indicates that the system should be logging data to the flash memory
     EVENT_LOGTOUSB      = 0x00000008, // This bit indicates that the device should be streaming data over USB
     EVENT_DEBUG         = 0x00000010, // This bit indicates that the device is in debug mode. this overrides the other modes.
-    EVENT_SYS_4         = 0x00000020,
+    EVENT_TIME_CHANGE   = 0x00000020,
     EVENT_SYS_5         = 0x00000040,
     EVENT_SYS_6         = 0x00000080,
     EVENT_MASK_SYS      = 0x000000FF, // Mask for watching the system flags
