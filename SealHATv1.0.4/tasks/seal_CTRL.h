@@ -46,8 +46,13 @@ void CTRL_task(void* pvParameters);
 void CTRL_timer_update(TimerHandle_t xTimer);
 
 /**
- *  Updates time from GPS, checks and sets active tasks
+ *  Indicate to the CTRL the start of a new hour
  */
 void vHourlyTimerCallback( TimerHandle_t xTimer );
+
+/**
+ *  Perform hourly bookkeeping, update time from GPS, check and set active sensors
+ */
+void CTRL_hourly_update(void);
 
 #endif /* SEAL_MSG_H_ */

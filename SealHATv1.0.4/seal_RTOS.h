@@ -32,7 +32,7 @@ typedef enum {
     EVENT_LOGTOFLASH    = 0x00000004, // This bit indicates that the system should be logging data to the flash memory
     EVENT_LOGTOUSB      = 0x00000008, // This bit indicates that the device should be streaming data over USB
     EVENT_DEBUG         = 0x00000010, // This bit indicates that the device is in debug mode. this overrides the other modes.
-    EVENT_TIME_CHANGE   = 0x00000020,
+    EVENT_CONFIG_STOP   = 0x00000020,
     EVENT_SYS_5         = 0x00000040,
     EVENT_SYS_6         = 0x00000080,
     EVENT_MASK_SYS      = 0x000000FF, // Mask for watching the system flags
@@ -54,8 +54,8 @@ typedef enum {
     EVENT_IMU_IDLE      = 0x00008000,
 
     EVENT_FLASH_FULL    = 0x00010000,   // mask for determining if external flash is full
-    EVENT_UNUSED_8      = 0x00020000,
-    EVENT_UNUSED_9      = 0x00040000,
+    EVENT_TIME_CHANGE   = 0x00020000,   // indicates the RTC time has changed
+    EVENT_TIME_HOUR     = 0x00040000,   // set at the top of every hour  -- TODO consider combining with EVENT_TIME_CHANGE
     EVENT_UNUSED_10     = 0x00080000,
     EVENT_UNUSED_11     = 0x00100000,
     EVENT_UNUSED_12     = 0x00200000,

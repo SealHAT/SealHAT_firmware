@@ -42,8 +42,7 @@ void vbus_detection_cb(void)
 void vHourlyTimerCallback( TimerHandle_t xTimer )
 {
     configASSERT(xTimer);
-    // TODO add task checking code here
-    xTimerChangePeriod(xTimer, pdMS_TO_TICKS(3600000), 0);
+    xEventGroupSetBits(xSYSEVENTS_handle, EVENT_TIME_HOUR);
 }
 
 int32_t CTRL_task_init(void)
@@ -67,7 +66,7 @@ int32_t CTRL_task_init(void)
     /* create a timer with a one hour period for controlling sensors */
     configASSERT(!configUSE_16_BIT_TICKS);
     xCTRL_timer = xTimerCreateStatic(   "HourTimer",                /* text name of the timer       */
-                                        pdMS_TO_TICKS(HOUR_MS),     /* timer period in ticks        */
+                                        pdMS_TO_TICKS(3600000),     /* timer period in ticks (1Hr)  */
                                         pdFALSE,                    /* manual reload after expire   */
                                         (void*)0,                   /* id of expiration counter     */
                                         vHourlyTimerCallback,       /* timer expiration callback    */
@@ -94,10 +93,19 @@ void CTRL_task(void* pvParameters)
     for(;;) {
                 
         /* check if the system time has changed */
-        if ( 0 != (xEventGroupGetBits(xSYSEVENTS_handle) & EVENT_TIME_CHANGE) ) {
+        if (xEventGroupGetBits(xSYSEVENTS_handle) & EVENT_TIME_CHANGE) {
             xEventGroupClearBits(xSYSEVENTS_handle, EVENT_TIME_CHANGE);
             CTRL_timer_update(xCTRL_timer);
         }
+        
+        /* handle hourly events and state changes */
+        if (xEventGroupGetBits(xSYSEVENTS_handle) & EVENT_TIME_HOUR) {
+            xEventGroupClearBits(xSYSEVENTS_handle, EVENT_TIME_HOUR);
+            /* ensure the timer is hourly */
+            xTimerChangePeriod(xCTRL_timer, pdMS_TO_TICKS(3600000), 0);
+            CTRL_hourly_update();
+        }
+        
         os_sleep(pdMS_TO_TICKS(500));
     }
 }
@@ -111,4 +119,54 @@ void CTRL_timer_update(TimerHandle_t xTimer)
     calendar_get_date_time(&RTC_CALENDAR, &datetime);
     msoffset    = 60000*(59 - datetime.time.min) + 1000*(60 - (datetime.time.sec % 60));
     xTimerChangePeriod(xTimer, pdMS_TO_TICKS(msoffset), 0);
+}
+
+void CTRL_hourly_update()
+{
+    uint32_t hour, prev, sensor;
+    struct calendar_date_time datetime;
+    
+    // TODO add a check to see if logging has started ( eeprom_data.config_settings.start_logging_<day/time> )
+    //  can use calendar alarm for this
+    
+    /* get the active hour and represented as a bit field and a mask for the current and previous hours */
+    calendar_get_date_time(&RTC_CALENDAR, &datetime);
+    hour = (1 << datetime.time.hour);
+    prev = hour == 0 ? 1 << 23 : hour >> 1;
+    
+    /* check the active hours for each sensor */
+    sensor = eeprom_data.config_settings.accelerometer_config.xcel_activeHour;
+    if ((sensor & (hour|prev)) == hour) {
+        /* wakeup */
+    } else if ((sensor & (hour|prev)) == prev) {
+        /* sleep */
+    }
+    
+    sensor = eeprom_data.config_settings.ekg_config.ekg_activeHour;
+    if ((sensor & (hour|prev)) == hour) {
+        /* wakeup */
+    } else if ((sensor & (hour|prev)) == prev) {
+        /* sleep */
+    }
+    
+    sensor = eeprom_data.config_settings.gps_config.gps_activeHour;
+    if ((sensor & (hour|prev)) == hour) {
+        /* wakeup */
+        } else if ((sensor & (hour|prev)) == prev) {
+        /* sleep */
+    }
+    
+    sensor = eeprom_data.config_settings.magnetometer_config.mag_activeHour;
+    if ((sensor & (hour|prev)) == hour) {
+        /* wakeup */
+        } else if ((sensor & (hour|prev)) == prev) {
+        /* sleep */
+    }
+    
+    sensor = eeprom_data.config_settings.temperature_config.temp_activeHour;
+    if ((sensor & (hour|prev)) == hour) {
+        /* wakeup */
+        } else if ((sensor & (hour|prev)) == prev) {
+        /* sleep */
+    }
 }
