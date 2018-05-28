@@ -58,6 +58,7 @@
         <file category="doc" condition="ARMCC, GCC, IAR" name="hal/documentation/i2c_master_sync.rst"/>
         <file category="doc" condition="ARMCC, GCC, IAR" name="hal/documentation/spi_master_sync.rst"/>
         <file category="doc" condition="ARMCC, GCC, IAR" name="hal/documentation/usb_device_async.rst"/>
+        <file category="doc" condition="ARMCC, GCC, IAR" name="hal/documentation/wdt.rst"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hal/include/hal_atomic.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hal/include/hal_calendar.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hal/include/hal_crc_sync.h"/>
@@ -72,6 +73,7 @@
         <file category="header" condition="ARMCC, GCC, IAR" name="hal/include/hal_sleep.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hal/include/hal_spi_m_sync.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hal/include/hal_usb_device.h"/>
+        <file category="header" condition="ARMCC, GCC, IAR" name="hal/include/hal_wdt.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hal/include/hpl_core.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hal/include/hpl_crc_sync.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hal/include/hpl_delay.h"/>
@@ -102,6 +104,7 @@
         <file category="header" condition="ARMCC, GCC, IAR" name="hal/include/hpl_usb_device.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hal/include/hpl_usb_host.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hal/include/hpl_user_area.h"/>
+        <file category="header" condition="ARMCC, GCC, IAR" name="hal/include/hpl_wdt.h"/>
         <file category="source" condition="ARMCC, GCC, IAR" name="hal/src/hal_atomic.c"/>
         <file category="source" condition="ARMCC, GCC, IAR" name="hal/src/hal_crc_sync.c"/>
         <file category="source" condition="ARMCC, GCC, IAR" name="hal/src/hal_delay.c"/>
@@ -114,6 +117,7 @@
         <file category="source" condition="ARMCC, GCC, IAR" name="hal/src/hal_sleep.c"/>
         <file category="source" condition="ARMCC, GCC, IAR" name="hal/src/hal_spi_m_sync.c"/>
         <file category="source" condition="ARMCC, GCC, IAR" name="hal/src/hal_usb_device.c"/>
+        <file category="source" condition="ARMCC, GCC, IAR" name="hal/src/hal_wdt.c"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hal/utils/include/compiler.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hal/utils/include/err_codes.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hal/utils/include/events.h"/>
@@ -257,6 +261,8 @@
         <file category="source" condition="ARMCC, GCC, IAR" name="hpl/tc/tc_lite.c"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hpl/tc/tc_lite.h"/>
         <file category="source" condition="ARMCC, GCC, IAR" name="hpl/usb/hpl_usb.c"/>
+        <file category="source" condition="ARMCC, GCC, IAR" name="hpl/wdt/hpl_wdt.c"/>
+        <file category="header" condition="ARMCC, GCC, IAR" name="hpl/wdt/hpl_wdt_base.h"/>
         <file category="source" condition="ARMCC, GCC, IAR" name="rtos_start.c"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="rtos_start.h"/>
         <file category="source" condition="ARMCC, GCC, IAR" name="usb_start.c"/>
@@ -274,6 +280,7 @@
         <file attr="config" category="header" condition="ARMCC, GCC, IAR" name="config/hpl_rtc_config.h"/>
         <file attr="config" category="header" condition="ARMCC, GCC, IAR" name="config/hpl_sercom_config.h"/>
         <file attr="config" category="header" condition="ARMCC, GCC, IAR" name="config/hpl_usb_config.h"/>
+        <file attr="config" category="header" condition="ARMCC, GCC, IAR" name="config/hpl_wdt_config.h"/>
         <file attr="config" category="header" condition="ARMCC, GCC, IAR" name="config/peripheral_clk_config.h"/>
         <file attr="config" category="header" condition="ARMCC, GCC, IAR" name="config/FreeRTOSConfig.h"/>
         <file attr="config" category="header" condition="ARMCC, GCC, IAR" name="config/usbd_config.h"/>
@@ -299,6 +306,7 @@
         <file category="include" condition="ARMCC, GCC, IAR" name="hpl/sercom"/>
         <file category="include" condition="ARMCC, GCC, IAR" name="hpl/tc"/>
         <file category="include" condition="ARMCC, GCC, IAR" name="hpl/usb"/>
+        <file category="include" condition="ARMCC, GCC, IAR" name="hpl/wdt"/>
         <file category="include" condition="ARMCC, GCC, IAR" name="hri"/>
         <file category="include" condition="ARMCC, GCC, IAR" name=""/>
         <file category="include" condition="ARMCC, GCC, IAR" name="config"/>
