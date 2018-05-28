@@ -5,10 +5,11 @@
 #include "tasks/seal_CTRL.h"
 #include "tasks/seal_GPS.h"
 #include "tasks/seal_DATA.h"
+#include "tasks/seal_SERIAL.h"
 
 int main(void)
 {
-    // clear the I2C busses. I2C devices can lock up the bus if there was a reset during a transaction.
+    // clear the I2C buses. I2C devices can lock up the bus if there was a reset during a transaction.
     i2c_unblock_bus(ENV_SDA, ENV_SCL);
     i2c_unblock_bus(GPS_SDA, GPS_SCL);
     i2c_unblock_bus(IMU_SDA, IMU_SCL);
@@ -42,6 +43,11 @@ int main(void)
 
     // IMU task init.
     if(IMU_task_init(ACC_SCALE_2G, ACC_HR_50_HZ, MAG_LP_50_HZ) != ERR_NONE) {
+        while(1) {;}
+    }
+    
+    // SERIAL task init.
+    if(SERIAL_task_init() != ERR_NONE) {
         while(1) {;}
     }
 
