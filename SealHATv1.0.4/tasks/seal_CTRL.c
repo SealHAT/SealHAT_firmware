@@ -6,6 +6,10 @@
  */
 
 #include "seal_CTRL.h"
+#include "seal_USB.h"
+#include "sealPrint.h"
+//#include "storage\flash_io.h"
+#include "driver_init.h"
 
 TaskHandle_t        xCTRL_th;                       // Message accumulator for USB/MEM
 static StaticTask_t xCTRL_taskbuf;                  // task buffer for the CTRL task

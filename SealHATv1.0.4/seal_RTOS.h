@@ -22,12 +22,6 @@
 #include "seal_Types.h"
 #include "seal_UTIL.h"
 
-#include "tasks/seal_ENV.h"
-#include "tasks/seal_IMU.h"
-#include "tasks/seal_CTRL.h"
-#include "tasks/seal_GPS.h"
-#include "tasks/seal_DATA.h"
-
 #define CONFIG_BLOCK_BASE_ADDR          (0x3F840)   /* First writable page address of on-chip EEPROM. */
 
 // 24-bit system wide event group. NEVER use the numbers directly, they are subject to change. Use the names.

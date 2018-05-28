@@ -4,7 +4,8 @@
  * Created: 30-Apr-18 22:40:17
  *  Author: Ethan
  */
-#include "seal_CTRL.h"
+#include "seal_RTOS.h"
+#include "seal_Types.h"
 #include "lsm303/LSM303AGR.h"
 
 #ifndef SEAL_IMU_H_

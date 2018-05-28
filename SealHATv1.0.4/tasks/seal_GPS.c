@@ -6,6 +6,7 @@
  */
 
  #include "seal_GPS.h"
+ #include "seal_DATA.h"
 
 TaskHandle_t xGPS_th;                    // GPS task handle
 StaticTask_t xGPS_taskbuf;               // task buffer for the GPS task

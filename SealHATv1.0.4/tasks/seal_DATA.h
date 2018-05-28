@@ -10,10 +10,7 @@
 #define SEAL_DATA_H_
 
 #include "seal_RTOS.h"
-#include "seal_USB.h"
-#include "sealPrint.h"
-#include "storage\flash_io.h"
-#include "driver_init.h"
+#include "seal_Types.h"
 
 #define DATA_STACK_SIZE                 (1000 / sizeof(portSTACK_TYPE))
 #define DATA_TASK_PRI                   (tskIDLE_PRIORITY + 1)
