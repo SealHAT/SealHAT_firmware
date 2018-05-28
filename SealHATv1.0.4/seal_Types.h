@@ -9,6 +9,7 @@
 #define SEAL_TYPES_H_
 
 #define SEAL_HAT_VERSION        (1.0)
+#define SEALHAT_BASE_YEAR       (2018)
 
 #define PAGE_SIZE_EXTRA         (2176)              /* Maximum NAND Flash page size (*including* extra space) */
 #define PAGE_SIZE_LESS          (2048)              /* Maximum NAND Flash page size (*excluding* extra space) */
