@@ -85,6 +85,7 @@ int32_t DATA_task_init(void)
     time.sec  = 0;
 
     // return values not checked since they  ALWAYS returns ERR_NONE.
+    calendar_set_baseyear(&RTC_CALENDAR, 2018);
     calendar_set_date(&RTC_CALENDAR, &date);
     calendar_set_time(&RTC_CALENDAR, &time);
 
