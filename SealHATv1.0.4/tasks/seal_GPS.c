@@ -121,7 +121,7 @@ void GPS_log(GPS_MSG_t *msg, int32_t *err, const DEVICE_ERR_CODES_t ERR_CODES)
         logsize = sizeof(DATA_HEADER_t);
     } else { 
         /* otherwise, extract the GPS data and log it */
-        logcount = gps_parsefifo(GPS_FIFO, msg->log, GPS_LOGSIZE);
+        logcount = gps_parsefifo(msg->log, GPS_LOGSIZE);
         msg->header.size = logcount * sizeof(gps_log_t);
         logsize = sizeof(DATA_HEADER_t) + msg->header.size;
     }
