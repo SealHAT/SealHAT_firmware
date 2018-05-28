@@ -5,6 +5,7 @@
  *  Author: Ethan
  */
 #include "seal_CTRL.h"
+#include "seal_DATA.h"
 #include "lsm303/LSM303AGR.h"
 
 #ifndef SEAL_IMU_H_
