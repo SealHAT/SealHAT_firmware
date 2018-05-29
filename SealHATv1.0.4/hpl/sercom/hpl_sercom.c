@@ -108,6 +108,7 @@
 		    (uint16_t)(CONF_SERCOM_##n##_USART_BAUD_RATE), CONF_SERCOM_##n##_USART_FRACTIONAL,                         \
 		    CONF_SERCOM_##n##_USART_RECEIVE_PULSE_LENGTH, CONF_SERCOM_##n##_USART_DEBUG_STOP_MODE,                     \
 	}
+
 /**
  * \brief SERCOM USART configuration type
  */
@@ -412,9 +413,17 @@ uint8_t _usart_sync_read_byte(const struct _usart_sync_device *const device)
 /**
  * \brief Check if USART is ready to send next byte
  */
-bool _usart_sync_is_byte_sent(const struct _usart_sync_device *const device)
+bool _usart_sync_is_ready_to_send(const struct _usart_sync_device *const device)
 {
 	return hri_sercomusart_get_interrupt_DRE_bit(device->hw);
+}
+
+/**
+ * \brief Check if USART transmission complete
+ */
+bool _usart_sync_is_transmit_done(const struct _usart_sync_device *const device)
+{
+	return hri_sercomusart_get_interrupt_TXC_bit(device->hw);
 }
 
 /**
