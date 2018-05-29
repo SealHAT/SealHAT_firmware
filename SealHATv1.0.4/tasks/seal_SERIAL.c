@@ -65,11 +65,13 @@ void SERIAL_task(void* pvParameters)
             {
                 case CONFIGURE_DEV: 
                 {
+                    xEventGroupClearBits(xSYSEVENTS_handle, (EVENT_LOGTOUSB | EVENT_LOGTOFLASH));
                     retVal = configure_sealhat_device();
                     break;
                 }                    
                 case RETRIEVE_DATA: 
                 {
+                    xEventGroupClearBits(xSYSEVENTS_handle, (EVENT_LOGTOUSB | EVENT_LOGTOFLASH));
                     retVal = retrieve_sealhat_data();
                     break;
                 }                    
@@ -174,7 +176,8 @@ CMD_RETURN_TYPES configure_sealhat_device()
         /* Save new configuration settings. */
         eeprom_save_configs(&eeprom_data);
         
-        // TODO: restart sensors with new config data? restart device?
+        // TODO: ANTHONY uncomment next line and do your thing
+        //xEventGroupSetBits(xSYSEVENTS_handle, EVENT_CONFIG_COMPLETE);
         
         errVal = NO_ERROR;
     }

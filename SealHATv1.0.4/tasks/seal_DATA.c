@@ -124,10 +124,9 @@ void DATA_task(void* pvParameters)
         /* Receive a page worth of data. */
         xStreamBufferReceive(xDATA_sb, usbPacket.data, PAGE_SIZE_LESS, portMAX_DELAY);
 
-         /* Write data to USB if the appropriate flag is set. */
-         if((xEventGroupGetBits(xSYSEVENTS_handle) & EVENT_LOGTOUSB) != 0)
-         {
-
+        /* Write data to USB if the appropriate flag is set. */
+        if((xEventGroupGetBits(xSYSEVENTS_handle) & EVENT_LOGTOUSB) != 0)
+        {
             // setup the packet header and CRC start value, then perform CRC32
             usbPacket.startSymbol = USB_PACKET_START_SYM;
             usbPacket.crc = 0xFFFFFFFF;
