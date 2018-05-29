@@ -43,6 +43,19 @@ void EXTERNAL_IRQ_init(void)
 	hri_mclk_set_APBAMASK_EIC_bit(MCLK);
 
 	// Set pin direction to input
+	gpio_set_pin_direction(VBUS_DETECT, GPIO_DIRECTION_IN);
+
+	gpio_set_pin_pull_mode(VBUS_DETECT,
+	                       // <y> Pull configuration
+	                       // <id> pad_pull_config
+	                       // <GPIO_PULL_OFF"> Off
+	                       // <GPIO_PULL_UP"> Pull-up
+	                       // <GPIO_PULL_DOWN"> Pull-down
+	                       GPIO_PULL_OFF);
+
+	gpio_set_pin_function(VBUS_DETECT, PINMUX_PA18A_EIC_EXTINT2);
+
+	// Set pin direction to input
 	gpio_set_pin_direction(GPS_TXD, GPIO_DIRECTION_IN);
 
 	gpio_set_pin_pull_mode(GPS_TXD,
@@ -80,19 +93,6 @@ void EXTERNAL_IRQ_init(void)
 	                       GPIO_PULL_OFF);
 
 	gpio_set_pin_function(IMU_INT2_XL, PINMUX_PA21A_EIC_EXTINT5);
-
-	// Set pin direction to input
-	gpio_set_pin_direction(VBUS_DETECT, GPIO_DIRECTION_IN);
-
-	gpio_set_pin_pull_mode(VBUS_DETECT,
-	                       // <y> Pull configuration
-	                       // <id> pad_pull_config
-	                       // <GPIO_PULL_OFF"> Off
-	                       // <GPIO_PULL_UP"> Pull-up
-	                       // <GPIO_PULL_DOWN"> Pull-down
-	                       GPIO_PULL_OFF);
-
-	gpio_set_pin_function(VBUS_DETECT, PINMUX_PA11A_EIC_EXTINT11);
 
 	// Set pin direction to input
 	gpio_set_pin_direction(IMU_INT_MAG, GPIO_DIRECTION_IN);
@@ -451,23 +451,23 @@ void system_init(void)
 	// GPIO on PA03
 
 	// Set pin direction to output
-	gpio_set_pin_direction(MOD8, GPIO_DIRECTION_OUT);
+	gpio_set_pin_direction(MOD_VREF, GPIO_DIRECTION_OUT);
 
-	gpio_set_pin_level(MOD8,
+	gpio_set_pin_level(MOD_VREF,
 	                   // <y> Initial level
 	                   // <id> pad_initial_level
 	                   // <false"> Low
 	                   // <true"> High
 	                   false);
 
-	gpio_set_pin_function(MOD8, GPIO_PIN_FUNCTION_OFF);
+	gpio_set_pin_function(MOD_VREF, GPIO_PIN_FUNCTION_OFF);
 
 	// GPIO on PA10
 
 	// Set pin direction to input
-	gpio_set_pin_direction(ENV_IRQ, GPIO_DIRECTION_IN);
+	gpio_set_pin_direction(MOD3, GPIO_DIRECTION_IN);
 
-	gpio_set_pin_pull_mode(ENV_IRQ,
+	gpio_set_pin_pull_mode(MOD3,
 	                       // <y> Pull configuration
 	                       // <id> pad_pull_config
 	                       // <GPIO_PULL_OFF"> Off
@@ -475,7 +475,21 @@ void system_init(void)
 	                       // <GPIO_PULL_DOWN"> Pull-down
 	                       GPIO_PULL_OFF);
 
-	gpio_set_pin_function(ENV_IRQ, GPIO_PIN_FUNCTION_OFF);
+	gpio_set_pin_function(MOD3, GPIO_PIN_FUNCTION_OFF);
+
+	// GPIO on PA11
+
+	// Set pin direction to output
+	gpio_set_pin_direction(MEM_CS3, GPIO_DIRECTION_OUT);
+
+	gpio_set_pin_level(MEM_CS3,
+	                   // <y> Initial level
+	                   // <id> pad_initial_level
+	                   // <false"> Low
+	                   // <true"> High
+	                   true);
+
+	gpio_set_pin_function(MEM_CS3, GPIO_PIN_FUNCTION_OFF);
 
 	// GPIO on PA14
 
@@ -490,21 +504,6 @@ void system_init(void)
 	                   true);
 
 	gpio_set_pin_function(MEM_CS2, GPIO_PIN_FUNCTION_OFF);
-
-	// GPIO on PA18
-
-	// Set pin direction to input
-	gpio_set_pin_direction(GPS_TIMEPULSE, GPIO_DIRECTION_IN);
-
-	gpio_set_pin_pull_mode(GPS_TIMEPULSE,
-	                       // <y> Pull configuration
-	                       // <id> pad_pull_config
-	                       // <GPIO_PULL_OFF"> Off
-	                       // <GPIO_PULL_UP"> Pull-up
-	                       // <GPIO_PULL_DOWN"> Pull-down
-	                       GPIO_PULL_OFF);
-
-	gpio_set_pin_function(GPS_TIMEPULSE, GPIO_PIN_FUNCTION_OFF);
 
 	// GPIO on PB02
 
@@ -523,30 +522,30 @@ void system_init(void)
 	// GPIO on PB03
 
 	// Set pin direction to output
-	gpio_set_pin_direction(LED_RED, GPIO_DIRECTION_OUT);
+	gpio_set_pin_direction(LED_BLUE, GPIO_DIRECTION_OUT);
 
-	gpio_set_pin_level(LED_RED,
+	gpio_set_pin_level(LED_BLUE,
 	                   // <y> Initial level
 	                   // <id> pad_initial_level
 	                   // <false"> Low
 	                   // <true"> High
 	                   true);
 
-	gpio_set_pin_function(LED_RED, GPIO_PIN_FUNCTION_OFF);
+	gpio_set_pin_function(LED_BLUE, GPIO_PIN_FUNCTION_OFF);
 
 	// GPIO on PB08
 
 	// Set pin direction to output
-	gpio_set_pin_direction(MOD9, GPIO_DIRECTION_OUT);
+	gpio_set_pin_direction(MOD1, GPIO_DIRECTION_OUT);
 
-	gpio_set_pin_level(MOD9,
+	gpio_set_pin_level(MOD1,
 	                   // <y> Initial level
 	                   // <id> pad_initial_level
 	                   // <false"> Low
 	                   // <true"> High
 	                   false);
 
-	gpio_set_pin_function(MOD9, GPIO_PIN_FUNCTION_OFF);
+	gpio_set_pin_function(MOD1, GPIO_PIN_FUNCTION_OFF);
 
 	// GPIO on PB09
 
@@ -607,16 +606,16 @@ void system_init(void)
 	// GPIO on PB23
 
 	// Set pin direction to output
-	gpio_set_pin_direction(GPS_RESET, GPIO_DIRECTION_OUT);
+	gpio_set_pin_direction(LED_RED, GPIO_DIRECTION_OUT);
 
-	gpio_set_pin_level(GPS_RESET,
+	gpio_set_pin_level(LED_RED,
 	                   // <y> Initial level
 	                   // <id> pad_initial_level
 	                   // <false"> Low
 	                   // <true"> High
 	                   true);
 
-	gpio_set_pin_function(GPS_RESET, GPIO_PIN_FUNCTION_OFF);
+	gpio_set_pin_function(LED_RED, GPIO_PIN_FUNCTION_OFF);
 
 	CRC_0_init();
 	EXTERNAL_IRQ_init();
