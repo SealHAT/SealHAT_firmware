@@ -23,7 +23,6 @@ void AccelerometerDataReadyISR(void)
 
     /* Notify the IMU task that the ACCEL FIFO is ready to read */
     xTaskNotifyFromISR(xIMU_th, ACC_DATA_READY, eSetBits, &xHigherPriorityTaskWoken);
-    gpio_toggle_pin_level(LED_RED);
 
     /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context switch
     should be performed to ensure the interrupt returns directly to the highest
@@ -37,7 +36,7 @@ void MagnetometerDataReadyISR(void)
 
     /* Notify the IMU task that the ACCEL FIFO is ready to read */
     xTaskNotifyFromISR(xIMU_th, MAG_DATA_READY, eSetBits, &xHigherPriorityTaskWoken);
-    gpio_toggle_pin_level(LED_GREEN);
+    //gpio_toggle_pin_level(LED_GREEN);
 
     /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context switch
     should be performed to ensure the interrupt returns directly to the highest
@@ -51,6 +50,7 @@ void AccelerometerMotionISR(void)
 
     /* Notify the IMU task that there is a motion interrupt */
     xTaskNotifyFromISR(xIMU_th, MOTION_DETECT, eSetBits, &xHigherPriorityTaskWoken);
+    gpio_toggle_pin_level(LED_RED);
 
     /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context switch
     should be performed to ensure the interrupt returns directly to the highest
@@ -80,8 +80,8 @@ int32_t IMU_task_deinit(void)
 void IMU_task(void* pvParameters)
 {
     const TickType_t xMaxBlockTime = pdMS_TO_TICKS( 3500 );     // max block time, set to slightly more than accelerometer ISR period
-    static IMU_MSG_t   accMsg;                 // data Packet for the accelerometer
-    static IMU_MSG_t   magMsg;                 // data Packet for the magnetometer
+    static IMU_MSG_t   accMsg;          // data Packet for the accelerometer
+    static IMU_MSG_t   magMsg;          // data Packet for the magnetometer
     BaseType_t  xResult;                // holds return value of blocking function
     int32_t     err = 0;                // for catching API errors
     uint32_t    ulNotifyValue;          // notification value from ISRs

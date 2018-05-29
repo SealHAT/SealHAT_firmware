@@ -13,17 +13,17 @@ int main(void)
     i2c_unblock_bus(GPS_SDA, GPS_SCL);
     i2c_unblock_bus(IMU_SDA, IMU_SCL);
 
+    // set FLASH CS pins HIGH
+    gpio_set_pin_level(MEM_CS0, true);
+    gpio_set_pin_level(MEM_CS1, true);
+    gpio_set_pin_level(MEM_CS2, true);
+
     // initialize the system and set low power mode
     system_init();
     set_lowPower_mode();
 
     // enable the calendar driver. this function ALWAYS returns ERR_NONE.
     calendar_enable(&RTC_CALENDAR);
-
-    // start the control task.
-    if(CTRL_task_init() != ERR_NONE) {
-        while(1) {;}
-    }
 
     // start the data aggregation task
     if(DATA_task_init() != ERR_NONE) {
@@ -44,9 +44,14 @@ int main(void)
     if(IMU_task_init(ACC_SCALE_2G, ACC_HR_50_HZ, MAG_LP_50_HZ) != ERR_NONE) {
         while(1) {;}
     }
-    
+
     // SERIAL task init.
     if(SERIAL_task_init() != ERR_NONE) {
+        while(1) {;}
+    }
+
+    // start the control task.
+    if(CTRL_task_init() != ERR_NONE) {
         while(1) {;}
     }
 
