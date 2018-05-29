@@ -17,7 +17,6 @@
 
 #define SERIAL_STACK_SIZE               (1000 / sizeof(portSTACK_TYPE))
 #define SERIAL_TASK_PRI                 (tskIDLE_PRIORITY + 1)
-#define SERIAL_QUEUE_LENGTH             (3000)
 
 extern TaskHandle_t xSERIAL_th;                       // Message accumulator for USB/MEM
 

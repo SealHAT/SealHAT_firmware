@@ -16,6 +16,13 @@ bool STOP_LISTENING;            /* This should be set to true if the device shou
 
 int32_t SERIAL_task_init(void)
 {
+    /* initialize (clear all) event group and check current VBUS level 
+    xEventGroupClearBits(xSYSEVENTS_handle, EVENT_MASK_ALL);
+    if(gpio_get_pin_level(VBUS_DETECT)) {
+        usb_start();
+        xEventGroupSetBits(xSYSEVENTS_handle, EVENT_VBUS);
+    }*/
+    
     xSERIAL_th = xTaskCreateStatic(SERIAL_task, "SERIAL", SERIAL_STACK_SIZE, NULL, SERIAL_TASK_PRI, xSERIAL_stack, &xSERIAL_taskbuf);
     configASSERT(xSERIAL_th);
 
@@ -30,19 +37,16 @@ void SERIAL_task(void* pvParameters)
     CMD_RETURN_TYPES retVal;
     EventBits_t eBits;
     char option;
-    uint8_t menu[] = "(c)onfigure, (r)etrieve data, (s)tream data\n";
-    uint8_t steamLogMenu[] = "stream (o)nly, (l)og to flash only, (b)oth\n";
-    uint8_t loggingToFlashMSG[] = "Logging data to flash.\n";
-    char printBuf[3];
+    bool done;
+    static uint8_t menu[] = "(c)onfigure, (r)etrieve data, (s)tream data\n";
+    static uint8_t steamLogMenu[] = "stream (o)nly, (l)og to flash only, (b)oth\n";
+    static uint8_t loggingToFlashMSG[] = "Logging data to flash.\n";
 
     /* Receive and commands forever. */
     for(;;)
     {
         if(usb_state() == USB_Configured)
         {
-            /* Clear the log-to-USB and log-to-flash flags. */
-            //xEventGroupClearBits(xSYSEVENTS_handle, (EVENT_LOGTOUSB | EVENT_LOGTOFLASH));
-            
             /* Print menu to console. */
             do {
                 err = usb_write(menu, (sizeof(menu) - 1));
@@ -50,12 +54,6 @@ void SERIAL_task(void* pvParameters)
             
             /* Wait for command to be given. */
             cmd = listen_for_commands();
-            
-            /* Printing command back to console for testing. 
-            snprintf(printBuf, 3, "%1d\n", (uint8_t)cmd);
-            do {
-                err = usb_write(printBuf, 2);
-            } while((err != USB_OK) || !usb_dtr());*/
             
             /****************************************************
              * Perform specific tasks based on given command.
@@ -78,7 +76,8 @@ void SERIAL_task(void* pvParameters)
                 case STREAM_DATA:
                 {
                     /* Print stream or log menu to console. */
-                    usb_flushTx();
+                    done = false;
+                    
                     do {
                         err = usb_write(steamLogMenu, (sizeof(steamLogMenu) - 1));
                     } while((err != USB_OK) || !usb_dtr());
@@ -86,17 +85,22 @@ void SERIAL_task(void* pvParameters)
                     /* TODO: make the while() WAY less gross.. */
                     do {
                         option = usb_get();
-                    } while((option != USB_OK) || !usb_dtr() || ( (option != 'o') && (option != 'l') && (option != 'b')));
+                        
+                        if((option == 'o') || (option == 'l') || (option == 'b')) {
+                            done = true;
+                        }
+                    } while(((option != USB_OK) || !usb_dtr()) && !done);
                     
                     /* Set the stream data flag, the log to flash flag, or both flags. */
                     if(option == 'o') {
                         xEventGroupSetBits(xSYSEVENTS_handle, EVENT_LOGTOUSB);
                     } else if(option == 'l') {
-                        xEventGroupSetBits(xSYSEVENTS_handle, EVENT_LOGTOFLASH);
                         /* Print stream or log menu to console. */
                         do {
                             err = usb_write(loggingToFlashMSG, (sizeof(loggingToFlashMSG) - 1));
                         } while((err != USB_OK) || !usb_dtr());
+                        
+                        xEventGroupSetBits(xSYSEVENTS_handle, EVENT_LOGTOFLASH);
                     } else {
                         xEventGroupSetBits(xSYSEVENTS_handle, (EVENT_LOGTOUSB | EVENT_LOGTOFLASH));
                     }

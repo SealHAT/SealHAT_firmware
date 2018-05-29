@@ -18,7 +18,7 @@ static uint8_t              dataQueueStorage[DATA_QUEUE_LENGTH];    // static me
 static StaticStreamBuffer_t xDataQueueStruct;                       // static memory for data queue data structure
 
 FLASH_DESCRIPTOR seal_flash_descriptor;                             /* Declare flash descriptor. */
-DATA_TRANSMISSION_t usbPacket;
+//DATA_TRANSMISSION_t usbPacket;
 
 int32_t ctrlLog_write(uint8_t* buff, const uint32_t LEN)
 {
@@ -116,6 +116,7 @@ void DATA_task(void* pvParameters)
 {
     int32_t err;
     (void)pvParameters;
+    static DATA_TRANSMISSION_t usbPacket;
 
     /* Receive and write data forever. */
     for(;;)
@@ -153,7 +154,7 @@ void DATA_task(void* pvParameters)
          if((xEventGroupGetBits(xSYSEVENTS_handle) & EVENT_LOGTOFLASH) != 0)
          {
              /* Write data to external flash device. */
-             flash_io_write(&seal_flash_descriptor, usbPacket.data, PAGE_SIZE_LESS);
+             //flash_io_write(&seal_flash_descriptor, usbPacket.data, PAGE_SIZE_LESS);
          }       
     }
 }

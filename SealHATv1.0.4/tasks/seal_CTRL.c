@@ -47,7 +47,7 @@ int32_t CTRL_task_init(void)
     /* Read stored device settings from EEPROM and make them accessible to all devices. */
     err = eeprom_read_configs(&eeprom_data);
 
-    // initialize (clear all) event group and check current VBUS level
+    /* initialize (clear all) event group and check current VBUS level*/
     xEventGroupClearBits(xSYSEVENTS_handle, EVENT_MASK_ALL);
     if(gpio_get_pin_level(VBUS_DETECT)) {
         usb_start();
