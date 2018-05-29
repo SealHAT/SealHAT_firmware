@@ -6,6 +6,10 @@
  */
 
 #include "seal_CTRL.h"
+#include "seal_USB.h"
+#include "sealPrint.h"
+//#include "storage\flash_io.h"
+#include "driver_init.h"
 
 EEPROM_STORAGE_t eeprom_data;                       //struct containing sensor and SealHAT configurations
 
@@ -89,8 +93,17 @@ void CTRL_task(void* pvParameters)
     // register VBUS detection interrupt
     ext_irq_register(VBUS_DETECT, vbus_detection_cb);
 
-    /* monitor system events and time to control states */
+    gpio_toggle_pin_level(LED_GREEN);
+    delay_ms(100);
+    gpio_toggle_pin_level(LED_GREEN);
+
+    // enable watchdog timer
+    //wdt_set_timeout_period(&WATCHDOG, 100)
+    wdt_enable(&WATCHDOG);
+
+    /* Receive and write data forever. */
     for(;;) {
+        wdt_feed(&WATCHDOG);
                 
         /* check if the system time has changed */
         if (xEventGroupGetBits(xSYSEVENTS_handle) & EVENT_TIME_CHANGE) {
@@ -106,7 +119,7 @@ void CTRL_task(void* pvParameters)
             CTRL_hourly_update();
         }
         
-        os_sleep(pdMS_TO_TICKS(500));
+        os_sleep(pdMS_TO_TICKS(900));
     }
 }
 

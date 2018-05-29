@@ -24,6 +24,8 @@ struct i2c_m_sync_desc I2C_ENV;
 
 struct i2c_m_sync_desc I2C_IMU;
 
+struct wdt_descriptor WATCHDOG;
+
 /**
  * \brief CRC initialization function
  *
@@ -308,6 +310,17 @@ void TIMER_MS_CLOCK_init(void)
 {
 	hri_mclk_set_APBDMASK_TC4_bit(MCLK);
 	hri_gclk_write_PCHCTRL_reg(GCLK, TC4_GCLK_ID, CONF_GCLK_TC4_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+}
+
+void WATCHDOG_CLOCK_init(void)
+{
+	hri_mclk_set_APBAMASK_WDT_bit(MCLK);
+}
+
+void WATCHDOG_init(void)
+{
+	WATCHDOG_CLOCK_init();
+	wdt_init(&WATCHDOG, WDT);
 }
 
 void EVENT_SYS_init(void)
@@ -623,6 +636,8 @@ void system_init(void)
 	TIMER_MS_CLOCK_init();
 
 	TIMER_MS_init();
+
+	WATCHDOG_init();
 
 	EVENT_SYS_init();
 

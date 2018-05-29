@@ -21,6 +21,7 @@
       <Value>../hal/utils/include</Value>
       <Value>../hpl/core</Value>
       <Value>../hpl/dmac</Value>
+      <Value>../hpl/dsu</Value>
       <Value>../hpl/eic</Value>
       <Value>../hpl/evsys</Value>
       <Value>../hpl/gclk</Value>
@@ -28,6 +29,7 @@
       <Value>../hpl/nvmctrl</Value>
       <Value>../hpl/osc32kctrl</Value>
       <Value>../hpl/oscctrl</Value>
+      <Value>../hpl/pac</Value>
       <Value>../hpl/pm</Value>
       <Value>../hpl/port</Value>
       <Value>../hpl/rtc</Value>
@@ -44,6 +46,12 @@
       <Value>../usb/class/cdc</Value>
       <Value>../usb/class/cdc/device</Value>
       <Value>../usb/device</Value>
+      <Value>../lsm303</Value>
+      <Value>../max44009</Value>
+      <Value>../sam-m8q</Value>
+      <Value>../si705x</Value>
+      <Value>../storage</Value>
+      <Value>../tasks</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
   <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
@@ -65,11 +73,6 @@
   <armgcc.linker.optimization.GarbageCollectUnusedSections>True</armgcc.linker.optimization.GarbageCollectUnusedSections>
   <armgcc.linker.memorysettings.ExternalRAM />
   <armgcc.linker.miscellaneous.LinkerFlags>-Tsaml21g18b_flash.ld</armgcc.linker.miscellaneous.LinkerFlags>
-  <armgcc.linker.miscellaneous.OtherObjects>
-    <ListValues>
-      <Value>-Wl,--cref</Value>
-    </ListValues>
-  </armgcc.linker.miscellaneous.OtherObjects>
   <armgcc.assembler.general.IncludePaths>
     <ListValues>
       <Value>%24(PackRepoDir)\arm\cmsis\5.0.1\CMSIS\Include\</Value>
@@ -81,6 +84,7 @@
       <Value>../hal/utils/include</Value>
       <Value>../hpl/core</Value>
       <Value>../hpl/dmac</Value>
+      <Value>../hpl/dsu</Value>
       <Value>../hpl/eic</Value>
       <Value>../hpl/evsys</Value>
       <Value>../hpl/gclk</Value>
@@ -88,6 +92,7 @@
       <Value>../hpl/nvmctrl</Value>
       <Value>../hpl/osc32kctrl</Value>
       <Value>../hpl/oscctrl</Value>
+      <Value>../hpl/pac</Value>
       <Value>../hpl/pm</Value>
       <Value>../hpl/port</Value>
       <Value>../hpl/rtc</Value>
@@ -118,6 +123,7 @@
       <Value>../hal/utils/include</Value>
       <Value>../hpl/core</Value>
       <Value>../hpl/dmac</Value>
+      <Value>../hpl/dsu</Value>
       <Value>../hpl/eic</Value>
       <Value>../hpl/evsys</Value>
       <Value>../hpl/gclk</Value>
@@ -125,6 +131,7 @@
       <Value>../hpl/nvmctrl</Value>
       <Value>../hpl/osc32kctrl</Value>
       <Value>../hpl/oscctrl</Value>
+      <Value>../hpl/pac</Value>
       <Value>../hpl/pm</Value>
       <Value>../hpl/port</Value>
       <Value>../hpl/rtc</Value>

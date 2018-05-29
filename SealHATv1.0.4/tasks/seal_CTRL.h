@@ -10,16 +10,9 @@
 
 #include "seal_RTOS.h"
 #include "seal_Types.h"
-#include "seal_USB.h"
-#include "sealPrint.h"
-#include "storage\flash_io.h"
-#include "driver_init.h"
 
-#define CTRL_STACK_SIZE                 (900 / sizeof(portSTACK_TYPE))
-#define CTRL_TASK_PRI                   (tskIDLE_PRIORITY + 3)
-
-#define DATA_QUEUE_LENGTH               (3000)
-#define HOUR_MS                         (10000)
+#define CTRL_STACK_SIZE                 (1000 / sizeof(portSTACK_TYPE))
+#define CTRL_TASK_PRI                   (configMAX_PRIORITIES)
 
 extern TaskHandle_t       xCTRL_th;           // Message accumulator for USB/MEM
 

@@ -26,6 +26,8 @@ void I2C_ENV_example(void);
 
 void I2C_IMU_example(void);
 
+void WATCHDOG_example(void);
+
 #ifdef __cplusplus
 }
 #endif

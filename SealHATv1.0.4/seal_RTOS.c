@@ -136,7 +136,7 @@ static StackType_t uxTimerTaskStack[ configTIMER_TASK_STACK_DEPTH ];
 }
 
 /*************************************************************
- * FUNCTION: save_sensor_configs()
+ * FUNCTION: eeprom_save_configs()
  * -----------------------------------------------------------
  * This function writes the SealHAT device's sensor and
  * configuration data out to the chip's onboard EEPROM.
@@ -147,7 +147,7 @@ static StackType_t uxTimerTaskStack[ configTIMER_TASK_STACK_DEPTH ];
  * Returns:
  *      The error value of the flash_write operation.
  *************************************************************/
-uint32_t save_sensor_configs(EEPROM_STORAGE_t *config_settings)
+uint32_t eeprom_save_configs(EEPROM_STORAGE_t *config_settings)
 {
     uint32_t retVal;
 
@@ -166,7 +166,7 @@ uint32_t save_sensor_configs(EEPROM_STORAGE_t *config_settings)
 }
 
 /*************************************************************
- * FUNCTION: read_sensor_configs()
+ * FUNCTION: eeprom_read_configs()
  * -----------------------------------------------------------
  * This function reads the SealHAT device's sensor and
  * configuration settings from the onboard EEPROM.
