@@ -23,6 +23,7 @@ void AccelerometerDataReadyISR(void)
 
     /* Notify the IMU task that the ACCEL FIFO is ready to read */
     xTaskNotifyFromISR(xIMU_th, ACC_DATA_READY, eSetBits, &xHigherPriorityTaskWoken);
+    gpio_toggle_pin_level(LED_RED);
 
     /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context switch
     should be performed to ensure the interrupt returns directly to the highest
@@ -36,6 +37,7 @@ void MagnetometerDataReadyISR(void)
 
     /* Notify the IMU task that the ACCEL FIFO is ready to read */
     xTaskNotifyFromISR(xIMU_th, MAG_DATA_READY, eSetBits, &xHigherPriorityTaskWoken);
+    gpio_toggle_pin_level(LED_GREEN);
 
     /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context switch
     should be performed to ensure the interrupt returns directly to the highest
@@ -49,6 +51,7 @@ void AccelerometerMotionISR(void)
 
     /* Notify the IMU task that there is a motion interrupt */
     xTaskNotifyFromISR(xIMU_th, MOTION_DETECT, eSetBits, &xHigherPriorityTaskWoken);
+    gpio_toggle_pin_level(LED_BLUE);
 
     /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context switch
     should be performed to ensure the interrupt returns directly to the highest
@@ -89,7 +92,7 @@ void IMU_task(void* pvParameters)
     err = lsm303_init(&I2C_IMU);
     err = lsm303_acc_startFIFO(ACC_SCALE_2G, ACC_HR_50_HZ);
     err = lsm303_mag_start(MAG_LP_50_HZ);
-    lsm303_acc_motionDetectStart(0x03, 800, 1);
+    lsm303_acc_motionDetectStart(MOTION_INT_X_HIGH, 250, 1);
 
     // enable the data ready interrupts
     ext_irq_register(IMU_INT1_XL, AccelerometerDataReadyISR);
