@@ -10,6 +10,8 @@
 #include "storage\flash_io.h"
 #include "driver_init.h"
 
+EEPROM_STORAGE_t eeprom_data;                                       //struct containing sensor and SealHAT configurations
+
 TaskHandle_t        xDATA_th;                                       // Message accumulator for USB/MEM
 static StaticTask_t xDATA_taskbuf;                                  // task buffer for the CTRL task
 static StackType_t  xDATA_stack[DATA_STACK_SIZE];                   // static stack allocation for CTRL task

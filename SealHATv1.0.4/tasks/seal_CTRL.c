@@ -6,12 +6,10 @@
  */
 
 #include "seal_CTRL.h"
+#include "seal_SERIAL.h"
 #include "seal_USB.h"
 #include "sealPrint.h"
-//#include "storage\flash_io.h"
 #include "driver_init.h"
-
-EEPROM_STORAGE_t eeprom_data;                       //struct containing sensor and SealHAT configurations
 
 TaskHandle_t         xCTRL_th;                      // Message accumulator for USB/MEM
 static StaticTask_t  xCTRL_taskbuf;                 // task buffer for the CTRL task
@@ -56,9 +54,11 @@ int32_t CTRL_task_init(void)
     // create 24-bit system event group for system alerts
     xSYSEVENTS_handle = xEventGroupCreateStatic(&xSYSEVENTS_eventgroup);
     configASSERT(xSYSEVENTS_handle);
-
+    
     /* Read stored device settings from EEPROM and make them accessible to all devices. */
-    err = eeprom_read_configs(&eeprom_data);
+    if (eeprom_read_configs(&eeprom_data)) {
+        return ERR_BAD_ADDRESS;
+    }
 
     /* initialize (clear all) event group and check current VBUS level */
     xEventGroupClearBits(xSYSEVENTS_handle, EVENT_MASK_ALL);
@@ -103,8 +103,14 @@ void CTRL_task(void* pvParameters)
 
     /* Receive and write data forever. */
     for(;;) {
+        /* feed the mangy dog */
         wdt_feed(&WATCHDOG);
-                
+        
+        /* if the USB has been attached */
+        if (xEventGroupGetBits(xSYSEVENTS_handle) & EVENT_VBUS) {
+            vTaskResume(xSERIAL_th);
+        }            
+            
         /* check if the system time has changed */
         if (xEventGroupGetBits(xSYSEVENTS_handle) & EVENT_TIME_CHANGE) {
             xEventGroupClearBits(xSYSEVENTS_handle, EVENT_TIME_CHANGE);
@@ -165,21 +171,21 @@ void CTRL_hourly_update()
     sensor = eeprom_data.config_settings.gps_config.gps_activeHour;
     if ((sensor & (hour|prev)) == hour) {
         /* wakeup */
-        } else if ((sensor & (hour|prev)) == prev) {
+    } else if ((sensor & (hour|prev)) == prev) {
         /* sleep */
     }
     
     sensor = eeprom_data.config_settings.magnetometer_config.mag_activeHour;
     if ((sensor & (hour|prev)) == hour) {
         /* wakeup */
-        } else if ((sensor & (hour|prev)) == prev) {
+    } else if ((sensor & (hour|prev)) == prev) {
         /* sleep */
     }
     
     sensor = eeprom_data.config_settings.temperature_config.temp_activeHour;
     if ((sensor & (hour|prev)) == hour) {
         /* wakeup */
-        } else if ((sensor & (hour|prev)) == prev) {
+    } else if ((sensor & (hour|prev)) == prev) {
         /* sleep */
     }
 }
