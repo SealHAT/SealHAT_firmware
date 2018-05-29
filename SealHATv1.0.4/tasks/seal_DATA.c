@@ -82,23 +82,6 @@ int32_t ctrlLog_writeISR(uint8_t* buff, const uint32_t LEN)
 
 int32_t DATA_task_init(void)
 {
-    struct calendar_date date;
-    struct calendar_time time;
-
-    date.year  = 2018;
-    date.month = 5;
-    date.day   = 4;
-
-    time.hour = 15;
-    time.min  = 59;
-    time.sec  = 50;
-
-    // return values not checked since they  ALWAYS returns ERR_NONE.
-    calendar_set_baseyear(&RTC_CALENDAR, SEALHAT_BASE_YEAR);
-    calendar_set_date(&RTC_CALENDAR, &date);
-    calendar_set_time(&RTC_CALENDAR, &time);
-    xEventGroupSetBits(xSYSEVENTS_handle, EVENT_TIME_CHANGE);
-
     // enable CRC generator. This function does nothing apparently,
     // but we call it to remain consistent with API. it ALWAYS returns ERR_NONE.
     crc_sync_enable(&CRC_0);

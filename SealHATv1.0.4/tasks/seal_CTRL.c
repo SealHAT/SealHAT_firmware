@@ -19,7 +19,7 @@ static StaticTimer_t xCTRL_timerbuf;                // static buffer to hold tim
 
 EventGroupHandle_t        xSYSEVENTS_handle;        // system events event group
 static StaticEventGroup_t xSYSEVENTS_eventgroup;    // static memory for the event group
-
+static struct calendar_alarm    RTC_ALARM;
 
 void vbus_detection_cb(void)
 {
@@ -41,6 +41,11 @@ void vbus_detection_cb(void)
     }
 }
 
+void alarm_startsensors_cb(struct calendar_descriptor *const calendar)
+{
+    
+}
+
 void vHourlyTimerCallback( TimerHandle_t xTimer )
 {
     configASSERT(xTimer);
@@ -50,22 +55,48 @@ void vHourlyTimerCallback( TimerHandle_t xTimer )
 int32_t CTRL_task_init(void)
 {
     int32_t err = ERR_NONE;
-
+    struct calendar_date    date;
+    struct calendar_time    time;
+    
     // create 24-bit system event group for system alerts
     xSYSEVENTS_handle = xEventGroupCreateStatic(&xSYSEVENTS_eventgroup);
     configASSERT(xSYSEVENTS_handle);
     
-    /* Read stored device settings from EEPROM and make them accessible to all devices. */
-    if (eeprom_read_configs(&eeprom_data)) {
-        return ERR_BAD_ADDRESS;
-    }
-
     /* initialize (clear all) event group and check current VBUS level */
     xEventGroupClearBits(xSYSEVENTS_handle, EVENT_MASK_ALL);
     if(gpio_get_pin_level(VBUS_DETECT)) {
         usb_start();
         xEventGroupSetBits(xSYSEVENTS_handle, EVENT_VBUS);
     }
+    
+    /* Read stored device settings from EEPROM and make them accessible to all devices. */
+    if (eeprom_read_configs(&eeprom_data)) {
+        return ERR_BAD_ADDRESS;
+    }
+
+    /* set calendar to a default time and set alarm for some time after */
+    date.year  = 2018;
+    date.month = 5;
+    date.day   = 4;
+
+    time.hour = 15;
+    time.min  = 59;
+    time.sec  = 50;
+    
+    // TODO enforce start date beyond current date
+    RTC_ALARM.cal_alarm.datetime.date.year  = eeprom_data.config_settings.start_year;
+    RTC_ALARM.cal_alarm.datetime.date.month = eeprom_data.config_settings.start_month;
+    RTC_ALARM.cal_alarm.datetime.date.day   = eeprom_data.config_settings.start_day;
+    RTC_ALARM.cal_alarm.datetime.time.hour  = eeprom_data.config_settings.start_hour;
+    RTC_ALARM.cal_alarm.datetime.time.min   = 0;
+    RTC_ALARM.cal_alarm.datetime.time.sec   = 0;
+
+    // return values not checked since they  ALWAYS returns ERR_NONE.
+    calendar_set_baseyear(&RTC_CALENDAR, SEALHAT_BASE_YEAR);
+    calendar_set_date(&RTC_CALENDAR, &date);
+    calendar_set_time(&RTC_CALENDAR, &time);
+    calendar_set_alarm(&RTC_CALENDAR, &RTC_ALARM, alarm_startsensors_cb);
+    xEventGroupSetBits(xSYSEVENTS_handle, EVENT_TIME_CHANGE);
     
     /* create a timer with a one hour period for controlling sensors */
     configASSERT(!configUSE_16_BIT_TICKS);
