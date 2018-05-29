@@ -32,7 +32,7 @@ void GPS_task(void *pvParameters)
     
     /* initialize the GPS module */
 	portENTER_CRITICAL();
-	err = gps_init_i2c(&I2C_GPS) || gps_selftest() ? ERR_NOT_INITIALIZED : ERR_NONE;
+	err = gps_init_i2c(&I2C_GPS) ? ERR_NOT_INITIALIZED : ERR_NONE;
 	gpio_set_pin_level(GPS_TXD, true);
 	portEXIT_CRITICAL();
     // TODO what to do if this fails? Will be handled in SW

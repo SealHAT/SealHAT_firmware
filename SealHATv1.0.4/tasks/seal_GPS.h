@@ -4,8 +4,9 @@
  * Created: 5/11/2018 2:35:55 PM
  *  Author: Anthony Koutroulis
  */
-#include "seal_RTOS.h"
-#include "seal_Types.h"
+ #include "seal_RTOS.h"
+ #include "seal_CTRL.h"
+ #include "seal_DATA.h"
  #include "sam-m8q/gps.h"
 
 #ifndef SEAL_GPS_H_

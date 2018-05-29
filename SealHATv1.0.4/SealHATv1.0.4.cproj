@@ -1259,6 +1259,12 @@
     <Compile Include="tasks\seal_IMU.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="tasks\seal_SERIAL.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="tasks\seal_SERIAL.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="thirdparty\RTOS\freertos\FreeRTOSV10.0.0\rtos_port.c">
       <SubType>compile</SubType>
     </Compile>
