@@ -51,7 +51,6 @@ void AccelerometerMotionISR(void)
 
     /* Notify the IMU task that there is a motion interrupt */
     xTaskNotifyFromISR(xIMU_th, MOTION_DETECT, eSetBits, &xHigherPriorityTaskWoken);
-    gpio_toggle_pin_level(LED_BLUE);
 
     /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context switch
     should be performed to ensure the interrupt returns directly to the highest
