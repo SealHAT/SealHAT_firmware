@@ -64,6 +64,12 @@ typedef enum {
     EVENT_MASK_ALL      = 0x00FFFFFF    // mask for all bits
 } SYSTEM_EVENT_FLAGS_t;
 
+typedef struct __attribute__((__packed__)){
+    SENSOR_CONFIGS config_settings;
+    uint32_t       current_flash_addr;
+    uint8_t        current_flash_chip;
+} EEPROM_STORAGE_t;
+
 #define STACK_OVERFLOW_DATA_SIZE        (configMAX_TASK_NAME_LEN*3)
 typedef struct __attribute__((__packed__)){
     DATA_HEADER_t header;   // data header
@@ -71,8 +77,8 @@ typedef struct __attribute__((__packed__)){
 } STACK_OVERFLOW_PACKET_t;
 
 extern EventGroupHandle_t   xSYSEVENTS_handle;  // event group
-extern SENSOR_CONFIGS       config_settings;    //struct containing sensor and SealHAT configurations
-
+extern EEPROM_STORAGE_t     eeprom_data;        //struct containing sensor and SealHAT configurations
+ 
 void vApplicationIdleHook(void);
 
 void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char *pcTaskName);
@@ -103,7 +109,7 @@ void timestamp_FillHeader(DATA_HEADER_t* header);
  * This function writes the SealHAT device's sensor and
  * configuration data out to the chip's onboard EEPROM.
  *************************************************************/
-uint32_t save_sensor_configs(SENSOR_CONFIGS *config_settings);
+uint32_t eeprom_save_configs(EEPROM_STORAGE_t *config_settings);
 
 /*************************************************************
  * FUNCTION: read_sensor_configs()
@@ -111,6 +117,6 @@ uint32_t save_sensor_configs(SENSOR_CONFIGS *config_settings);
  * This function reads the SealHAT device's sensor and
  * configuration settings from the onboard EEPROM.
  *************************************************************/
-uint32_t read_sensor_configs(SENSOR_CONFIGS *config_settings);
+uint32_t eeprom_read_configs(EEPROM_STORAGE_t *config_settings);
 
 #endif /* SEAL_RTOS_H_ */

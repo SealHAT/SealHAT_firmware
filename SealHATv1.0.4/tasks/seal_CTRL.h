@@ -5,7 +5,6 @@
  *  Author: Ethan
  */
 
-
 #ifndef SEAL_MSG_H_
 #define SEAL_MSG_H_
 
@@ -13,9 +12,9 @@
 #include "seal_Types.h"
 
 #define CTRL_STACK_SIZE                 (1000 / sizeof(portSTACK_TYPE))
-#define CTRL_TASK_PRI                   (tskIDLE_PRIORITY + 1)
+#define CTRL_TASK_PRI                   (configMAX_PRIORITIES)
 
-extern TaskHandle_t xCTRL_th;           // Message accumulator for USB/MEM
+extern TaskHandle_t       xCTRL_th;           // Message accumulator for USB/MEM
 
 /**
  * This function is the ISR callback intended for use with the VBUS interrupt.

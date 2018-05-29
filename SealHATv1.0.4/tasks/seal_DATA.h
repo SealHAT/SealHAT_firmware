@@ -11,12 +11,15 @@
 
 #include "seal_RTOS.h"
 #include "seal_Types.h"
+#include "storage/flash_io.h"
 
 #define DATA_STACK_SIZE                 (1000 / sizeof(portSTACK_TYPE))
 #define DATA_TASK_PRI                   (tskIDLE_PRIORITY + 1)
 #define DATA_QUEUE_LENGTH               (3000)
 
-extern TaskHandle_t xDATA_th;           // Message accumulator for USB/MEM
+extern TaskHandle_t xDATA_th;                       // Message accumulator for USB/MEM
+extern FLASH_DESCRIPTOR seal_flash_descriptor;      /* Declare flash descriptor. */
+//extern DATA_TRANSMISSION_t usbPacket;
 
 /**
  * Function to write to the control

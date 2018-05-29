@@ -10,16 +10,19 @@
 #include "storage\flash_io.h"
 #include "driver_init.h"
 
-TaskHandle_t        xDATA_th;                       // Message accumulator for USB/MEM
-static StaticTask_t xDATA_taskbuf;                  // task buffer for the CTRL task
-static StackType_t  xDATA_stack[DATA_STACK_SIZE];   // static stack allocation for CTRL task
+TaskHandle_t        xDATA_th;                                       // Message accumulator for USB/MEM
+static StaticTask_t xDATA_taskbuf;                                  // task buffer for the CTRL task
+static StackType_t  xDATA_stack[DATA_STACK_SIZE];                   // static stack allocation for CTRL task
 
-static SemaphoreHandle_t DATA_mutex;                // mutex to control access to USB terminal
-static StaticSemaphore_t xDATA_mutexBuff;           // static memory for the mutex
+static SemaphoreHandle_t DATA_mutex;                                // mutex to control access to USB terminal
+static StaticSemaphore_t xDATA_mutexBuff;                           // static memory for the mutex
 
-static StreamBufferHandle_t xDATA_sb;                            // stream buffer for getting data into FLASH or USB
-static uint8_t              dataQueueStorage[DATA_QUEUE_LENGTH]; // static memory for the data queue
-static StaticStreamBuffer_t xDataQueueStruct;                    // static memory for data queue data structure
+static StreamBufferHandle_t xDATA_sb;                               // stream buffer for getting data into FLASH or USB
+static uint8_t              dataQueueStorage[DATA_QUEUE_LENGTH];    // static memory for the data queue
+static StaticStreamBuffer_t xDataQueueStruct;                       // static memory for data queue data structure
+
+FLASH_DESCRIPTOR seal_flash_descriptor;                             /* Declare flash descriptor. */
+//DATA_TRANSMISSION_t usbPacket;
 
 int32_t ctrlLog_write(uint8_t* buff, const uint32_t LEN)
 {
@@ -116,9 +119,9 @@ int32_t DATA_task_init(void)
 
 void DATA_task(void* pvParameters)
 {
-    static DATA_TRANSMISSION_t usbPacket; // TEST DATA -> = {USB_PACKET_START_SYM, "From the Halls of Montezuma; To the shores of Tripoli;\nWe fight our country's battles\nIn the air, on land, and sea;\nFirst to fight for right and freedom\nAnd to keep our honor clean;\nWe are proud to claim the title\nOf United States Marine.\n\nOur flag's unfurled to every breeze\nFrom dawn to setting sun;\nWe have fought in every clime and place\nWhere we could take a gun;\nIn the snow of far-off Northern lands\nAnd in sunny tropic scenes,\nYou will find us always on the job\nThe United States Marines.\n\nHere's health to you and to our Corps\nWhich we are proud to serve;\nIn many a strife we've fought for life\nAnd never lost our nerve.\nIf the Army and the Navy\nEver look on Heaven's scenes,\nThey will find the streets are guarded\nBy United States Marines.\n\nRealizing it is my choice and my choice alone to be a Reconnaissance Marine, I accept all challenges involved with this profession. Forever shall I strive to maintain the tremendous reputation of those who went before me.\nExceeding beyond the limitations set down by others shall be my goal. Sacrificing personal comforts and dedicating myself to the completion of the reconnaissance mission shall be my life. Physical fitness, mental attitude, and high ethics --\nThe title of Recon Marine is my honor.\nConquering all obstacles, both large and small, I shall never quit. To quit, to surrender, to give up is to fail. To be a Recon Marine is to surpass failure; To overcome, to adapt and to do whatever it takes to complete the mission.\nOn the battlefield, as in all areas of life, I shall stand tall above the competition. Through professional pride, integrity, and teamwork, I shall be the example for all Marines to emulate.\nNever shall I forget the principles I accepted to become a Recon Marine. Honor, Perseverance, Spirit and Heart.\nA Recon Marine can speak without saying a word and achieve what others can only imagine.\nIrregular Warfare is not a new concept to the United States Marine Corps, employing direct action with indigenous forces\nThis is extra text to make it fit in the buff!\n\n", 0xFFFFFFFF};
     int32_t err;
     (void)pvParameters;
+    static DATA_TRANSMISSION_t usbPacket;
 
     /* Receive and write data forever. */
     for(;;)
@@ -126,29 +129,36 @@ void DATA_task(void* pvParameters)
         /* Receive a page worth of data. */
         xStreamBufferReceive(xDATA_sb, usbPacket.data, PAGE_SIZE_LESS, portMAX_DELAY);
 
-        // setup the packet header and CRC start value, then perform CRC32
-        usbPacket.startSymbol = USB_PACKET_START_SYM;
-        usbPacket.crc = 0xFFFFFFFF;
-        crc_sync_crc32(&CRC_0, (uint32_t*)usbPacket.data, PAGE_SIZE_LESS/sizeof(uint32_t), &usbPacket.crc);
+        /* Write data to USB if the appropriate flag is set. */
+        if((xEventGroupGetBits(xSYSEVENTS_handle) & EVENT_LOGTOUSB) != 0)
+        {
+            // setup the packet header and CRC start value, then perform CRC32
+            usbPacket.startSymbol = USB_PACKET_START_SYM;
+            usbPacket.crc = 0xFFFFFFFF;
+            crc_sync_crc32(&CRC_0, (uint32_t*)usbPacket.data, PAGE_SIZE_LESS/sizeof(uint32_t), &usbPacket.crc);
 
-        // complement CRC to match standard CRC32 implementations
-        usbPacket.crc ^= 0xFFFFFFFF;
+            // complement CRC to match standard CRC32 implementations
+            usbPacket.crc ^= 0xFFFFFFFF;
 
-        if(usb_state() == USB_Configured) {
-            if(usb_dtr()) {
-                err = usb_write(&usbPacket, sizeof(DATA_TRANSMISSION_t));
-                if(err != ERR_NONE && err != ERR_BUSY) {
-                    // TODO: log usb errors, however rare they are
-                    gpio_set_pin_level(LED_GREEN, false);
+            if(usb_state() == USB_Configured) {
+                if(usb_dtr()) {
+                    err = usb_write(&usbPacket, sizeof(DATA_TRANSMISSION_t));
+                    if(err != ERR_NONE && err != ERR_BUSY) {
+                        // TODO: log usb errors, however rare they are
+                        gpio_set_pin_level(LED_GREEN, false);
+                    }
+                }
+                else {
+                    usb_flushTx();
                 }
             }
-            else {
-                usb_flushTx();
-            }
-        }
-        else {
-            /* Write data to external flash device. */
-            //            flash_io_write(&seal_flash_descriptor, usbPacket.data, PAGE_SIZE_LESS);
-        }
+         }
+         
+         /* Log data to flash if the appropriate flag is set. */
+         if((xEventGroupGetBits(xSYSEVENTS_handle) & EVENT_LOGTOFLASH) != 0)
+         {
+             /* Write data to external flash device. */
+             //flash_io_write(&seal_flash_descriptor, usbPacket.data, PAGE_SIZE_LESS);
+         }       
     }
 }

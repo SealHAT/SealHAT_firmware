@@ -194,3 +194,17 @@ void SPI_MEMORY_example(void)
 	spi_m_sync_enable(&SPI_MEMORY);
 	io_write(io, example_SPI_MEMORY, 12);
 }
+
+/**
+ * Example of using WATCHDOG.
+ */
+void WATCHDOG_example(void)
+{
+	uint32_t clk_rate;
+	uint16_t timeout_period;
+
+	clk_rate       = 1000;
+	timeout_period = 4096;
+	wdt_set_timeout_period(&WATCHDOG, clk_rate, timeout_period);
+	wdt_enable(&WATCHDOG);
+}

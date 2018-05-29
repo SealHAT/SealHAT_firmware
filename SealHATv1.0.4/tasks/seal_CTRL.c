@@ -11,14 +11,14 @@
 //#include "storage\flash_io.h"
 #include "driver_init.h"
 
+EEPROM_STORAGE_t eeprom_data;                       //struct containing sensor and SealHAT configurations
+
 TaskHandle_t        xCTRL_th;                       // Message accumulator for USB/MEM
 static StaticTask_t xCTRL_taskbuf;                  // task buffer for the CTRL task
 static StackType_t  xCTRL_stack[CTRL_STACK_SIZE];   // static stack allocation for CTRL task
 
 EventGroupHandle_t        xSYSEVENTS_handle;        // IMU event group
 static StaticEventGroup_t xSYSEVENTS_eventgroup;    // static memory for the event group
-
-SENSOR_CONFIGS            config_settings;          //struct containing sensor and SealHAT configurations
 
 void vbus_detection_cb(void)
 {
@@ -49,9 +49,9 @@ int32_t CTRL_task_init(void)
     configASSERT(xSYSEVENTS_handle);
 
     /* Read stored device settings from EEPROM and make them accessible to all devices. */
-    err = read_sensor_configs(&config_settings);
+    err = eeprom_read_configs(&eeprom_data);
 
-    // initialize (clear all) event group and check current VBUS level
+    /* initialize (clear all) event group and check current VBUS level*/
     xEventGroupClearBits(xSYSEVENTS_handle, EVENT_MASK_ALL);
     if(gpio_get_pin_level(VBUS_DETECT)) {
         usb_start();
@@ -72,9 +72,18 @@ void CTRL_task(void* pvParameters)
     // register VBUS detection interrupt
     ext_irq_register(VBUS_DETECT, vbus_detection_cb);
 
+    gpio_toggle_pin_level(LED_GREEN);
+    delay_ms(100);
+    gpio_toggle_pin_level(LED_GREEN);
+
+    // enable watchdog timer
+    //wdt_set_timeout_period(&WATCHDOG, 100)
+    wdt_enable(&WATCHDOG);
+
     /* Receive and write data forever. */
     for(;;) {
         // ADD CONTROL CODE HERE
-        os_sleep(pdMS_TO_TICKS(500));
+        wdt_feed(&WATCHDOG);
+        os_sleep(pdMS_TO_TICKS(900));
     }
 }
