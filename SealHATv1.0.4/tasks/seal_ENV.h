@@ -4,7 +4,8 @@
  * Created: 30-Apr-18 22:40:35
  *  Author: Ethan
  */
-#include "seal_CTRL.h"
+#include "seal_RTOS.h"
+#include "seal_Types.h"
 #include "max44009/max44009.h"
 #include "si705x/si705x.h"
 #include "seal_DATA.h"

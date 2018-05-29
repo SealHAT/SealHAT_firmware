@@ -5,6 +5,10 @@
  *  Author: Ethan
  */
 #include "seal_DATA.h"
+#include "seal_USB.h"
+#include "sealPrint.h"
+#include "storage\flash_io.h"
+#include "driver_init.h"
 
 TaskHandle_t        xDATA_th;                                       // Message accumulator for USB/MEM
 static StaticTask_t xDATA_taskbuf;                                  // task buffer for the CTRL task
@@ -88,6 +92,7 @@ int32_t DATA_task_init(void)
     time.sec  = 0;
 
     // return values not checked since they  ALWAYS returns ERR_NONE.
+    calendar_set_baseyear(&RTC_CALENDAR, SEALHAT_BASE_YEAR);
     calendar_set_date(&RTC_CALENDAR, &date);
     calendar_set_time(&RTC_CALENDAR, &time);
 

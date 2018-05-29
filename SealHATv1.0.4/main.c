@@ -1,4 +1,9 @@
 #include "seal_RTOS.h"
+#include "tasks/seal_ENV.h"
+#include "tasks/seal_IMU.h"
+#include "tasks/seal_CTRL.h"
+#include "tasks/seal_GPS.h"
+#include "tasks/seal_DATA.h"
 
 #include "tasks/seal_ENV.h"
 #include "tasks/seal_IMU.h"

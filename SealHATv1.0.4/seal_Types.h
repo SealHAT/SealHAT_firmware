@@ -9,17 +9,15 @@
 #define SEAL_TYPES_H_
 
 #define SEAL_HAT_VERSION        (1.0)
+#define SEALHAT_BASE_YEAR       (2018)
 
 #define PAGE_SIZE_EXTRA         (2176)              /* Maximum NAND Flash page size (*including* extra space) */
 #define PAGE_SIZE_LESS          (2048)              /* Maximum NAND Flash page size (*excluding* extra space) */
 
 #include "LSM303AGR.h"
-#include "LSM303AGRTypes.h"
-#include "sam-m8q/gps.h"
-//#include "max30003types.h"
+#include "gps.h"
+//#include "max30003.h"
 #include "max44009.h"
-#include "max44009Types.h"
-#include "hal/include/hpl_calendar.h"
 
 /** Sensor types */
 typedef enum {
@@ -110,8 +108,13 @@ typedef struct{
 typedef struct __attribute__((__packed__)){
     DATA_HEADER_t        config_header;        // packet header for all configuration data
     uint8_t              num_flash_chips;      // number of flash chips installed on device
-    struct calendar_date start_logging_day;    // day the device should begin data collection
-    uint32_t             start_logging_time;   // time the device will start on the day given by start_logging_day
+
+    // day the device should begin data collection
+    uint8_t              start_day;            // range from 1 to 28/29/30/31
+    uint8_t              start_month;          // range from 1 to 12
+    uint16_t             start_year;           // absolute year >= 1970
+    uint8_t              start_hour;           // hour of the day the device will start logging. range 0-23
+
     Xcel_TX              accelerometer_config; // configuration data for the accelerometer
     Mag_TX               magnetometer_config;  // configuration data for the magnetometer
     Temp_TX              temperature_config;   // configuration data for the temperature sensor

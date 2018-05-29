@@ -6,6 +6,10 @@
  */
 
 #include "seal_CTRL.h"
+#include "seal_USB.h"
+#include "sealPrint.h"
+//#include "storage\flash_io.h"
+#include "driver_init.h"
 
 EEPROM_STORAGE_t eeprom_data;                       //struct containing sensor and SealHAT configurations
 
