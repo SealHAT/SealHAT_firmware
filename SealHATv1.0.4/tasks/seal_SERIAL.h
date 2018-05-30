@@ -3,7 +3,7 @@
  *
  * Created: 27-May-18 2:36:09 PM
  *  Author: Krystine
- */ 
+ */
 
 #ifndef SEAL_SERIAL_H_
 #define SEAL_SERIAL_H_
@@ -16,7 +16,7 @@
 #include "seal_DATA.h"
 
 #define SERIAL_STACK_SIZE               (1000 / sizeof(portSTACK_TYPE))
-#define SERIAL_TASK_PRI                 (tskIDLE_PRIORITY + 1)
+#define SERIAL_TASK_PRI                 (tskIDLE_PRIORITY)
 
 extern TaskHandle_t xSERIAL_th;                       // Message accumulator for USB/MEM
 
