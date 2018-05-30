@@ -22,6 +22,7 @@ int32_t GPS_task_init(void *profile)
 
 void GPS_task(void *pvParameters)
 {
+    uint32_t    samplerate;         /* rate to collect fix and report message   */
     uint32_t    ulNotifyValue;      /* holds the notification bits from the ISR */
     int32_t     err;                /* for catching API errors                  */
     BaseType_t  xResult;            /* holds return value of blocking function  */
@@ -41,6 +42,15 @@ void GPS_task(void *pvParameters)
     if (err) { 
 		gpio_toggle_pin_level(LED_RED); 
 	}
+    
+    /* set the default sample rate */ // TODO: allow flexibility in message rate or fix to sample rate
+    samplerate = eeprom_data.config_settings.gps_config.default_profile == GPS_PSMOO30S ? 30000 : 3600000;
+    err = gps_init_msgs() || gps_setrate(samplerate) ? ERR_NOT_READY : ERR_NONE;
+    
+    // TODO what to do if this fails? Should be handled in SW
+    if (err) {
+        gpio_toggle_pin_level(LED_RED);
+    }
 
     /* update the maximum blocking time to current FIFO full time + <max sensor time> */
     xMaxBlockTime = pdMS_TO_TICKS(260000);	// TODO calculate based on registers
