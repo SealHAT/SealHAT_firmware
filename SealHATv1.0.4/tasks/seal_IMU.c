@@ -93,8 +93,9 @@ void IMU_task(void* pvParameters)
     err = lsm303_acc_startFIFO(ACC_SCALE_2G, ACC_HR_50_HZ);
     err = lsm303_mag_start(MAG_LP_50_HZ);
 
-    //lsm303_acc_motionDetectStart(0x00, 100, 0);
-    lsm303_acc_motionDetectSoft_init(&filter, 300, MOTION_INT_X_LOW, 1);
+    //lsm303_acc_motionDetectStart(MOTION_INT_X_LOW, 500, 1);
+    lsm303_acc_motionDetectStart(0x00, 500, 1);     // disables hardware motion detection
+    lsm303_acc_motionDetectSoft_init(&filter, 300, MOTION_INT_Z_LOW, 1);
 
     // enable the data ready interrupts
     ext_irq_register(IMU_INT1_XL, AccelerometerDataReadyISR);
