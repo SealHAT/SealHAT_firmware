@@ -45,7 +45,7 @@ void GPS_task(void *pvParameters)
 	}
     
     /* set the default sample rate */ // TODO: allow flexibility in message rate or fix to sample rate
-    samplerate = eeprom_data.config_settings.gps_config.default_profile == GPS_PSMOO30S ? 30000 : 3600000;
+    samplerate = eeprom_data.config_settings.gps_config.default_profile == GPS_PSMOO1H ? 3600000 : 30000;
     err = gps_init_msgs() || gps_setrate(samplerate) ? ERR_NOT_READY : ERR_NONE;
     
     // TODO what to do if this fails? Should be handled in SW
