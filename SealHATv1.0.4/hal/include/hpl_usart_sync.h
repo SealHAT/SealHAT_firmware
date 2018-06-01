@@ -195,7 +195,18 @@ uint8_t _usart_sync_read_byte(const struct _usart_sync_device *const device);
  * \retval true if the USART is ready to send next byte
  * \retval false if the USART is not ready to send next byte
  */
-bool _usart_sync_is_byte_sent(const struct _usart_sync_device *const device);
+bool _usart_sync_is_ready_to_send(const struct _usart_sync_device *const device);
+
+/**
+ * \brief Check if USART transmitter has sent the byte
+ *
+ * \param[in] device The pointer to USART device instance
+ *
+ * \return Status of the ready check.
+ * \retval true if the USART transmitter has sent the byte
+ * \retval false if the USART transmitter has not send the byte
+ */
+bool _usart_sync_is_transmit_done(const struct _usart_sync_device *const device);
 
 /**
  * \brief Check if there is data received by USART

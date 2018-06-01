@@ -13,6 +13,11 @@ int main(void)
     i2c_unblock_bus(GPS_SDA, GPS_SCL);
     i2c_unblock_bus(IMU_SDA, IMU_SCL);
 
+    // set FLASH CS pins HIGH
+    gpio_set_pin_level(MEM_CS0, true);
+    gpio_set_pin_level(MEM_CS1, true);
+    gpio_set_pin_level(MEM_CS2, true);
+
     // initialize the system and set low power mode
     system_init();
     set_lowPower_mode();
