@@ -14,11 +14,26 @@ StackType_t  xGPS_stack[GPS_STACK_SIZE]; // static stack allocation for GPS task
 
 int32_t GPS_task_init(void *profile)
 {
-    /* create the task, return ERR_NONE or ERR_NO_MEMORY if the task creation failed */
-    xGPS_th = xTaskCreateStatic(GPS_task, "GPS", GPS_STACK_SIZE, (void *)profile, GPS_TASK_PRI, xGPS_stack, &xGPS_taskbuf);
-    configASSERT(xGPS_th);
+    int32_t     err;                /* for catching API errors */
+    
+    /* initialize the GPS module */
+    err = gps_init_i2c(&I2C_GPS) ? ERR_NOT_INITIALIZED : ERR_NONE;
 
-    return ERR_NONE;
+    /* verify/load GPS settings, set up NAV polling, and disable output for now */
+    if (ERR_NONE == err && GPS_SUCCESS != gps_checkconfig()) {
+        err = gps_reconfig()  || gps_init_msgs() || gps_setrate(0) ? ERR_NOT_READY : ERR_NONE;
+    }
+    
+    // TODO what to do if this fails? Should be handled in SW  
+    if (err) {
+        gpio_toggle_pin_level(LED_RED);
+    } else {
+        /* create the task, return ERR_NONE or ERR_NO_MEMORY if the task creation failed */
+        xGPS_th = xTaskCreateStatic(GPS_task, "GPS", GPS_STACK_SIZE, (void *)profile, GPS_TASK_PRI, xGPS_stack, &xGPS_taskbuf);
+        configASSERT(xGPS_th);
+    }
+    
+    return err;
 }
 
 void GPS_task(void *pvParameters)
@@ -31,28 +46,20 @@ void GPS_task(void *pvParameters)
     static GPS_MSG_t gps_msg;	    /* holds the GPS message to store in flash  */
 
     (void)pvParameters;
-    err = ERR_NONE;
 
-    /* initialize the GPS module */
-	portENTER_CRITICAL();
-	err = gps_init_i2c(&I2C_GPS) ? ERR_NOT_INITIALIZED : ERR_NONE;
-	gpio_set_pin_level(GPS_TXD, true);
-	portEXIT_CRITICAL();
-	
-    // TODO what to do if this fails? Should be handled in SW
-    if (err) { 
-		gpio_toggle_pin_level(LED_RED); 
-	}
-    
     /* set the default sample rate */ // TODO: allow flexibility in message rate or fix to sample rate
     samplerate = eeprom_data.config_settings.gps_config.default_profile == GPS_PSMOO1H ? 3600000 : 30000;
-    err = gps_init_msgs() || gps_setrate(samplerate) ? ERR_NOT_READY : ERR_NONE;
+    samplerate = 10000; // TODO TESTING ONLY
+    
+    portENTER_CRITICAL();
+    err = gps_setrate(samplerate) ? ERR_NOT_READY : ERR_NONE;
+    portEXIT_CRITICAL();
     
     // TODO what to do if this fails? Should be handled in SW
     if (err) {
         gpio_toggle_pin_level(LED_RED);
     }
-
+    
     /* update the maximum blocking time to current FIFO full time + <max sensor time> */
     xMaxBlockTime = pdMS_TO_TICKS(260000);	// TODO calculate based on registers
 
@@ -63,8 +70,18 @@ void GPS_task(void *pvParameters)
     gps_msg.header.msTime       = 0;
     gps_msg.header.size         = 0;
     
+    /* clear the GPS FIFO */
+    portENTER_CRITICAL();
+    gps_readfifo();
+    portEXIT_CRITICAL();
+    
+    /* ensure the TX_RDY interrupt is deactivated */
+    gpio_set_pin_level(GPS_TXD, true);
+    
     /* enable the data ready interrupt (TxReady) */
     ext_irq_register(GPS_TXD, GPS_isr_dataready);
+    
+    
 
     for (;;) {
         /* wait for notification from ISR, returns `pdTRUE` if task, else `pdFALSE` */
