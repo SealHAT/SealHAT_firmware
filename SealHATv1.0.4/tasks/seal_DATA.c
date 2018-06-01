@@ -10,6 +10,8 @@
 #include "storage\flash_io.h"
 #include "driver_init.h"
 
+EEPROM_STORAGE_t eeprom_data;                                       //struct containing sensor and SealHAT configurations
+
 TaskHandle_t        xDATA_th;                                       // Message accumulator for USB/MEM
 static StaticTask_t xDATA_taskbuf;                                  // task buffer for the CTRL task
 static StackType_t  xDATA_stack[DATA_STACK_SIZE];                   // static stack allocation for CTRL task
@@ -80,22 +82,6 @@ int32_t ctrlLog_writeISR(uint8_t* buff, const uint32_t LEN)
 
 int32_t DATA_task_init(void)
 {
-    struct calendar_date date;
-    struct calendar_time time;
-
-    date.year  = 2018;
-    date.month = 5;
-    date.day   = 4;
-
-    time.hour = 15;
-    time.min  = 33;
-    time.sec  = 0;
-
-    // return values not checked since they  ALWAYS returns ERR_NONE.
-    calendar_set_baseyear(&RTC_CALENDAR, SEALHAT_BASE_YEAR);
-    calendar_set_date(&RTC_CALENDAR, &date);
-    calendar_set_time(&RTC_CALENDAR, &time);
-
     // enable CRC generator. This function does nothing apparently,
     // but we call it to remain consistent with API. it ALWAYS returns ERR_NONE.
     crc_sync_enable(&CRC_0);

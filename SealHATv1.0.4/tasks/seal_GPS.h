@@ -12,7 +12,7 @@
 #ifndef SEAL_GPS_H_
 #define SEAL_GPS_H_
 
-#define GPS_STACK_SIZE  (900 / sizeof(portSTACK_TYPE))  // high water mark of 92 on 26MAY18
+#define GPS_STACK_SIZE  (1900 / sizeof(portSTACK_TYPE))	/* number of 32-bit words to reserve for task */
 #define GPS_TASK_PRI    (tskIDLE_PRIORITY + 3)
 
 typedef enum GPS_NOTIFY_VALS {
@@ -31,5 +31,6 @@ extern TaskHandle_t xGPS_th;
 int32_t GPS_task_init(void *profile);   // TODO restrict to enumerated type or struct
 void    GPS_task(void *pvParameters);
 void    GPS_isr_dataready(void);
+void    GPS_log(GPS_MSG_t *msg, int32_t *err, const DEVICE_ERR_CODES_t ERR_CODES);
 
 #endif /* SEAL_GPS_H_ */

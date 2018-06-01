@@ -86,3 +86,5 @@ Thumbs.db
 Desktop.ini
 
 SealHATv1\.0\.4/\.atmel-start-backup/
+
+*.orig

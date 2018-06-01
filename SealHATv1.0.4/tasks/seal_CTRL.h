@@ -12,7 +12,7 @@
 #include "seal_Types.h"
 
 #define CTRL_STACK_SIZE                 (1000 / sizeof(portSTACK_TYPE))
-#define CTRL_TASK_PRI                   (configMAX_PRIORITIES)
+#define CTRL_TASK_PRI                   (configMAX_PRIORITIES - 1)
 
 extern TaskHandle_t       xCTRL_th;           // Message accumulator for USB/MEM
 
@@ -32,5 +32,20 @@ int32_t CTRL_task_init(void);
  * The control task. Only use as a task in RTOS, never call directly.
  */
 void CTRL_task(void* pvParameters);
+
+/**
+ *  Updates the hourly timer used in sensor scheduling
+ */
+void CTRL_timer_update(TimerHandle_t xTimer);
+
+/**
+ *  Indicate to the CTRL the start of a new hour
+ */
+void vHourlyTimerCallback( TimerHandle_t xTimer );
+
+/**
+ *  Perform hourly bookkeeping, update time from GPS, check and set active sensors
+ */
+void CTRL_hourly_update(void);
 
 #endif /* SEAL_MSG_H_ */
