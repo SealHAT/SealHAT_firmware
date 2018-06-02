@@ -95,6 +95,7 @@ int32_t CTRL_task_init(void)
     calendar_set_baseyear(&RTC_CALENDAR, SEALHAT_BASE_YEAR);
     calendar_set_date(&RTC_CALENDAR, &date);
     calendar_set_time(&RTC_CALENDAR, &time);
+
     calendar_set_alarm(&RTC_CALENDAR, &RTC_ALARM, alarm_startsensors_cb);
     xEventGroupSetBits(xSYSEVENTS_handle, EVENT_TIME_CHANGE);
     
@@ -154,6 +155,12 @@ void CTRL_task(void* pvParameters)
             /* ensure the timer is hourly */
             xTimerChangePeriod(xCTRL_timer, pdMS_TO_TICKS(3600000), 0);
             CTRL_hourly_update();
+        }
+
+        /* check for IMU motion detection and notify the GPS */
+        if (xEventGroupGetBits(xSYSEVENTS_handle) & (EVENT_MASK_IMU_X|EVENT_MASK_IMU_Y|EVENT_MASK_IMU_Z)) {
+            xEventGroupClearBits(xSYSEVENTS_handle, (EVENT_MASK_IMU_X|EVENT_MASK_IMU_Y|EVENT_MASK_IMU_Z));
+            /* wake the GPS task up and tell it to change period */
         }
         
         os_sleep(pdMS_TO_TICKS(900));

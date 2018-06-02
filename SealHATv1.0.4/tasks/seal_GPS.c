@@ -48,8 +48,8 @@ void GPS_task(void *pvParameters)
     (void)pvParameters;
 
     /* set the default sample rate */ // TODO: allow flexibility in message rate or fix to sample rate
-    samplerate = eeprom_data.config_settings.gps_config.default_profile == GPS_PSMOO1H ? 3600000 : 30000;
-    samplerate = 10000; // TODO TESTING ONLY
+    samplerate = eeprom_data.config_settings.gps_config.gps_restRate;
+    samplerate = 30000; // TODO TESTING ONLY
     
     portENTER_CRITICAL();
     err = gps_setrate(samplerate) ? ERR_NOT_READY : ERR_NONE;
@@ -81,8 +81,6 @@ void GPS_task(void *pvParameters)
     /* enable the data ready interrupt (TxReady) */
     ext_irq_register(GPS_TXD, GPS_isr_dataready);
     
-    
-
     for (;;) {
         /* wait for notification from ISR, returns `pdTRUE` if task, else `pdFALSE` */
         xResult = xTaskNotifyWait( GPS_NOTIFY_NONE, /* bits to clear on entry       */

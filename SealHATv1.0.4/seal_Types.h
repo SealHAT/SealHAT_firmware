@@ -102,7 +102,8 @@ typedef struct{
 typedef struct{
    DATA_HEADER_t    gps_headerData;
    uint32_t         gps_activeHour;
-   GPS_PROFILE      default_profile;
+   uint32_t         gps_moveRate;
+   uint32_t         gps_restRate;
 } GPS_TX;
 
 typedef struct __attribute__((__packed__)){
