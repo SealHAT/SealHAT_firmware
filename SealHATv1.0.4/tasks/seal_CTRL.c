@@ -90,7 +90,7 @@ int32_t CTRL_task_init(void)
     RTC_ALARM.cal_alarm.datetime.time.hour  = eeprom_data.config_settings.start_hour;
     RTC_ALARM.cal_alarm.datetime.time.min   = 0;
     RTC_ALARM.cal_alarm.datetime.time.sec   = 0;
-    RTC_ALARM.cal_alarm.option              = CALENDAR_ALARM_MATCH_MIN;
+    RTC_ALARM.cal_alarm.option              = CALENDAR_ALARM_MATCH_YEAR;
     RTC_ALARM.cal_alarm.mode                = ONESHOT;
 
     // return values not checked since they  ALWAYS returns ERR_NONE.
@@ -159,7 +159,7 @@ void CTRL_task(void* pvParameters)
             CTRL_hourly_update();
         }
         
-        os_sleep(pdMS_TO_TICKS(900));
+        os_sleep(pdMS_TO_TICKS(1000));
     }
 }
 

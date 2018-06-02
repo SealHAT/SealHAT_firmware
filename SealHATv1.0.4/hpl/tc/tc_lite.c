@@ -55,7 +55,7 @@ int8_t TIMER_MS_init()
 	                           | 0 << TC_CTRLA_CAPTEN0_Pos   /* Capture Channel 0 Enable: disabled */
 	                           | 0 << TC_CTRLA_CAPTEN1_Pos   /* Capture Channel 1 Enable: disabled */
 	                           | 0 << TC_CTRLA_ALOCK_Pos     /* Auto Lock: disabled */
-	                           | 1 << TC_CTRLA_PRESCSYNC_Pos /* Prescaler and Counter Synchronization: 1 */
+	                           | 2 << TC_CTRLA_PRESCSYNC_Pos /* Prescaler and Counter Synchronization: 1 */
 	                           | 0 << TC_CTRLA_ONDEMAND_Pos  /* Clock On Demand: disabled */
 	                           | 1 << TC_CTRLA_RUNSTDBY_Pos  /* Run in Standby: enabled */
 	                           | 4 << TC_CTRLA_PRESCALER_Pos /* Setting: 4 */
