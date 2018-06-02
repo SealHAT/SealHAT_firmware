@@ -323,15 +323,6 @@ void WATCHDOG_init(void)
 	wdt_init(&WATCHDOG, WDT);
 }
 
-void EVENT_SYS_init(void)
-{
-	hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_0, CONF_GCLK_EVSYS_CHANNEL_0_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-
-	hri_mclk_set_APBDMASK_EVSYS_bit(MCLK);
-
-	event_system_init();
-}
-
 void USB_DEVICE_INSTANCE_PORT_init(void)
 {
 
@@ -638,8 +629,6 @@ void system_init(void)
 	TIMER_MS_init();
 
 	WATCHDOG_init();
-
-	EVENT_SYS_init();
 
 	USB_DEVICE_INSTANCE_init();
 }
