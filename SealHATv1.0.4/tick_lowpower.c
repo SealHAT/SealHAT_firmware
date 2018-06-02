@@ -57,6 +57,10 @@ void disable_freeRTOS_systick(void)
 void vPortSetupTimerInterrupt(void)
 {
     tickEnabled = true;
+
+    // clear out any old interrupts and then enable the systick interrrupt
+    hri_rtcmode0_clear_INTFLAG_reg(RTC, RTC_MODE0_INTFLAG_PER_Msk);
+    hri_rtcmode0_clear_INTEN_reg(RTC, RTC_MODE0_INTFLAG_PER_Msk);
     hri_rtcmode0_set_INTEN_reg(RTC, RTC_PERIODIC_INTERRUPT_SYSTICK);
 }
 #endif

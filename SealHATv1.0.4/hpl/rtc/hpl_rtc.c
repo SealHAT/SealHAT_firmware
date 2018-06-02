@@ -215,7 +215,7 @@ static void _rtc_interrupt_handler(struct calendar_dev *dev)
 	}
 
     if (interrupt_status & RTC_PERIODIC_INTERRUPT_SYSTICK) {
-        hri_rtcmode0_clear_interrupt_PER3_bit(dev->hw);
+        hri_rtcmode0_clear_INTFLAG_reg(dev->hw, RTC_PERIODIC_INTERRUPT_SYSTICK);
         lowpower_systick();
     }
 
