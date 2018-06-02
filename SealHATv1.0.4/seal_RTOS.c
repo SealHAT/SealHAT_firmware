@@ -8,7 +8,7 @@
 
 void vApplicationIdleHook(void)
 {
-   //sleep(PM_SLEEPCFG_SLEEPMODE_STANDBY_Val);
+   sleep(PM_SLEEPCFG_SLEEPMODE_STANDBY_Val);
 }
 
 void vApplicationTickHook(void)

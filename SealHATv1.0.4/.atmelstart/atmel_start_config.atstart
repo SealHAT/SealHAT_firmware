@@ -2,9 +2,9 @@ format_version: '2'
 name: My Project
 versions:
   api: '1.0'
-  backend: 1.2.139
-  commit: release1.2
-  content: 1.0.943
+  backend: 1.2.141
+  commit: ef3c1854b213e6aa6e0248cc11ff619cc7b22278
+  content: 1.0.953
   content_pack_name: unknown
   format: '2'
   frontend: 1.2.1708
@@ -605,7 +605,7 @@ drivers:
       gclk_arch_gen_3_idc: false
       gclk_arch_gen_3_oe: false
       gclk_arch_gen_3_oov: false
-      gclk_arch_gen_3_runstdby: false
+      gclk_arch_gen_3_runstdby: true
       gclk_arch_gen_4_enable: false
       gclk_arch_gen_4_idc: false
       gclk_arch_gen_4_oe: false
@@ -1025,7 +1025,7 @@ drivers:
     functionality: WDT
     api: HAL:Driver:WDT
     configuration:
-      wdt_arch_per: 1024 clock cycles
+      wdt_arch_per: 4096 clock cycles
       wdt_arch_window: 8 clock cycles
       wdt_arch_window_en: false
     optional_signals: []

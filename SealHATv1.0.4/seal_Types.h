@@ -64,7 +64,7 @@ enum SENSOR_OP {
 typedef struct __attribute__((__packed__)){
     uint16_t startSym;    // symbol to indicate start of packet
     uint16_t id;	      // Upper four bits is the device ID, lower four are device specific event flags
-    uint32_t timestamp;   // timestamp. how many bits?
+    uint32_t timestamp;   // timestamp, seconds since reference year
     uint16_t msTime;      // timestamp ms part
     uint16_t size;		  // size of data packet to follow in bytes
 } DATA_HEADER_t;
