@@ -13,6 +13,8 @@
 #include "seal_RTOS.h"
 #include "FreeRTOSConfig.h"
 
+#define USE_CUSTOM_SYSTICK 0
+
 // #define TIMER_HZ (CONF_GCLK_RTC_FREQUENCY / CONF_TC4_PRESCALE)  // Frequency of timer
 // #define TIMER_COUNTS_ONE_TICK (TIMER_HZ / configTICK_RATE_HZ)   // Value per os tick of timer
 // #define TIMER_INTERVAL_TICK 1               // Tick period in millisecond
@@ -51,11 +53,13 @@ void disable_freeRTOS_systick(void)
  * used for tickless sleep. The function in port.c must be weak
  * aliased for this function to work.
  */
+ #if USE_CUSTOM_SYSTICK > 0
 void vPortSetupTimerInterrupt(void)
 {
     tickEnabled = true;
     hri_rtcmode0_write_INTEN_reg(RTC, RTC_PERIODIC_INTERRUPT_SYSTICK);
 }
+#endif
 
 /** @brief Tickless idle using TC4 on M0+
  *
