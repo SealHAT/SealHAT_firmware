@@ -13,27 +13,13 @@ void vApplicationIdleHook(void)
 
 void vApplicationTickHook(void)
 {
-    gpio_toggle_pin_level(MOD2);
+    gpio_toggle_pin_level(LED_RED);
 }
 
 void vApplicationStackOverflowHook( TaskHandle_t xTask, signed char *pcTaskName )
 {
-    TaskHandle_t            xHandle;
-    TaskStatus_t            xTaskDetails;
     STACK_OVERFLOW_PACKET_t msg;
     (void)xTask;
-
-    /* Obtain the handle of a task from its name. */
-    xHandle = xTaskGetHandle((char*)pcTaskName);
-
-    /* Check the handle is not NULL. */
-    configASSERT(xHandle);
-
-    /* Use the handle to obtain further information about the task. */
-    vTaskGetInfo(xHandle,           // task handle to get info about
-                 &xTaskDetails,    // Return structure
-                 pdFALSE,          // Don't get high water mark since we are obviously overflown
-                 eInvalid );       // Don't get task state since it has died and we are about to revive it
 
     msg.header.startSym = MSG_START_SYM;
     msg.header.id       = DEVICE_ID_SYSTEM | DEVICE_ERR_OVERFLOW;

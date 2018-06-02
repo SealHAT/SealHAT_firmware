@@ -137,6 +137,7 @@ void CTRL_task(void* pvParameters)
     /* Receive and write data forever. */
     for(;;) {
         /* feed the mangy dog */
+        gpio_toggle_pin_level(LED_GREEN);
         wdt_feed(&WATCHDOG);
         
         /* if the USB has been attached */

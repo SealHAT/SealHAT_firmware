@@ -265,14 +265,14 @@
         </AcmeActionInfos>
       </AcmeProjectConfig>
     </AcmeProjectConfig>
-    <avrtool>com.atmel.avrdbg.tool.samice</avrtool>
-    <avrtoolserialnumber>801001700</avrtoolserialnumber>
+    <avrtool>com.atmel.avrdbg.tool.powerdebugger</avrtool>
+    <avrtoolserialnumber>J50200001011</avrtoolserialnumber>
     <avrdeviceexpectedsignature>0x10810214</avrdeviceexpectedsignature>
     <avrtoolinterface>SWD</avrtoolinterface>
     <com_atmel_avrdbg_tool_samice>
       <ToolOptions>
         <InterfaceProperties>
-          <SwdClock>4000000</SwdClock>
+          <SwdClock>0</SwdClock>
         </InterfaceProperties>
         <InterfaceName>SWD</InterfaceName>
         <JlinkConfigFile>C:\Users\kmcarrin\Documents\SealHAT_Repos\SealHAT_firmware\SealHATv1.0.4\jlink.config</JlinkConfigFile>
@@ -281,7 +281,7 @@
       <ToolNumber>801001700</ToolNumber>
       <ToolName>J-Link</ToolName>
     </com_atmel_avrdbg_tool_samice>
-    <avrtoolinterfaceclock>4000000</avrtoolinterfaceclock>
+    <avrtoolinterfaceclock>2000000</avrtoolinterfaceclock>
     <com_atmel_avrdbg_tool_powerdebugger>
       <ToolOptions>
         <InterfaceProperties>
@@ -1350,6 +1350,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="thirdparty\RTOS\hal_rtos.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="tick_lowpower.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="ubx\ubx.h">

@@ -79,7 +79,7 @@ int32_t IMU_task_deinit(void)
 
 void IMU_task(void* pvParameters)
 {
-    const TickType_t xMaxBlockTime = pdMS_TO_TICKS( 3500 );     // max block time, set to slightly more than accelerometer ISR period
+    const  TickType_t  xMaxBlockTime = pdMS_TO_TICKS( 3500 );     // max block time, set to slightly more than accelerometer ISR period
     static IMU_MSG_t   accMsg;          // data Packet for the accelerometer
     static IMU_MSG_t   magMsg;          // data Packet for the magnetometer
     BaseType_t  xResult;                // holds return value of blocking function
@@ -89,8 +89,8 @@ void IMU_task(void* pvParameters)
 
     // initialize the IMU
     err = lsm303_init(&I2C_IMU);
-    err = lsm303_acc_startFIFO(ACC_SCALE_2G, ACC_HR_50_HZ);
-    err = lsm303_mag_start(MAG_LP_50_HZ);
+    err = lsm303_acc_startFIFO((((int32_t)pvParameters>>24)&0xFF), (((int32_t)pvParameters>>16)&0xFF));
+    err = lsm303_mag_start((((int32_t)pvParameters>>8)&0xFF));
     lsm303_acc_motionDetectStart(MOTION_INT_X_HIGH, 250, 1);
 
     // enable the data ready interrupts
