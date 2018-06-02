@@ -13,7 +13,7 @@
 #include "seal_RTOS.h"
 #include "FreeRTOSConfig.h"
 
-#define USE_CUSTOM_SYSTICK 0
+#define USE_CUSTOM_SYSTICK 1
 
 // #define TIMER_HZ (CONF_GCLK_RTC_FREQUENCY / CONF_TC4_PRESCALE)  // Frequency of timer
 // #define TIMER_COUNTS_ONE_TICK (TIMER_HZ / configTICK_RATE_HZ)   // Value per os tick of timer
@@ -57,7 +57,7 @@ void disable_freeRTOS_systick(void)
 void vPortSetupTimerInterrupt(void)
 {
     tickEnabled = true;
-    hri_rtcmode0_write_INTEN_reg(RTC, RTC_PERIODIC_INTERRUPT_SYSTICK);
+    hri_rtcmode0_set_INTEN_reg(RTC, RTC_PERIODIC_INTERRUPT_SYSTICK);
 }
 #endif
 

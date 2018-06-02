@@ -70,6 +70,7 @@ void timestamp_FillHeader(DATA_HEADER_t* header)
 
     // force a sync on the counter value and get the sub second value (2048 per second, or about .5 mSec)
     hri_tc_set_CTRLB_CMD_bf(TC4, TC_CTRLBSET_CMD_READSYNC_Val);
+    hri_tc_wait_for_sync(TC4, TC_SYNCBUSY_COUNT);
     header->msTime = hri_tccount16_get_COUNT_reg(TC4, 0xFFFF);
 }
 
