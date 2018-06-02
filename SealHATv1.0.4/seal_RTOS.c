@@ -39,27 +39,23 @@ int32_t checkResetReason(void) {
     enum reset_reason cause;
     cause = _get_reset_reason();
 
-//     switch(cause) {
-//         case RESET_REASON_WDT    :
-//                                    break;
-//         case RESET_REASON_SYST   :
-//                                    break;
-//         case RESET_REASON_POR    :
-//                                    break;
-//         case RESET_REASON_BOD12  :
-//                                    break;
-//         case RESET_REASON_BOD33  :
-//                                    break;
-//         case RESET_REASON_EXT    :
-//                                    break;
-//         case RESET_REASON_WDT    :
-//                                    break;
-//         case RESET_REASON_SYST   :
-//                                    break;
-//         case RESET_REASON_BACKUP :
-//                                    break;
-//         default:
-//     };
+    switch(cause) {
+        case RESET_REASON_WDT    : gpio_set_pin_level(LED_RED, false);
+                                   break;
+        case RESET_REASON_SYST   : gpio_set_pin_level(LED_RED, false);
+                                   break;
+        case RESET_REASON_POR    : gpio_set_pin_level(LED_RED, false);
+                                   break;
+        case RESET_REASON_BOD12  : gpio_set_pin_level(LED_RED, false);
+                                   break;
+        case RESET_REASON_BOD33  : gpio_set_pin_level(LED_RED, false);
+                                   break;
+        case RESET_REASON_EXT    : gpio_set_pin_level(LED_RED, false);
+                                   break;
+        case RESET_REASON_BACKUP : gpio_set_pin_level(LED_RED, false);
+                                   break;
+        default:                   gpio_set_pin_level(LED_RED, false);
+    };
 
     return (int32_t)cause;
 }
