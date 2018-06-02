@@ -121,16 +121,22 @@ void assert_triggered(const char *file, uint32_t line);
 #define configUSE_TICK_HOOK 1
 #endif
 
+//define name of tickless idle implementation (look in tickless.c)
+#include <portmacro.h>
+
+void vPortSuppressTicksAndSleep(TickType_t xExpectedIdleTime);
+#define portSUPPRESS_TICKS_AND_SLEEP vPortSuppressTicksAndSleep
+
 // <q> Use tickless idle
 // <id> freertos_use_tickless_idle
 #ifndef configUSE_TICKLESS_IDLE
-#define configUSE_TICKLESS_IDLE 1
+#define configUSE_TICKLESS_IDLE 0
 #endif
 
 // <q> Use trace facility
 // <id> freertos_use_trace_facility
 #ifndef configUSE_TRACE_FACILITY
-#define configUSE_TRACE_FACILITY 1
+#define configUSE_TRACE_FACILITY 0
 #endif
 
 // <q> Use statistics formating functions
