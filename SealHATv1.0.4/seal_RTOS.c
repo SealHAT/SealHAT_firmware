@@ -21,17 +21,18 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask, signed char *pcTaskName 
     STACK_OVERFLOW_PACKET_t msg;
     (void)xTask;
 
-    msg.header.startSym = MSG_START_SYM;
-    msg.header.id       = DEVICE_ID_SYSTEM | DEVICE_ERR_OVERFLOW;
-    timestamp_FillHeader(&msg.header);
-    msg.header.size     = snprintf((char*)msg.buff, STACK_OVERFLOW_DATA_SIZE, "OVF,%s", pcTaskName);
-    msg.header.size     = (msg.header.size > STACK_OVERFLOW_DATA_SIZE ? STACK_OVERFLOW_DATA_SIZE : msg.header.size);
+    dataheader_init(&msg.header);
+    msg.header.id        = DEVICE_ID_SYSTEM | DEVICE_ERR_OVERFLOW;
+    msg.header.timestamp = _calendar_get_counter(&RTC_CALENDAR.device);
+    msg.header.size      = snprintf((char*)msg.buff, STACK_OVERFLOW_DATA_SIZE, "OVF,%s", pcTaskName);
+    msg.header.size      = (msg.header.size > STACK_OVERFLOW_DATA_SIZE ? STACK_OVERFLOW_DATA_SIZE : msg.header.size);
 
     // TODO: write the error message to the EEPROM so that it can be logged to flash on reboot
     //ctrlLog_write(&msg, sizeof(STACK_OVERFLOW_PACKET_t));
 
-    // TODO: either use this reset function, let watchdog trigger, or both.
+    // request a system reset, while(1) prevents a return just in case and should trigger watchdog
     _reset_mcu();
+    while(1) {;}
 }
 
 int32_t checkResetReason(void) {
@@ -63,15 +64,20 @@ int32_t checkResetReason(void) {
     return (int32_t)cause;
 }
 
+void dataheader_init(DATA_HEADER_t* header)
+{
+    header->size        = 0;
+    header->id          = 0;
+    header->timestamp   = 0;
+    header->packetCount = 0;
+    header->startSym    = MSG_START_SYM;
+}
+
 void timestamp_FillHeader(DATA_HEADER_t* header)
 {
     // get the time in seconds since (the custom set) epoch
     header->timestamp = _calendar_get_counter(&RTC_CALENDAR.device);
-
-    // force a sync on the counter value and get the sub second value (2048 per second, or about .5 mSec)
-    hri_tc_set_CTRLB_CMD_bf(TC4, TC_CTRLBSET_CMD_READSYNC_Val);
-    hri_tc_wait_for_sync(TC4, TC_SYNCBUSY_COUNT);
-    header->msTime = hri_tccount16_get_COUNT_reg(TC4, 0xFFFF);
+    header->packetCount++;
 }
 
 /* configSUPPORT_STATIC_ALLOCATION is set to 1, so the application must provide an

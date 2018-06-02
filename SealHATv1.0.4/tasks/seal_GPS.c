@@ -9,13 +9,13 @@
  #include "seal_DATA.h"
 
 TaskHandle_t xGPS_th;                    // GPS task handle
-StaticTask_t xGPS_taskbuf;               // task buffer for the GPS task
-StackType_t  xGPS_stack[GPS_STACK_SIZE]; // static stack allocation for GPS task
+static StaticTask_t xGPS_taskbuf;               // task buffer for the GPS task
+static StackType_t  xGPS_stack[GPS_STACK_SIZE]; // static stack allocation for GPS task
 
 int32_t GPS_task_init(void *profile)
 {
     int32_t     err;                /* for catching API errors */
-    
+
     /* initialize the GPS module */
     err = gps_init_i2c(&I2C_GPS) ? ERR_NOT_INITIALIZED : ERR_NONE;
 
@@ -50,38 +50,35 @@ void GPS_task(void *pvParameters)
     /* set the default sample rate */ // TODO: allow flexibility in message rate or fix to sample rate
     samplerate = eeprom_data.config_settings.gps_config.default_profile == GPS_PSMOO1H ? 3600000 : 30000;
     samplerate = 10000; // TODO TESTING ONLY
-    
+
     portENTER_CRITICAL();
     err = gps_setrate(samplerate) ? ERR_NOT_READY : ERR_NONE;
     portEXIT_CRITICAL();
-    
+
     // TODO what to do if this fails? Should be handled in SW
     if (err) {
         gpio_toggle_pin_level(LED_RED);
     }
-    
+
     /* update the maximum blocking time to current FIFO full time + <max sensor time> */
     xMaxBlockTime = pdMS_TO_TICKS(260000);	// TODO calculate based on registers
 
     /* initialize the message header */
-    gps_msg.header.startSym     = MSG_START_SYM;
+    dataheader_init(&gps_msg.header);
     gps_msg.header.id           = DEVICE_ID_GPS;
-    gps_msg.header.timestamp    = 0;
-    gps_msg.header.msTime       = 0;
-    gps_msg.header.size         = 0;
-    
+
     /* clear the GPS FIFO */
     portENTER_CRITICAL();
     gps_readfifo();
     portEXIT_CRITICAL();
-    
+
     /* ensure the TX_RDY interrupt is deactivated */
     gpio_set_pin_level(GPS_TXD, true);
-    
+
     /* enable the data ready interrupt (TxReady) */
     ext_irq_register(GPS_TXD, GPS_isr_dataready);
-    
-    
+
+
 
     for (;;) {
         /* wait for notification from ISR, returns `pdTRUE` if task, else `pdFALSE` */
@@ -89,7 +86,7 @@ void GPS_task(void *pvParameters)
                                    GPS_NOTIFY_ALL,  /* bits to clear on exit        */
                                    &ulNotifyValue,  /* stores the notification bits */
                                    xMaxBlockTime ); /* max wait time before error   */
-        
+
         if (pdPASS == xResult) { /* there was an interrupt */
             /* if the ISR indicated that data is ready */
             if ( GPS_NOTIFY_TXRDY & ulNotifyValue) {
@@ -147,7 +144,7 @@ void GPS_log(GPS_MSG_t *msg, int32_t *err, const DEVICE_ERR_CODES_t ERR_CODES)
         msg->header.id  |= ERR_CODES;
         msg->header.size = 0;
         logsize = sizeof(DATA_HEADER_t);
-    } else { 
+    } else {
         /* otherwise, extract the GPS data and log it */
         logcount = gps_parsefifo(msg->log, GPS_LOGSIZE);
         msg->header.size = logcount * sizeof(gps_log_t);

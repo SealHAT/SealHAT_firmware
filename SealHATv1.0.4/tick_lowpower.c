@@ -64,12 +64,6 @@ void vPortSetupTimerInterrupt(void)
 
     // set the RTOS tick interrupt generator
     hri_rtcmode0_set_INTEN_reg(RTC, RTC_PERIODIC_INTERRUPT_SYSTICK);
-
-    // set the interrupt period for ms timer reset, fastest period available (128Hz)
-    hri_rtcmode0_set_INTEN_reg(RTC, RTC_MODE0_INTFLAG_PER0);    // clock reset
-
-    /** MS TIMER TEST - LEAVE IN FOR NOW TO TEST **/
-//    hri_rtcmode0_set_INTEN_reg(RTC, RTC_MODE0_INTFLAG_PER2);    // test block
 }
 #endif
 

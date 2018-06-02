@@ -196,16 +196,6 @@ int32_t _calendar_register_callback(struct calendar_dev *const dev, calendar_drv
 #include "seal_RTOS.h"
 extern void lowpower_systick(void);
 
-/** MS TIMER TEST - LEAVE IN FOR NOW TO TEST **/
-// typedef struct __attribute__((__packed__)){
-//     uint32_t timestamp;   // timestamp
-//     uint16_t msTime;      // timestamp ms part
-// } timestamp_test_t;
-// #define TEST_ARRAY_SIZE 1000
-// static timestamp_test_t timeTest[TEST_ARRAY_SIZE];
-// static int idx = 0;
-/***********************************************/
-
 /**
  * \brief RTC interrupt handler
  *
@@ -223,35 +213,6 @@ static void _rtc_interrupt_handler(struct calendar_dev *dev)
 		/* Clear interrupt flag */
 		hri_rtcmode0_clear_interrupt_CMP0_bit(dev->hw);
 	}
-
-/** MS TIMER TEST - LEAVE IN FOR NOW TO TEST **/
-//     if (interrupt_status & RTC_MODE0_INTFLAG_PER2) {
-//         hri_rtcmode0_clear_interrupt_PER2_bit(dev->hw);
-//
-//         timeTest[idx].timestamp = _calendar_get_counter(&RTC_CALENDAR.device);
-//         // force a sync on the counter value and get the sub second value (2048 per second, or about .5 mSec)
-//         hri_tc_set_CTRLB_CMD_bf(TC4, TC_CTRLBSET_CMD_READSYNC_Val);
-//         hri_tc_wait_for_sync(TC4, TC_SYNCBUSY_COUNT);
-//         timeTest[idx].msTime = hri_tccount16_get_COUNT_reg(TC4, 0xFFFF);
-//
-//         idx++;
-//         if(idx >= TEST_ARRAY_SIZE) {
-//             while(1) {;}
-//         }
-//     }
-/****************************************************************/
-
-    if (interrupt_status & RTC_MODE0_INTFLAG_PER0) {
-        static uint_fast8_t lsb_last = 0;
-        static uint_fast8_t lsb      = 0;
-
-        hri_rtcmode0_clear_interrupt_PER0_bit(dev->hw);
-        lsb_last = lsb;
-        lsb = hri_rtcmode0_read_COUNT_reg(RTC) & 0x1;
-        if(lsb != lsb_last) {
-            hri_tccount16_write_COUNT_COUNT_bf(TC4, 0);
-        }
-    }
 
     if (interrupt_status & RTC_PERIODIC_INTERRUPT_SYSTICK) {
         hri_rtcmode0_clear_INTFLAG_reg(dev->hw, RTC_PERIODIC_INTERRUPT_SYSTICK);

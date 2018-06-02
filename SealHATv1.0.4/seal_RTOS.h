@@ -100,6 +100,12 @@ void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char *pcTaskName);
 int32_t checkResetReason(void);
 
 /**
+ * This function sets all header fields to zero, and sets the start symbol to the right value.
+ * @param header [IN] pointer to a data header struct to initialize
+ */
+void dataheader_init(DATA_HEADER_t* header);
+
+/**
  * This function fills a header with the current timestamp with seconds and milliseconds.
  * @param header [IN] pointer to a data header struct to fill with the time.
  */
