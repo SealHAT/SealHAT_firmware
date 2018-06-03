@@ -138,7 +138,7 @@
 // <e> Interrupt 2 Settings
 // <id> eic_arch_enable_irq_setting2
 #ifndef CONF_EIC_ENABLE_IRQ_SETTING2
-#define CONF_EIC_ENABLE_IRQ_SETTING2 1
+#define CONF_EIC_ENABLE_IRQ_SETTING2 0
 #endif
 
 // <q> External Interrupt 2 Filter Enable
@@ -165,7 +165,7 @@
 // <i> This defines input sense trigger
 // <id> eic_arch_sense2
 #ifndef CONF_EIC_SENSE2
-#define CONF_EIC_SENSE2 EIC_NMICTRL_NMISENSE_BOTH_Val
+#define CONF_EIC_SENSE2 EIC_NMICTRL_NMISENSE_NONE_Val
 #endif
 
 // <q> External Interrupt 2 Asynchronous Edge Detection Mode
@@ -516,7 +516,7 @@
 // <e> Interrupt 11 Settings
 // <id> eic_arch_enable_irq_setting11
 #ifndef CONF_EIC_ENABLE_IRQ_SETTING11
-#define CONF_EIC_ENABLE_IRQ_SETTING11 0
+#define CONF_EIC_ENABLE_IRQ_SETTING11 1
 #endif
 
 // <q> External Interrupt 11 Filter Enable
@@ -723,7 +723,7 @@
 
 // </e>
 
-#define CONFIG_EIC_EXTINT_MAP {2, PIN_PA18}, {3, PIN_PA19}, {4, PIN_PA20}, {5, PIN_PA21}, {15, PIN_PA27},
+#define CONFIG_EIC_EXTINT_MAP {3, PIN_PA19}, {4, PIN_PA20}, {5, PIN_PA21}, {11, PIN_PA11}, {15, PIN_PA27},
 
 // <<< end of configuration section >>>
 

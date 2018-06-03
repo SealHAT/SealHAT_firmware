@@ -463,12 +463,12 @@ drivers:
       eic_arch_enable_irq_setting0: false
       eic_arch_enable_irq_setting1: false
       eic_arch_enable_irq_setting10: false
-      eic_arch_enable_irq_setting11: false
+      eic_arch_enable_irq_setting11: true
       eic_arch_enable_irq_setting12: false
       eic_arch_enable_irq_setting13: false
       eic_arch_enable_irq_setting14: false
       eic_arch_enable_irq_setting15: true
-      eic_arch_enable_irq_setting2: true
+      eic_arch_enable_irq_setting2: false
       eic_arch_enable_irq_setting3: true
       eic_arch_enable_irq_setting4: true
       eic_arch_enable_irq_setting5: true
@@ -520,7 +520,7 @@ drivers:
       eic_arch_sense13: No detection
       eic_arch_sense14: No detection
       eic_arch_sense15: Rising-edge detection
-      eic_arch_sense2: Both-edges detection
+      eic_arch_sense2: No detection
       eic_arch_sense3: Falling-edge detection
       eic_arch_sense4: Rising-edge detection
       eic_arch_sense5: Rising-edge detection
@@ -529,13 +529,6 @@ drivers:
       eic_arch_sense8: No detection
       eic_arch_sense9: No detection
     optional_signals:
-    - identifier: EXTERNAL_IRQ:EXTINT/2
-      pad: PA18
-      mode: Enabled
-      configuration: null
-      definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::optional_signal_definition::EIC.EXTINT.2
-      name: EIC/EXTINT/2
-      label: EXTINT/2
     - identifier: EXTERNAL_IRQ:EXTINT/3
       pad: PA19
       mode: Enabled
@@ -557,6 +550,13 @@ drivers:
       definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::optional_signal_definition::EIC.EXTINT.5
       name: EIC/EXTINT/5
       label: EXTINT/5
+    - identifier: EXTERNAL_IRQ:EXTINT/11
+      pad: PA11
+      mode: Enabled
+      configuration: null
+      definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::optional_signal_definition::EIC.EXTINT.11
+      name: EIC/EXTINT/11
+      label: EXTINT/11
     - identifier: EXTERNAL_IRQ:EXTINT/15
       pad: PA27
       mode: Enabled
@@ -1080,17 +1080,17 @@ pads:
     mode: Analog
     user_label: BATTERY_LEVEL
     configuration: null
-  MOD_VREF:
+  MOD8:
     name: PA03
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PA03
     mode: Digital output
-    user_label: MOD_VREF
+    user_label: MOD8
     configuration: null
-  MOD1:
+  MOD9:
     name: PB08
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PB08
     mode: Digital output
-    user_label: MOD1
+    user_label: MOD9
     configuration: null
   MOD2:
     name: PB09
@@ -1110,19 +1110,18 @@ pads:
     mode: I2C
     user_label: ENV_SCL
     configuration: null
-  MOD3:
+  ENV_IRQ:
     name: PA10
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PA10
     mode: Digital input
-    user_label: MOD3
+    user_label: ENV_IRQ
     configuration: null
-  MEM_CS3:
+  VBUS_DETECT:
     name: PA11
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PA11
-    mode: Digital output
-    user_label: MEM_CS3
-    configuration:
-      pad_initial_level: High
+    mode: Digital input
+    user_label: VBUS_DETECT
+    configuration: null
   MEM_CS0:
     name: PB10
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PB10
@@ -1174,11 +1173,11 @@ pads:
     mode: I2C
     user_label: GPS_SCL
     configuration: null
-  VBUS_DETECT:
+  GPS_TIMEPULSE:
     name: PA18
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PA18
     mode: Digital input
-    user_label: VBUS_DETECT
+    user_label: GPS_TIMEPULSE
     configuration: null
   GPS_TXD:
     name: PA19
@@ -1228,11 +1227,11 @@ pads:
     mode: Digital output
     user_label: GPS_EXT_INT
     configuration: null
-  LED_RED:
+  GPS_RESET:
     name: PB23
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PB23
     mode: Digital output
-    user_label: LED_RED
+    user_label: GPS_RESET
     configuration:
       pad_initial_level: High
   IMU_INT_MAG:
@@ -1248,11 +1247,11 @@ pads:
     user_label: LED_GREEN
     configuration:
       pad_initial_level: High
-  LED_BLUE:
+  LED_RED:
     name: PB03
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PB03
     mode: Digital output
-    user_label: LED_BLUE
+    user_label: LED_RED
     configuration:
       pad_initial_level: High
 toolchain_options: []
