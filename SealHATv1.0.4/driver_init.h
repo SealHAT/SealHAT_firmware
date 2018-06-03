@@ -38,8 +38,6 @@ extern "C" {
 
 #include <hal_wdt.h>
 
-#include <hal_evsys.h>
-
 #include "hal_usb_device.h"
 
 extern struct crc_sync_descriptor CRC_0;

@@ -121,6 +121,13 @@ void assert_triggered(const char *file, uint32_t line);
 #define configUSE_TICK_HOOK 1
 #endif
 
+// <o> Tick Rate (Hz) <1-1000000>
+// <i> Default is 1KHz
+// <id> freertos_tick_rate_hz
+#ifndef configTICK_RATE_HZ
+#define configTICK_RATE_HZ ((TickType_t)16)
+#endif
+
 //define name of tickless idle implementation (look in tickless.c)
 #include <portmacro.h>
 
@@ -170,13 +177,6 @@ void vPortSuppressTicksAndSleep(TickType_t xExpectedIdleTime);
 // <id> freertos_max_co_routine_priorities
 #ifndef configMAX_CO_ROUTINE_PRIORITIES
 #define configMAX_CO_ROUTINE_PRIORITIES (2)
-#endif
-
-// <o> Tick Rate (Hz) <1-1000000>
-// <i> Default is 1KHz
-// <id> freertos_tick_rate_hz
-#ifndef configTICK_RATE_HZ
-#define configTICK_RATE_HZ ((TickType_t)1000)
 #endif
 
 /* Software timer definitions. */

@@ -98,10 +98,11 @@ void IMU_task(void* pvParameters)
     ext_irq_register(IMU_INT_MAG, MagnetometerDataReadyISR);
     ext_irq_register(IMU_INT2_XL, AccelerometerMotionISR);
 
-    // initialize the message headers
-    accMsg.header.startSym = MSG_START_SYM;
+    // initialize the message headers. Size of accMsg set at send time
+    dataheader_init(&accMsg.header);
     accMsg.header.id       = DEVICE_ID_ACCELEROMETER;
-    magMsg.header.startSym = MSG_START_SYM;
+
+    dataheader_init(&magMsg.header);
     magMsg.header.id       = DEVICE_ID_MAGNETIC_FIELD;
     magMsg.header.size     = sizeof(AxesRaw_t)*25;
 
