@@ -93,7 +93,7 @@ int8_t TIMER_MS_init()
 	//		 | 0 << TC_INTENSET_ERR_Pos /* Error Interrupt Enable: disabled */
 	//		 | 0 << TC_INTENSET_OVF_Pos); /* Overflow Interrupt enable: disabled */
 
-	hri_tc_write_CTRLA_ENABLE_bit(TC4, 1 << TC_CTRLA_ENABLE_Pos); /* Enable: enabled */
+	hri_tc_write_CTRLA_ENABLE_bit(TC4, 0 << TC_CTRLA_ENABLE_Pos); /* Enable: enabled */
 
 	return 0;
 }
