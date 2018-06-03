@@ -36,7 +36,6 @@ void MagnetometerDataReadyISR(void)
 
     /* Notify the IMU task that the ACCEL FIFO is ready to read */
     xTaskNotifyFromISR(xIMU_th, MAG_DATA_READY, eSetBits, &xHigherPriorityTaskWoken);
-    //gpio_toggle_pin_level(LED_GREEN);
 
     /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context switch
     should be performed to ensure the interrupt returns directly to the highest
@@ -50,7 +49,6 @@ void AccelerometerMotionISR(void)
 
     /* Notify the IMU task that there is a motion interrupt */
     xTaskNotifyFromISR(xIMU_th, MOTION_DETECT, eSetBits, &xHigherPriorityTaskWoken);
-    gpio_toggle_pin_level(LED_GREEN);
 
     /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context switch
     should be performed to ensure the interrupt returns directly to the highest
@@ -90,8 +88,8 @@ void IMU_task(void* pvParameters)
 
     // initialize the IMU
     err = lsm303_init(&I2C_IMU);
-    err = lsm303_acc_startFIFO(ACC_SCALE_2G, ACC_HR_50_HZ);
-    err = lsm303_mag_start(MAG_LP_50_HZ);
+    err = lsm303_acc_startFIFO((((int32_t)pvParameters>>24)&0xFF), (((int32_t)pvParameters>>16)&0xFF));
+    err = lsm303_mag_start((((int32_t)pvParameters>>8)&0xFF));
 
     //lsm303_acc_motionDetectStart(MOTION_INT_X_LOW, 500, 1);
     lsm303_acc_motionDetectStart(0x00, 500, 1);     // disables hardware motion detection
@@ -102,10 +100,11 @@ void IMU_task(void* pvParameters)
     ext_irq_register(IMU_INT_MAG, MagnetometerDataReadyISR);
     //ext_irq_register(IMU_INT2_XL, AccelerometerMotionISR);
 
-    // initialize the message headers
-    accMsg.header.startSym = MSG_START_SYM;
+    // initialize the message headers. Size of accMsg set at send time
+    dataheader_init(&accMsg.header);
     accMsg.header.id       = DEVICE_ID_ACCELEROMETER;
-    magMsg.header.startSym = MSG_START_SYM;
+
+    dataheader_init(&magMsg.header);
     magMsg.header.id       = DEVICE_ID_MAGNETIC_FIELD;
     magMsg.header.size     = sizeof(AxesRaw_t)*25;
 

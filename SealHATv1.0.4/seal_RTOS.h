@@ -22,6 +22,8 @@
 #include "seal_Types.h"
 #include "seal_UTIL.h"
 
+#define RTC_PERIODIC_INTERRUPT_SYSTICK  RTC_MODE0_INTFLAG_PER3  // 16 Hz periodic RTC interrupt
+
 #define CONFIG_BLOCK_BASE_ADDR          (0x3F840)   /* First writable page address of on-chip EEPROM. */
 
 // 24-bit system wide event group. NEVER use the numbers directly, they are subject to change. Use the names.
@@ -32,8 +34,8 @@ typedef enum {
     EVENT_LOGTOFLASH    = 0x00000004, // This bit indicates that the system should be logging data to the flash memory
     EVENT_LOGTOUSB      = 0x00000008, // This bit indicates that the device should be streaming data over USB
     EVENT_DEBUG         = 0x00000010, // This bit indicates that the device is in debug mode. this overrides the other modes.
-    EVENT_SYS_4         = 0x00000020,
-    EVENT_SYS_5         = 0x00000040,
+    EVENT_CONFIG_START  = 0x00000020,
+    EVENT_RETRIEVE      = 0x00000040,
     EVENT_SYS_6         = 0x00000080,
     EVENT_MASK_SYS      = 0x000000FF, // Mask for watching the system flags
 
@@ -54,8 +56,8 @@ typedef enum {
     EVENT_IMU_IDLE      = 0x00008000,
 
     EVENT_FLASH_FULL    = 0x00010000,   // mask for determining if external flash is full
-    EVENT_UNUSED_8      = 0x00020000,
-    EVENT_UNUSED_9      = 0x00040000,
+    EVENT_TIME_CHANGE   = 0x00020000,   // indicates the RTC time has changed
+    EVENT_TIME_HOUR     = 0x00040000,   // set at the top of every hour  -- TODO consider combining with EVENT_TIME_CHANGE
     EVENT_UNUSED_10     = 0x00080000,
     EVENT_UNUSED_11     = 0x00100000,
     EVENT_UNUSED_12     = 0x00200000,
@@ -96,6 +98,12 @@ void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char *pcTaskName);
  * @returns the reset reason enumeration
  */
 int32_t checkResetReason(void);
+
+/**
+ * This function sets all header fields to zero, and sets the start symbol to the right value.
+ * @param header [IN] pointer to a data header struct to initialize
+ */
+void dataheader_init(DATA_HEADER_t* header);
 
 /**
  * This function fills a header with the current timestamp with seconds and milliseconds.

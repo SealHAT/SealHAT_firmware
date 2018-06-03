@@ -16,15 +16,9 @@ bool STOP_LISTENING;            /* This should be set to true if the device shou
 
 int32_t SERIAL_task_init(void)
 {
-    /* initialize (clear all) event group and check current VBUS level 
-    xEventGroupClearBits(xSYSEVENTS_handle, EVENT_MASK_ALL);
-    if(gpio_get_pin_level(VBUS_DETECT)) {
-        usb_start();
-        xEventGroupSetBits(xSYSEVENTS_handle, EVENT_VBUS);
-    }*/
-    
     xSERIAL_th = xTaskCreateStatic(SERIAL_task, "SERIAL", SERIAL_STACK_SIZE, NULL, SERIAL_TASK_PRI, xSERIAL_stack, &xSERIAL_taskbuf);
     configASSERT(xSERIAL_th);
+    vTaskSuspend(xSERIAL_th);   /* suspend until requested by seal_CTRL on VBUS detect */
 
     return ERR_NONE;
 }
@@ -34,7 +28,6 @@ void SERIAL_task(void* pvParameters)
     int32_t err;
     (void)pvParameters;
     SYSTEM_COMMANDS cmd;
-    CMD_RETURN_TYPES retVal;
     EventBits_t eBits;
     char option;
     bool done;
@@ -45,7 +38,7 @@ void SERIAL_task(void* pvParameters)
     /* Receive and commands forever. */
     for(;;)
     {
-        if(usb_state() == USB_Configured)
+        if(usb_state() == USB_Configured && usb_dtr())
         {
             /* Print menu to console. */
             do {
@@ -65,14 +58,30 @@ void SERIAL_task(void* pvParameters)
             {
                 case CONFIGURE_DEV: 
                 {
-                    xEventGroupClearBits(xSYSEVENTS_handle, (EVENT_LOGTOUSB | EVENT_LOGTOFLASH));
-                    retVal = configure_sealhat_device();
+                    /* Notify CTRL that the device is to undergo configuration and wait for green light */
+                    
+                    // TODO output "please wait while devices shutdown" and then "configuring device" messages
+                    xEventGroupSetBits(xSYSEVENTS_handle, EVENT_CONFIG_START);
+                    ulTaskNotifyTake( pdTRUE, portMAX_DELAY); // TODO add timeout and error handling
+                    
+                    if (ERR_NONE != configure_sealhat_device()) {
+                        /* TODO: handle error writing new configs should probably fallback or notify usb */
+                        gpio_toggle_pin_level(LED_RED);
+                    }
+                    xEventGroupClearBits(xSYSEVENTS_handle, EVENT_CONFIG_START);
                     break;
                 }                    
                 case RETRIEVE_DATA: 
                 {
-                    xEventGroupClearBits(xSYSEVENTS_handle, (EVENT_LOGTOUSB | EVENT_LOGTOFLASH));
-                    retVal = retrieve_sealhat_data();
+                    /* Notify CTRL that the device is to undergo data retrieval and wait for sensors to sleep */
+                    xEventGroupSetBits(xSYSEVENTS_handle, EVENT_RETRIEVE);
+                    ulTaskNotifyTake( pdTRUE, portMAX_DELAY); // TODO add timeout and error handling
+                    
+                    if (ERR_NONE != retrieve_sealhat_data()) {
+                        /* TODO: handle error writing new configs should probably fallback or notify usb */
+                        gpio_toggle_pin_level(LED_RED);
+                    }
+                    xEventGroupClearBits(xSYSEVENTS_handle, EVENT_RETRIEVE);
                     break;
                 }                    
                 case STREAM_DATA:
@@ -96,33 +105,39 @@ void SERIAL_task(void* pvParameters)
                     /* Set the stream data flag, the log to flash flag, or both flags. */
                     if(option == 'o') {
                         xEventGroupSetBits(xSYSEVENTS_handle, EVENT_LOGTOUSB);
+                        xEventGroupClearBits(xSYSEVENTS_handle, EVENT_LOGTOFLASH);
                     } else if(option == 'l') {
                         /* Print stream or log menu to console. */
                         do {
                             err = usb_write(loggingToFlashMSG, (sizeof(loggingToFlashMSG) - 1));
                         } while((err != USB_OK) || !usb_dtr());
                         
+                        xEventGroupClearBits(xSYSEVENTS_handle, EVENT_LOGTOUSB);
                         xEventGroupSetBits(xSYSEVENTS_handle, EVENT_LOGTOFLASH);
                     } else {
                         xEventGroupSetBits(xSYSEVENTS_handle, (EVENT_LOGTOUSB | EVENT_LOGTOFLASH));
                     }
                     break;
                 }                    
-                default: retVal = UNDEFINED_CMD;
-                    break;
+                default: err = UNDEFINED_CMD; break;
             }
             
         } /* END if(usb_state() == USB_Configured) */
-        else
+        else 
         {
             /* Log data to flash only (and not USB) if USB not connected. */
             eBits = xEventGroupGetBits(xSYSEVENTS_handle);
             
-            if((eBits & EVENT_LOGTOUSB) != 0 || (eBits & EVENT_LOGTOFLASH) == 0)
-            {
+            if((eBits & EVENT_LOGTOUSB) == EVENT_LOGTOUSB || (eBits & EVENT_LOGTOFLASH) != EVENT_LOGTOFLASH) {
                 xEventGroupClearBits(xSYSEVENTS_handle, EVENT_LOGTOUSB);
                 xEventGroupSetBits(xSYSEVENTS_handle, EVENT_LOGTOFLASH);
             }
+            
+            /* if the USB disconnects, suspend the serial interface task */
+            if ((eBits & EVENT_VBUS) != EVENT_VBUS) {
+                vTaskSuspend(xSERIAL_th);
+            }
+            
         } /* END else */
         
     } /* END forever loop */
@@ -174,12 +189,10 @@ CMD_RETURN_TYPES configure_sealhat_device()
         eeprom_data.config_settings = tempConfigStruct;
         
         /* Save new configuration settings. */
-        eeprom_save_configs(&eeprom_data);
+        errVal = eeprom_save_configs(&eeprom_data);
         
         // TODO: ANTHONY uncomment next line and do your thing
         //xEventGroupSetBits(xSYSEVENTS_handle, EVENT_CONFIG_COMPLETE);
-        
-        errVal = NO_ERROR;
     }
     
     return (errVal);
