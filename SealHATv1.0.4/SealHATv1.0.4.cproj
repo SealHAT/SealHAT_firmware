@@ -199,8 +199,8 @@
           <AcmeProjectActionInfo Action="File" Source="usb/usb_protocol.c" IsConfig="false" Hash="506QsMNqKwMw3St/nEXa8Q" />
           <AcmeProjectActionInfo Action="File" Source="usb/usb_protocol.h" IsConfig="false" Hash="IjsDWsLIdSQj3pFlkAX0UA" />
           <AcmeProjectActionInfo Action="File" Source="main.c" IsConfig="false" Hash="k0AH7j+BrmdFhBPzCCMptA" />
-          <AcmeProjectActionInfo Action="File" Source="driver_init.c" IsConfig="false" Hash="sIE+MdKUlDLsLynXcj966A" />
-          <AcmeProjectActionInfo Action="File" Source="driver_init.h" IsConfig="false" Hash="qK+STbSC7OxYNZYpOCOexg" />
+          <AcmeProjectActionInfo Action="File" Source="driver_init.c" IsConfig="false" Hash="1DSYrZ9WdQz0HYwWImvKhQ" />
+          <AcmeProjectActionInfo Action="File" Source="driver_init.h" IsConfig="false" Hash="1hQAgWO3Ppuy8rSHhiqeHA" />
           <AcmeProjectActionInfo Action="File" Source="atmel_start_pins.h" IsConfig="false" Hash="rWI9RWudxM6J0cR4szJ7NA" />
           <AcmeProjectActionInfo Action="File" Source="examples/driver_examples.h" IsConfig="false" Hash="sMWgPr1/DB1kh/FN51nzTw" />
           <AcmeProjectActionInfo Action="File" Source="examples/driver_examples.c" IsConfig="false" Hash="Qon31U78xuntOTEFtdx9zg" />
@@ -244,7 +244,7 @@
           <AcmeProjectActionInfo Action="File" Source="atmel_start.h" IsConfig="false" Hash="yViQX5q7TiAXagxCyetVQw" />
           <AcmeProjectActionInfo Action="File" Source="atmel_start.c" IsConfig="false" Hash="+nmaruIqTOrYG/L+7//fEA" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_dmac_config.h" IsConfig="true" Hash="7aL46a4HpySQ8gZc8jgJ8w" />
-          <AcmeProjectActionInfo Action="File" Source="config/hpl_eic_config.h" IsConfig="true" Hash="ge6bVz5Iu1dq74RuwX+Jzw" />
+          <AcmeProjectActionInfo Action="File" Source="config/hpl_eic_config.h" IsConfig="true" Hash="FGAzw8Uo7vr/muuP5tHMWQ" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_gclk_config.h" IsConfig="true" Hash="xCf315Jlezf4haZ7qXyUng" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_mclk_config.h" IsConfig="true" Hash="ypj6b88E67yiUigfMMA65A" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_nvmctrl_config.h" IsConfig="true" Hash="l5K9dhQ/DEXZQde+K7Oh/A" />
