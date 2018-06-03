@@ -6,6 +6,7 @@
  */
 
 #include "seal_CTRL.h"
+#include "seal_GPS.h"
 #include "seal_SERIAL.h"
 #include "seal_USB.h"
 #include "sealPrint.h"
@@ -157,10 +158,12 @@ void CTRL_task(void* pvParameters)
             CTRL_hourly_update();
         }
 
-        /* check for IMU motion detection and notify the GPS */
-        if (xEventGroupGetBits(xSYSEVENTS_handle) & (EVENT_MASK_IMU_X|EVENT_MASK_IMU_Y|EVENT_MASK_IMU_Z)) {
-            xEventGroupClearBits(xSYSEVENTS_handle, (EVENT_MASK_IMU_X|EVENT_MASK_IMU_Y|EVENT_MASK_IMU_Z));
-            /* wake the GPS task up and tell it to change period */
+        /* check for IMU motion detection and notify the GPS (if it is ready and able to change rate) */
+        if (xEventGroupGetBits(xSYSEVENTS_handle) & EVENT_MASK_IMU & ~EVENT_GPS_COOLDOWN) {
+            /* wake the GPS task up and tell it to change period, try again later if GPS is busy */
+            if (xTaskNotify(xGPS_th, GPS_NOTIFY_MOTION, eSetValueWithoutOverwrite)) {
+                xEventGroupClearBits(xSYSEVENTS_handle, EVENT_MASK_IMU);
+            }
         }
         
         os_sleep(pdMS_TO_TICKS(900));
@@ -190,6 +193,10 @@ void CTRL_hourly_update()
     calendar_get_date_time(&RTC_CALENDAR, &datetime);
     hour = (1 << datetime.time.hour);
     prev = hour == 0 ? 1 << 23 : hour >> 1;
+    
+    // TODO add to the gps section to prevent redundant notifications
+    /* reset the GPS high precision counter */
+    xTaskNotify(xGPS_th, GPS_NOTIFY_HOUR, eSetBits);
     
     /* check the active hours for each sensor */
     sensor = eeprom_data.config_settings.accelerometer_config.xcel_activeHour;
@@ -222,8 +229,10 @@ void CTRL_hourly_update()
     
     sensor = eeprom_data.config_settings.temperature_config.temp_activeHour;
     if ((sensor & (hour|prev)) == hour) {
-        /* wakeup */
+        /* wakeup */   
     } else if ((sensor & (hour|prev)) == prev) {
         /* sleep */
     }
+    
+    
 }
