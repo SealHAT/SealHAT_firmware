@@ -36,7 +36,6 @@ void MagnetometerDataReadyISR(void)
 
     /* Notify the IMU task that the ACCEL FIFO is ready to read */
     xTaskNotifyFromISR(xIMU_th, MAG_DATA_READY, eSetBits, &xHigherPriorityTaskWoken);
-    //gpio_toggle_pin_level(LED_GREEN);
 
     /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context switch
     should be performed to ensure the interrupt returns directly to the highest
@@ -50,7 +49,6 @@ void AccelerometerMotionISR(void)
 
     /* Notify the IMU task that there is a motion interrupt */
     xTaskNotifyFromISR(xIMU_th, MOTION_DETECT, eSetBits, &xHigherPriorityTaskWoken);
-    gpio_toggle_pin_level(LED_RED);
 
     /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context switch
     should be performed to ensure the interrupt returns directly to the highest
@@ -79,9 +77,10 @@ int32_t IMU_task_deinit(void)
 
 void IMU_task(void* pvParameters)
 {
-    const  TickType_t  xMaxBlockTime = pdMS_TO_TICKS( 3500 );     // max block time, set to slightly more than accelerometer ISR period
-    static IMU_MSG_t   accMsg;          // data Packet for the accelerometer
-    static IMU_MSG_t   magMsg;          // data Packet for the magnetometer
+    const TickType_t xMaxBlockTime = pdMS_TO_TICKS( 3500 );     // max block time, set to slightly more than accelerometer ISR period
+    static IMU_MSG_t   accMsg;                 // data Packet for the accelerometer
+    static IMU_MSG_t   magMsg;                 // data Packet for the magnetometer
+    static MOTION_DETECT_t filter;
     BaseType_t  xResult;                // holds return value of blocking function
     int32_t     err = 0;                // for catching API errors
     uint32_t    ulNotifyValue;          // notification value from ISRs
@@ -91,12 +90,15 @@ void IMU_task(void* pvParameters)
     err = lsm303_init(&I2C_IMU);
     err = lsm303_acc_startFIFO((((int32_t)pvParameters>>24)&0xFF), (((int32_t)pvParameters>>16)&0xFF));
     err = lsm303_mag_start((((int32_t)pvParameters>>8)&0xFF));
-    lsm303_acc_motionDetectStart(MOTION_INT_X_HIGH, 250, 1);
+
+    //lsm303_acc_motionDetectStart(MOTION_INT_X_LOW, 500, 1);
+    lsm303_acc_motionDetectStart(0x00, 500, 1);     // disables hardware motion detection
+    lsm303_acc_motionDetectSoft_init(&filter, 300, MOTION_INT_Z_LOW, 1);
 
     // enable the data ready interrupts
     ext_irq_register(IMU_INT1_XL, AccelerometerDataReadyISR);
     ext_irq_register(IMU_INT_MAG, MagnetometerDataReadyISR);
-    ext_irq_register(IMU_INT2_XL, AccelerometerMotionISR);
+    //ext_irq_register(IMU_INT2_XL, AccelerometerMotionISR);
 
     // initialize the message headers. Size of accMsg set at send time
     dataheader_init(&accMsg.header);
@@ -115,10 +117,11 @@ void IMU_task(void* pvParameters)
 
         if( pdPASS == xResult ) {
             if( ACC_DATA_READY & ulNotifyValue ) {
-                bool overrun;   // TODO: set overflow flag
+                bool    overrun;   // TODO: set overflow flag
+                uint8_t detect;
 
                 portENTER_CRITICAL();
-                err = lsm303_acc_FIFOread(&accMsg.data[0], IMU_DATA_SIZE, &overrun);
+                err = lsm303_acc_FIFOread(accMsg.data, IMU_DATA_SIZE, &overrun);
                 portEXIT_CRITICAL();
 
                 // set timestamp and set error flag if needed
@@ -133,7 +136,17 @@ void IMU_task(void* pvParameters)
                     // TODO: make buffer slightly larger and have the log write calculate size from err and header size.
                     accMsg.header.size = err;   // the number of bytes read on last read
                     ctrlLog_write((uint8_t*)&accMsg, sizeof(IMU_MSG_t));
+
+                    detect = lsm303_motionDetectSoft(&filter, accMsg.data, (err/6));
+                    xEventGroupSetBits(xSYSEVENTS_handle, ((detect & MOTION_INT_MASK) << EVENT_MOTION_SHIFT));
+                    if(detect) {
+                        gpio_set_pin_level(LED_BLUE, false);
+                    }
+                    else {
+                        gpio_set_pin_level(LED_BLUE, true);
+                    }
                 }
+
             } // end of accelerometer state
 
             if( MAG_DATA_READY & ulNotifyValue ) {
@@ -158,6 +171,7 @@ void IMU_task(void* pvParameters)
                 }
             }
 
+            // hardware motion detection. Not used on LSM303AGR since there is an unsolved hardware bug (in the IMU)
             if( MOTION_DETECT & ulNotifyValue ) {
                 uint8_t detect;
                 err = lsm303_acc_motionDetectRead(&detect);
