@@ -109,7 +109,7 @@ void GPS_task(void *pvParameters)
             if (GPS_FIFOSIZE < err) {
                 err = ERR_OVERFLOW;
                 GPS_log(&gps_msg, &err, DEVICE_ERR_OVERFLOW | DEVICE_ERR_TIMEOUT);
-                gps_readfifo();
+                gps_readfifo(); /* discard FIFO */
             } else {
                 err = ERR_TIMEOUT;
                 GPS_log(&gps_msg, &err, DEVICE_ERR_TIMEOUT);
