@@ -14,16 +14,26 @@ StackType_t  xGPS_stack[GPS_STACK_SIZE]; // static stack allocation for GPS task
 
 int32_t GPS_task_init(void *profile)
 {
-    int32_t     err;                /* for catching API errors */
+    int32_t err;    /* for catching API errors */
     
+    eeprom_data.config_settings.gps_config.gps_restRate = 30000;
+    eeprom_data.config_settings.gps_config.gps_moveRate = 10000;
     /* initialize the GPS module */
     err = gps_init_i2c(&I2C_GPS) ? ERR_NOT_INITIALIZED : ERR_NONE;
 
+    /* force the GPS to stay awake until configuration is complete */
+    gpio_set_pin_level(GPS_EXT_INT, true);
+
     /* verify/load GPS settings, set up NAV polling, and disable output for now */
+    portENTER_CRITICAL();
     if (ERR_NONE == err && GPS_SUCCESS != gps_checkconfig()) {
-        err = gps_reconfig()  || gps_init_msgs() || gps_setrate(0) ? ERR_NOT_READY : ERR_NONE;
+        err =   gps_reconfig()  || 
+                gps_setrate(30000)  ||
+                gps_enablepsm() ||
+                gps_init_msgs() ? ERR_NOT_READY : ERR_NONE;  // TODO change to 0
     }
-    
+    portEXIT_CRITICAL();
+
     // TODO what to do if this fails? Should be handled in SW  
     if (err) {
         gpio_toggle_pin_level(LED_RED);
@@ -49,10 +59,9 @@ void GPS_task(void *pvParameters)
 
     /* set the default sample rate */ // TODO: allow flexibility in message rate or fix to sample rate
     samplerate = eeprom_data.config_settings.gps_config.gps_restRate;
-    samplerate = 30000; // TODO TESTING ONLY
-    
+    samplerate = 30000;
     portENTER_CRITICAL();
-    err = gps_setrate(samplerate) ? ERR_NOT_READY : ERR_NONE;
+    err = gps_setrate(samplerate) || gps_savecfg(0xFFFE) ? ERR_NOT_READY : ERR_NONE;
     portEXIT_CRITICAL();
     
     // TODO what to do if this fails? Should be handled in SW
@@ -61,7 +70,7 @@ void GPS_task(void *pvParameters)
     }
     
     /* update the maximum blocking time to current FIFO full time + <max sensor time> */
-    xMaxBlockTime = pdMS_TO_TICKS(260000);	// TODO calculate based on registers
+    xMaxBlockTime = pdMS_TO_TICKS(samplerate*GPS_LOGSIZE*4);	// TODO calculate based on registers
 
     /* initialize the message header */
     gps_msg.header.startSym     = MSG_START_SYM;
@@ -82,11 +91,17 @@ void GPS_task(void *pvParameters)
     ext_irq_register(GPS_TXD, GPS_isr_dataready);
     
     for (;;) {
+        /* put the GPS device to sleep until an interrupting event */
+        gpio_set_pin_level(GPS_EXT_INT, false);
+        
         /* wait for notification from ISR, returns `pdTRUE` if task, else `pdFALSE` */
         xResult = xTaskNotifyWait( GPS_NOTIFY_NONE, /* bits to clear on entry       */
                                    GPS_NOTIFY_ALL,  /* bits to clear on exit        */
                                    &ulNotifyValue,  /* stores the notification bits */
                                    xMaxBlockTime ); /* max wait time before error   */
+                                   
+        /* keep the GPS awake until the interrupt is handled */
+        gpio_set_pin_level(GPS_EXT_INT, true);
         
         if (pdPASS == xResult) { /* there was an interrupt */
             /* if the ISR indicated that data is ready */
@@ -110,7 +125,9 @@ void GPS_task(void *pvParameters)
             if (GPS_FIFOSIZE < err) {
                 err = ERR_OVERFLOW;
                 GPS_log(&gps_msg, &err, DEVICE_ERR_OVERFLOW | DEVICE_ERR_TIMEOUT);
+                portENTER_CRITICAL();
                 gps_readfifo();
+                portEXIT_CRITICAL();
             } else {
                 err = ERR_TIMEOUT;
                 GPS_log(&gps_msg, &err, DEVICE_ERR_TIMEOUT);
