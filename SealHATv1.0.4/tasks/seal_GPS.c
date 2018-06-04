@@ -11,6 +11,9 @@
 TaskHandle_t xGPS_th;                    // GPS task handle
 StaticTask_t xGPS_taskbuf;               // task buffer for the GPS task
 StackType_t  xGPS_stack[GPS_STACK_SIZE]; // static stack allocation for GPS task
+static xTimerHandle  xGPS_timer;         // handle for the hourly timer
+static StaticTimer_t xGPS_timerbuf;      // static buffer to hold timer state
+
 
 int32_t GPS_task_init(void *profile)
 {
@@ -38,6 +41,20 @@ int32_t GPS_task_init(void *profile)
     if (err) {
         gpio_toggle_pin_level(LED_RED);
     } else {
+        
+        /* create a timer with a one hour period for controlling sensors */
+        configASSERT(!configUSE_16_BIT_TICKS);
+        xGPS_timer = xTimerCreateStatic(   "GPSTimer",                 /* text name of the timer       */
+                                            pdMS_TO_TICKS(60000),       /* timer period in ticks (1min) */
+                                            pdFALSE,                    /* manual reload after expire   */
+                                            (void*)0,                   /* id of expiration counter     */
+                                            GPS_movement_cb,            /* timer expiration callback    */
+                                            &xGPS_timerbuf);           /* timer data buffer            */
+        
+        if (NULL == xGPS_timer) { /* if the timer was not created */
+            err = DEVICE_ERR_TIMEOUT; // TODO determine proper handling
+        }
+        
         /* create the task, return ERR_NONE or ERR_NO_MEMORY if the task creation failed */
         xGPS_th = xTaskCreateStatic(GPS_task, "GPS", GPS_STACK_SIZE, (void *)profile, GPS_TASK_PRI, xGPS_stack, &xGPS_taskbuf);
         configASSERT(xGPS_th);
@@ -48,6 +65,8 @@ int32_t GPS_task_init(void *profile)
 
 void GPS_task(void *pvParameters)
 {
+    uint16_t    activehours;        /* number of hours in a day the gps is on   */
+    uint16_t    moveminutes;        /* high resolution time(m) allowed per hour */
     uint32_t    samplerate;         /* rate to collect fix and report message   */
     uint32_t    ulNotifyValue;      /* holds the notification bits from the ISR */
     int32_t     err;                /* for catching API errors                  */
@@ -56,7 +75,14 @@ void GPS_task(void *pvParameters)
     static GPS_MSG_t gps_msg;	    /* holds the GPS message to store in flash  */
 
     (void)pvParameters;
-
+    activehours = 0;
+    
+    for(int i = 0; i < 24; i++) {   /* determine the amount of active hours per day */
+        activehours += (eeprom_data.config_settings.gps_config.gps_activeHour >> i) & 1;
+    }
+    activehours = 24; // TODO remove, testing only
+    moveminutes = GPS_MAXMOVE / activehours;   /* determine the high-res time per hour */
+    
     /* set the default sample rate */ // TODO: allow flexibility in message rate or fix to sample rate
     samplerate = eeprom_data.config_settings.gps_config.gps_restRate;
     samplerate = 30000;
@@ -104,8 +130,13 @@ void GPS_task(void *pvParameters)
         gpio_set_pin_level(GPS_EXT_INT, true);
         
         if (pdPASS == xResult) { /* there was an interrupt */
+            /* reload the high-res movement minutes if needed */
+            if (GPS_NOTIFY_HOUR & ulNotifyValue) {
+                moveminutes = GPS_MAXMOVE / activehours;
+            }
+            
             /* if the ISR indicated that data is ready */
-            if ( GPS_NOTIFY_TXRDY & ulNotifyValue) {
+            if (GPS_NOTIFY_TXRDY & ulNotifyValue) {
 
                 /* copy the GPS FIFO over I2C */
                 portENTER_CRITICAL();
@@ -114,6 +145,40 @@ void GPS_task(void *pvParameters)
 
                 /* and log it, noting communication error if needed */
                 GPS_log(&gps_msg, &err, DEVICE_ERR_COMMUNICATIONS);
+            }
+            
+            /* if motion has been detected by the IMU */
+            if (GPS_NOTIFY_MOTION & ulNotifyValue && moveminutes) {
+                /* block the state machine from sending another rate change request */
+                xEventGroupSetBits(xSYSEVENTS_handle, EVENT_GPS_COOLDOWN);
+                
+                /* decrement the available high-res minutes and set the rate */
+                moveminutes--;
+                samplerate = eeprom_data.config_settings.gps_config.gps_moveRate;
+                portENTER_CRITICAL();
+                err = gps_setrate(samplerate) ? ERR_NO_CHANGE : ERR_NONE;
+                portEXIT_CRITICAL();
+                
+                /* if failure, try again. else start a one minute timer */
+                if(err) {
+                    xTaskNotify(xGPS_th, GPS_NOTIFY_MOTION, eSetBits);
+                } else {
+                    xTimerChangePeriod(xGPS_timer, pdMS_TO_TICKS(60000), 0);
+                }
+            }
+            
+            /* if the high precision motion timer has expired */
+            if (GPS_NOTIFY_REVERT & ulNotifyValue) {
+                /* revert the rate back to the resting rate */
+                samplerate = eeprom_data.config_settings.gps_config.gps_restRate;
+                portENTER_CRITICAL();
+                err = gps_setrate(samplerate) ? ERR_NO_CHANGE : ERR_NONE;
+                portEXIT_CRITICAL();
+                
+                /* try again if not successful */
+                if (err) {
+                    xTaskNotify(xGPS_th, GPS_NOTIFY_REVERT, eSetBits);
+                }
             }
         } else { /* the interrupt timed out, figure out why and log */
             /* check how many samples are in the FIFO */
@@ -147,6 +212,15 @@ void GPS_isr_dataready(void)
     should be performed to ensure the interrupt returns directly to the highest
     priority task.*/
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+}
+
+void GPS_movement_cb(TimerHandle_t xTimer)
+{
+    /* tell the GPS to revert to resting rate, try again if busy */
+    if (xTaskNotify(xGPS_th, GPS_NOTIFY_NONE, eSetValueWithoutOverwrite)) {
+        xTimerChangePeriod(xTimer, pdMS_TO_TICKS(1000), 0);
+    }
+    xEventGroupClearBits(xSYSEVENTS_handle, EVENT_GPS_COOLDOWN);
 }
 
 void GPS_log(GPS_MSG_t *msg, int32_t *err, const DEVICE_ERR_CODES_t ERR_CODES)
