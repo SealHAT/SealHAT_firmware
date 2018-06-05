@@ -69,6 +69,11 @@ typedef struct __attribute__((__packed__)){
     uint16_t size;		  // size of data packet to follow in bytes
 } DATA_HEADER_t;
 
+typedef struct __attribute__((__packed__)){
+    DATA_HEADER_t header;    // packet header
+    uint32_t      data[2];   // size of the GP reg in RTC
+} SYSTEM_ERROR_t;
+
 /***********************GUI------------->MICROCONTROLLER*****************/
 typedef struct{
    DATA_HEADER_t    acc_headerData;
