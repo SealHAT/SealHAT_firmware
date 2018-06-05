@@ -2,9 +2,9 @@ format_version: '2'
 name: My Project
 versions:
   api: '1.0'
-  backend: 1.2.139
-  commit: release1.2
-  content: 1.0.943
+  backend: 1.2.141
+  commit: ef3c1854b213e6aa6e0248cc11ff619cc7b22278
+  content: 1.0.953
   content_pack_name: unknown
   format: '2'
   frontend: 1.2.1708
@@ -815,6 +815,46 @@ drivers:
           input: RTC source
         configuration:
           rtc_clk_selection: RTC source
+  SPI_MOD:
+    user_label: SPI_MOD
+    definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::SERCOM0::driver_config_definition::SPI.Master::HAL:Driver:SPI.Master.Sync
+    functionality: SPI
+    api: HAL:Driver:SPI_Master_Sync
+    configuration:
+      spi_master_advanced: false
+      spi_master_arch_cpha: Sample input on leading edge
+      spi_master_arch_cpol: SCK is low when idle
+      spi_master_arch_dbgstop: Keep running
+      spi_master_arch_dord: MSB first
+      spi_master_arch_ibon: In data stream
+      spi_master_arch_runstdby: false
+      spi_master_baud_rate: 1000000
+      spi_master_character_size: 8 bits
+      spi_master_dummybyte: 511
+      spi_master_rx_enable: true
+    optional_signals: []
+    variant:
+      specification: TXPO=2, RXPO=0
+      required_signals:
+      - name: SERCOM0/PAD/0
+        pad: PA04
+        label: MISO
+      - name: SERCOM0/PAD/1
+        pad: PA05
+        label: SCK
+      - name: SERCOM0/PAD/3
+        pad: PA07
+        label: MOSI
+    clocks:
+      domain_group:
+        nodes:
+        - name: Core
+          input: Generic clock generator 0
+        - name: Slow
+          input: Generic clock generator 3
+        configuration:
+          core_gclk_selection: Generic clock generator 0
+          slow_gclk_selection: Generic clock generator 3
   I2C_GPS:
     user_label: I2C_GPS
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::SERCOM1::driver_config_definition::I2C.Master.Standard~2FFast-mode::HAL:Driver:I2C.Master.Sync
@@ -1297,6 +1337,31 @@ pads:
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PB09
     mode: Digital output
     user_label: MOD2
+    configuration: null
+  PA04:
+    name: PA04
+    definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PA04
+    mode: Digital input
+    user_label: PA04
+    configuration: null
+  PA05:
+    name: PA05
+    definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PA05
+    mode: Digital output
+    user_label: PA05
+    configuration: null
+  MOD_CS:
+    name: PA06
+    definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PA06
+    mode: Digital output
+    user_label: MOD_CS
+    configuration:
+      pad_initial_level: High
+  PA07:
+    name: PA07
+    definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PA07
+    mode: Digital output
+    user_label: PA07
     configuration: null
   ENV_SDA:
     name: PA08

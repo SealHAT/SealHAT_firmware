@@ -35,6 +35,7 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hpl/usb</Value>
+      <Value>../hpl/wdt</Value>
       <Value>../hri</Value>
       <Value>../thirdparty/RTOS</Value>
       <Value>../thirdparty/RTOS/freertos/FreeRTOSV10.0.0</Value>
@@ -89,6 +90,7 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hpl/usb</Value>
+      <Value>../hpl/wdt</Value>
       <Value>../hri</Value>
       <Value>../thirdparty/RTOS</Value>
       <Value>../thirdparty/RTOS/freertos/FreeRTOSV10.0.0</Value>
@@ -127,6 +129,7 @@
       <Value>../hpl/sercom</Value>
       <Value>../hpl/tc</Value>
       <Value>../hpl/usb</Value>
+      <Value>../hpl/wdt</Value>
       <Value>../hri</Value>
       <Value>../thirdparty/RTOS</Value>
       <Value>../thirdparty/RTOS/freertos/FreeRTOSV10.0.0</Value>
