@@ -21,6 +21,7 @@ int32_t GPS_task_init(void *profile)
     
     eeprom_data.config_settings.gps_config.gps_restRate = 30000;
     eeprom_data.config_settings.gps_config.gps_moveRate = 10000;
+
     /* initialize the GPS module */
     err = gps_init_i2c(&I2C_GPS) ? ERR_NOT_INITIALIZED : ERR_NONE;
 
@@ -30,10 +31,7 @@ int32_t GPS_task_init(void *profile)
     /* verify/load GPS settings, set up NAV polling, and disable output for now */
     portENTER_CRITICAL();
     if (ERR_NONE == err && GPS_SUCCESS != gps_checkconfig()) {
-        err =   gps_reconfig()  || 
-                gps_setrate(30000)  ||
-                gps_enablepsm() ||
-                gps_init_msgs() ? ERR_NOT_READY : ERR_NONE;  // TODO change to 0
+        err =   gps_reconfig() ||  gps_setrate(10000) ? ERR_NOT_READY : ERR_NONE;  // TODO change to 0
     }
     portEXIT_CRITICAL();
 
@@ -85,9 +83,9 @@ void GPS_task(void *pvParameters)
     
     /* set the default sample rate */ // TODO: allow flexibility in message rate or fix to sample rate
     samplerate = eeprom_data.config_settings.gps_config.gps_restRate;
-    samplerate = 30000;
+    samplerate = 10000;
     portENTER_CRITICAL();
-    err = gps_setrate(samplerate) || gps_savecfg(0xFFFE) ? ERR_NOT_READY : ERR_NONE;
+    err = gps_setrate(samplerate) || gps_savecfg(0xFFFF) ? ERR_NOT_READY : ERR_NONE;
     portEXIT_CRITICAL();
     
     // TODO what to do if this fails? Should be handled in SW
@@ -96,7 +94,7 @@ void GPS_task(void *pvParameters)
     }
     
     /* update the maximum blocking time to current FIFO full time + <max sensor time> */
-    xMaxBlockTime = pdMS_TO_TICKS(samplerate*GPS_LOGSIZE*4);	// TODO calculate based on registers
+    xMaxBlockTime = pdMS_TO_TICKS(samplerate*GPS_LOGSIZE+4000);	// TODO calculate based on registers
 
     /* initialize the message header */
     gps_msg.header.startSym     = MSG_START_SYM;
@@ -145,6 +143,8 @@ void GPS_task(void *pvParameters)
 
                 /* and log it, noting communication error if needed */
                 GPS_log(&gps_msg, &err, DEVICE_ERR_COMMUNICATIONS);
+                
+               // gps_nap(samplerate);
             }
             
             /* if motion has been detected by the IMU */
@@ -216,11 +216,11 @@ void GPS_isr_dataready(void)
 
 void GPS_movement_cb(TimerHandle_t xTimer)
 {
-    /* tell the GPS to revert to resting rate, try again if busy */
-    if (xTaskNotify(xGPS_th, GPS_NOTIFY_NONE, eSetValueWithoutOverwrite)) {
-        xTimerChangePeriod(xTimer, pdMS_TO_TICKS(1000), 0);
-    }
-    xEventGroupClearBits(xSYSEVENTS_handle, EVENT_GPS_COOLDOWN);
+//     /* tell the GPS to revert to resting rate, try again if busy */
+//     if (xTaskNotify(xGPS_th, GPS_NOTIFY_NONE, eSetValueWithoutOverwrite)) {
+//         xTimerChangePeriod(xTimer, pdMS_TO_TICKS(1000), 0);
+//     }
+//     xEventGroupClearBits(xSYSEVENTS_handle, EVENT_GPS_COOLDOWN);
 }
 
 void GPS_log(GPS_MSG_t *msg, int32_t *err, const DEVICE_ERR_CODES_t ERR_CODES)

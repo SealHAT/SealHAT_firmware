@@ -40,12 +40,11 @@ int main(void)
         while(1) {;}
     }
 
-    // IMU task init.
-    if(IMU_task_init(ACC_SCALE_2G, ACC_HR_50_HZ, MAG_LP_50_HZ) != ERR_NONE) {
-        while(1) {;}
-    }
+//     // IMU task init.
+//     if(IMU_task_init(ACC_SCALE_2G, ACC_HR_50_HZ, MAG_LP_50_HZ) != ERR_NONE) {
+//         while(1) {;}
+//     }
 
-    // SERIAL task init.
     if(SERIAL_task_init() != ERR_NONE) {
         while(1) {;}
     }
