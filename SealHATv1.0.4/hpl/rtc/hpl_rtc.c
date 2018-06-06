@@ -192,6 +192,10 @@ int32_t _calendar_register_callback(struct calendar_dev *const dev, calendar_drv
 	return ERR_NONE;
 }
 
+#include "driver_init.h"
+#include "seal_RTOS.h"
+extern void lowpower_systick(void);
+
 /**
  * \brief RTC interrupt handler
  *
@@ -201,6 +205,7 @@ static void _rtc_interrupt_handler(struct calendar_dev *dev)
 {
 	/* Read and mask interrupt flag register */
 	uint16_t interrupt_status = hri_rtcmode0_read_INTFLAG_reg(dev->hw);
+    interrupt_status &= hri_rtcmode0_read_INTEN_reg(dev->hw);
 
 	if (interrupt_status & RTC_MODE0_INTFLAG_CMP0) {
 		dev->callback(dev);
@@ -208,6 +213,12 @@ static void _rtc_interrupt_handler(struct calendar_dev *dev)
 		/* Clear interrupt flag */
 		hri_rtcmode0_clear_interrupt_CMP0_bit(dev->hw);
 	}
+
+    if (interrupt_status & RTC_PERIODIC_INTERRUPT_SYSTICK) {
+        hri_rtcmode0_clear_INTFLAG_reg(dev->hw, RTC_PERIODIC_INTERRUPT_SYSTICK);
+        lowpower_systick();
+    }
+
 }
 
 /**

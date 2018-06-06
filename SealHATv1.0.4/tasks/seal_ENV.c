@@ -36,7 +36,7 @@ void ENV_task(void* pvParameters)
     err = max44009_init(&I2C_ENV, LIGHT_ADD_GND);
 
     // set the header data
-    msg.header.startSym = MSG_START_SYM;
+    dataheader_init(&msg.header);
     msg.header.size     = ENV_PACKET_LEGTH * sizeof(ENV_DATA_t);
     msg.header.id       = DEVICE_ID_ENVIRONMENTAL;
 

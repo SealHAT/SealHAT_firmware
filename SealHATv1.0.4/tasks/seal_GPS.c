@@ -100,20 +100,17 @@ void GPS_task(void *pvParameters)
     xMaxBlockTime = pdMS_TO_TICKS(10000);	// TODO calculate based on registers
 
     /* initialize the message header */
-    gps_msg.header.startSym     = MSG_START_SYM;
+    dataheader_init(&gps_msg.header);
     gps_msg.header.id           = DEVICE_ID_GPS;
-    gps_msg.header.timestamp    = 0;
-    gps_msg.header.msTime       = 0;
-    gps_msg.header.size         = 0;
-    
+
     /* clear the GPS FIFO */
     portENTER_CRITICAL();
     gps_readfifo();
     portEXIT_CRITICAL();
-    
+
     /* ensure the TX_RDY interrupt is deactivated */
     gpio_set_pin_level(GPS_TXD, true);
-    
+
     /* enable the data ready interrupt (TxReady) */
     ext_irq_register(GPS_TXD, GPS_isr_dataready);
     
@@ -242,7 +239,7 @@ void GPS_log(GPS_MSG_t *msg, int32_t *err, const DEVICE_ERR_CODES_t ERR_CODES)
         msg->header.id  |= ERR_CODES;
         msg->header.size = 0;
         logsize = sizeof(DATA_HEADER_t);
-    } else { 
+    } else {
         /* otherwise, extract the GPS data and log it */
         logcount = gps_parsefifo(msg->log, GPS_LOGSIZE);
         msg->header.size = logcount * sizeof(gps_log_t);

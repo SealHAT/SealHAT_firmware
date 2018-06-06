@@ -91,8 +91,8 @@ int32_t CTRL_task_init(void)
     RTC_ALARM.cal_alarm.datetime.time.hour  = eeprom_data.config_settings.start_hour;
     RTC_ALARM.cal_alarm.datetime.time.min   = 0;
     RTC_ALARM.cal_alarm.datetime.time.sec   = 0;
-    RTC_ALARM.cal_alarm.mode = ONESHOT;
-    RTC_ALARM.cal_alarm.option = CALENDAR_ALARM_MATCH_YEAR;
+    RTC_ALARM.cal_alarm.option              = CALENDAR_ALARM_MATCH_YEAR;
+    RTC_ALARM.cal_alarm.mode                = ONESHOT;
 
     // return values not checked since they  ALWAYS returns ERR_NONE.
     calendar_set_baseyear(&RTC_CALENDAR, SEALHAT_BASE_YEAR);
@@ -139,6 +139,7 @@ void CTRL_task(void* pvParameters)
     /* Receive and write data forever. */
     for(;;) {
         /* feed the mangy dog */
+        gpio_toggle_pin_level(LED_GREEN);
         wdt_feed(&WATCHDOG);
         
         /* if the USB has been attached */
@@ -168,7 +169,7 @@ void CTRL_task(void* pvParameters)
             }
         }
         
-        os_sleep(pdMS_TO_TICKS(900));
+        os_sleep(pdMS_TO_TICKS(1000));
     }
 }
 

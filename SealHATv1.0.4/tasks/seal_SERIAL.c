@@ -16,7 +16,7 @@ bool STOP_LISTENING;            /* This should be set to true if the device shou
 
 int32_t SERIAL_task_init(void)
 {
-    xSERIAL_th = xTaskCreateStatic(SERIAL_task, "SERIAL", SERIAL_STACK_SIZE, NULL, SERIAL_TASK_PRI, xSERIAL_stack, &xSERIAL_taskbuf);
+    xSERIAL_th = xTaskCreateStatic(SERIAL_task, "COMM", SERIAL_STACK_SIZE, NULL, SERIAL_TASK_PRI, xSERIAL_stack, &xSERIAL_taskbuf);
     configASSERT(xSERIAL_th);
     vTaskSuspend(xSERIAL_th);   /* suspend until requested by seal_CTRL on VBUS detect */
 

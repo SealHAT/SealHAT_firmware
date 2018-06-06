@@ -8,83 +8,67 @@
 
 void vApplicationIdleHook(void)
 {
-   //sleep(PM_SLEEPCFG_SLEEPMODE_STANDBY_Val);
+   sleep(PM_SLEEPCFG_SLEEPMODE_STANDBY_Val);
 }
 
 void vApplicationTickHook(void)
 {
-    gpio_toggle_pin_level(MOD2);
+    gpio_toggle_pin_level(LED_RED);
 }
 
 void vApplicationStackOverflowHook( TaskHandle_t xTask, signed char *pcTaskName )
 {
-    TaskHandle_t            xHandle;
-    TaskStatus_t            xTaskDetails;
     STACK_OVERFLOW_PACKET_t msg;
     (void)xTask;
 
-    /* Obtain the handle of a task from its name. */
-    xHandle = xTaskGetHandle((char*)pcTaskName);
+    dataheader_init(&msg.header);
+    msg.header.id        = DEVICE_ID_SYSTEM | DEVICE_ERR_OVERFLOW;
+    msg.header.timestamp = _calendar_get_counter(&RTC_CALENDAR.device);
+    msg.header.size      = snprintf((char*)msg.buff, STACK_OVERFLOW_DATA_SIZE, "OVF,%s", pcTaskName);
+    msg.header.size      = (msg.header.size > STACK_OVERFLOW_DATA_SIZE ? STACK_OVERFLOW_DATA_SIZE : msg.header.size);
 
-    /* Check the handle is not NULL. */
-    configASSERT(xHandle);
+    // write the task name and time that "overflown" to the RTC user register to be dealt with after reset
+    hri_rtcmode0_write_GP_reg(RTC, 0, (uint32_t)pcTaskName);
+    hri_rtcmode0_write_GP_reg(RTC, 1, _calendar_get_counter(&RTC_CALENDAR.device));
 
-    /* Use the handle to obtain further information about the task. */
-    vTaskGetInfo(xHandle,           // task handle to get info about
-                 &xTaskDetails,    // Return structure
-                 pdFALSE,          // Don't get high water mark since we are obviously overflown
-                 eInvalid );       // Don't get task state since it has died and we are about to revive it
-
-    msg.header.startSym = MSG_START_SYM;
-    msg.header.id       = DEVICE_ID_SYSTEM | DEVICE_ERR_OVERFLOW;
-    timestamp_FillHeader(&msg.header);
-    msg.header.size     = snprintf((char*)msg.buff, STACK_OVERFLOW_DATA_SIZE, "OVF,%s", pcTaskName);
-    msg.header.size     = (msg.header.size > STACK_OVERFLOW_DATA_SIZE ? STACK_OVERFLOW_DATA_SIZE : msg.header.size);
-
-    // TODO: write the error message to the EEPROM so that it can be logged to flash on reboot
-    //ctrlLog_write(&msg, sizeof(STACK_OVERFLOW_PACKET_t));
-
-    // TODO: either use this reset function, let watchdog trigger, or both.
+    // request a system reset, while(1) prevents a return just in case and should trigger watchdog
     _reset_mcu();
+    while(1) {;}
 }
 
 int32_t checkResetReason(void) {
-    enum reset_reason cause;
-    cause = _get_reset_reason();
+    enum reset_reason cause = _get_reset_reason();      // store the reset cause
 
-//     switch(cause) {
-//         case RESET_REASON_WDT    :
-//                                    break;
-//         case RESET_REASON_SYST   :
-//                                    break;
-//         case RESET_REASON_POR    :
-//                                    break;
-//         case RESET_REASON_BOD12  :
-//                                    break;
-//         case RESET_REASON_BOD33  :
-//                                    break;
-//         case RESET_REASON_EXT    :
-//                                    break;
-//         case RESET_REASON_WDT    :
-//                                    break;
-//         case RESET_REASON_SYST   :
-//                                    break;
-//         case RESET_REASON_BACKUP :
-//                                    break;
-//         default:
-//     };
-
+    switch(cause) {
+        case RESET_REASON_SYST   : gpio_set_pin_level(LED_RED, false);  // only blink LED, data is filled in function that requested reset
+                                   break;
+        case RESET_REASON_WDT    : 
+        case RESET_REASON_POR    : 
+        case RESET_REASON_BOD12  : 
+        case RESET_REASON_BOD33  : 
+        case RESET_REASON_EXT    : 
+        case RESET_REASON_BACKUP : 
+        default:                   gpio_set_pin_level(LED_RED, false);
+                                   hri_rtcmode0_set_GP_reg(RTC, 0, cause);
+                                   hri_rtcmode0_write_GP_reg(RTC, 1, _calendar_get_counter(&RTC_CALENDAR.device));
+    };
     return (int32_t)cause;
+}
+
+void dataheader_init(DATA_HEADER_t* header)
+{
+    header->size        = 0;
+    header->id          = 0;
+    header->timestamp   = 0;
+    header->packetCount = 0;
+    header->startSym    = MSG_START_SYM;
 }
 
 void timestamp_FillHeader(DATA_HEADER_t* header)
 {
     // get the time in seconds since (the custom set) epoch
     header->timestamp = _calendar_get_counter(&RTC_CALENDAR.device);
-
-    // force a sync on the counter value and get the sub second value (2048 per second, or about .5 mSec)
-    hri_tc_set_CTRLB_CMD_bf(TC4, TC_CTRLBSET_CMD_READSYNC_Val);
-    header->msTime = hri_tccount16_get_COUNT_reg(TC4, 0xFFFF);
+    header->packetCount++;
 }
 
 /* configSUPPORT_STATIC_ALLOCATION is set to 1, so the application must provide an
