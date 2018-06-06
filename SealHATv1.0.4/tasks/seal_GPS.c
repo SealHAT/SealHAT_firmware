@@ -97,7 +97,7 @@ void GPS_task(void *pvParameters)
 //     
     /* update the maximum blocking time to current FIFO full time + <max sensor time> */
     xMaxBlockTime = pdMS_TO_TICKS(samplerate*GPS_LOGSIZE*4);	// TODO calculate based on registers
-    xMaxBlockTime = pdMS_TO_TICKS(10000);	// TODO calculate based on registers
+    xMaxBlockTime = pdMS_TO_TICKS(30000);	// TODO calculate based on registers
 
     /* initialize the message header */
     dataheader_init(&gps_msg.header);
@@ -138,14 +138,13 @@ void GPS_task(void *pvParameters)
             if (GPS_NOTIFY_TXRDY & ulNotifyValue) {
 
                 /* copy the GPS FIFO over I2C */
-               // portENTER_CRITICAL();
                 err = gps_readfifo() ? ERR_TIMEOUT : ERR_NONE;
-             //   portEXIT_CRITICAL();
 
                 /* and log it, noting communication error if needed */
                 GPS_log(&gps_msg, &err, DEVICE_ERR_COMMUNICATIONS);
             } else {
-                gps_loadcfg(0xFFFF);    
+                 
+                gps_loadcfg(0xFFFF); 
             }
             
             
@@ -192,6 +191,7 @@ void GPS_task(void *pvParameters)
                 GPS_log(&gps_msg, &err, DEVICE_ERR_TIMEOUT);
             } // TODO expand to handle unchanged FIFO (maybe readout and reset)
         }
+//        gps_loadcfg(0xFFFF);  
     } // END FOREVER LOOP
 }
 

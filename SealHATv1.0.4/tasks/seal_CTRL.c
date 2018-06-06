@@ -99,7 +99,7 @@ int32_t CTRL_task_init(void)
     calendar_set_date(&RTC_CALENDAR, &date);
     calendar_set_time(&RTC_CALENDAR, &time);
 
-   // calendar_set_alarm(&RTC_CALENDAR, &RTC_ALARM, alarm_startsensors_cb);
+    calendar_set_alarm(&RTC_CALENDAR, &RTC_ALARM, alarm_startsensors_cb);
     xEventGroupSetBits(xSYSEVENTS_handle, EVENT_TIME_CHANGE);
     
     /* create a timer with a one hour period for controlling sensors */
@@ -133,9 +133,8 @@ void CTRL_task(void* pvParameters)
     gpio_toggle_pin_level(LED_GREEN);
 
     // enable watchdog timer
-    //wdt_set_timeout_period(&WATCHDOG, 100)
-    wdt_enable(&WATCHDOG);
-
+     wdt_enable(&WATCHDOG);
+    
     /* Receive and write data forever. */
     for(;;) {
         /* feed the mangy dog */

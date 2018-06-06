@@ -90,7 +90,7 @@ void EXTERNAL_IRQ_init(void)
 	                       // <GPIO_PULL_OFF"> Off
 	                       // <GPIO_PULL_UP"> Pull-up
 	                       // <GPIO_PULL_DOWN"> Pull-down
-	                       GPIO_PULL_OFF);
+	                       GPIO_PULL_DOWN);
 
 	gpio_set_pin_function(VBUS_DETECT, PINMUX_PA11A_EIC_EXTINT11);
 
