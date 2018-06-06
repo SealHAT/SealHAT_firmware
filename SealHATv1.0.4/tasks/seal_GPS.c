@@ -104,9 +104,9 @@ void GPS_task(void *pvParameters)
     gps_msg.header.id           = DEVICE_ID_GPS;
 
     /* clear the GPS FIFO */
-    portENTER_CRITICAL();
+   // portENTER_CRITICAL();
     gps_readfifo();
-    portEXIT_CRITICAL();
+   // portEXIT_CRITICAL();
 
     /* ensure the TX_RDY interrupt is deactivated */
     gpio_set_pin_level(GPS_TXD, true);
@@ -138,16 +138,15 @@ void GPS_task(void *pvParameters)
             if (GPS_NOTIFY_TXRDY & ulNotifyValue) {
 
                 /* copy the GPS FIFO over I2C */
-                portENTER_CRITICAL();
+               // portENTER_CRITICAL();
                 err = gps_readfifo() ? ERR_TIMEOUT : ERR_NONE;
-                portEXIT_CRITICAL();
+             //   portEXIT_CRITICAL();
 
                 /* and log it, noting communication error if needed */
                 GPS_log(&gps_msg, &err, DEVICE_ERR_COMMUNICATIONS);
             } else {
                 gps_loadcfg(0xFFFF);    
             }
-            
             
             
             /* if motion has been detected by the IMU */
@@ -158,9 +157,7 @@ void GPS_task(void *pvParameters)
                 /* decrement the available high-res minutes and set the rate */
                 moveminutes--;
                 samplerate = eeprom_data.config_settings.gps_config.gps_moveRate;
-                portENTER_CRITICAL();
                 err = gps_setrate(samplerate) ? ERR_NO_CHANGE : ERR_NONE;
-                portEXIT_CRITICAL();
                 
                 /* if failure, try again. else start a one minute timer */
                 if(err) {
@@ -174,9 +171,7 @@ void GPS_task(void *pvParameters)
             if (GPS_NOTIFY_REVERT & ulNotifyValue) {
                 /* revert the rate back to the resting rate */
                 samplerate = eeprom_data.config_settings.gps_config.gps_restRate;
-                portENTER_CRITICAL();
                 err = gps_setrate(samplerate) ? ERR_NO_CHANGE : ERR_NONE;
-                portEXIT_CRITICAL();
                 
                 /* try again if not successful */
                 if (err) {
@@ -185,17 +180,13 @@ void GPS_task(void *pvParameters)
             }
         } else { /* the interrupt timed out, figure out why and log */
             /* check how many samples are in the FIFO */
-            portENTER_CRITICAL();
             err = gps_checkfifo();
-            portEXIT_CRITICAL();
-
+            
             /* log the error based on FIFO state */
             if (GPS_FIFOSIZE < err) {
                 err = ERR_OVERFLOW;
                 GPS_log(&gps_msg, &err, DEVICE_ERR_OVERFLOW | DEVICE_ERR_TIMEOUT);
-                portENTER_CRITICAL();
                 gps_readfifo();
-                portEXIT_CRITICAL();
             } else {
                 err = ERR_TIMEOUT;
                 GPS_log(&gps_msg, &err, DEVICE_ERR_TIMEOUT);
