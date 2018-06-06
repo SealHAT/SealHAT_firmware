@@ -91,13 +91,15 @@ int32_t CTRL_task_init(void)
     RTC_ALARM.cal_alarm.datetime.time.hour  = eeprom_data.config_settings.start_hour;
     RTC_ALARM.cal_alarm.datetime.time.min   = 0;
     RTC_ALARM.cal_alarm.datetime.time.sec   = 0;
+    RTC_ALARM.cal_alarm.mode = ONESHOT;
+    RTC_ALARM.cal_alarm.option = CALENDAR_ALARM_MATCH_YEAR;
 
     // return values not checked since they  ALWAYS returns ERR_NONE.
     calendar_set_baseyear(&RTC_CALENDAR, SEALHAT_BASE_YEAR);
     calendar_set_date(&RTC_CALENDAR, &date);
     calendar_set_time(&RTC_CALENDAR, &time);
 
-    calendar_set_alarm(&RTC_CALENDAR, &RTC_ALARM, alarm_startsensors_cb);
+   // calendar_set_alarm(&RTC_CALENDAR, &RTC_ALARM, alarm_startsensors_cb);
     xEventGroupSetBits(xSYSEVENTS_handle, EVENT_TIME_CHANGE);
     
     /* create a timer with a one hour period for controlling sensors */
@@ -196,7 +198,7 @@ void CTRL_hourly_update()
     
     // TODO add to the gps section to prevent redundant notifications
     /* reset the GPS high precision counter */
-    xTaskNotify(xGPS_th, GPS_NOTIFY_HOUR, eSetBits);
+    //xTaskNotify(xGPS_th, GPS_NOTIFY_HOUR, eSetBits);
     
     /* check the active hours for each sensor */
     sensor = eeprom_data.config_settings.accelerometer_config.xcel_activeHour;
