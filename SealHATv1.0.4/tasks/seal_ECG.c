@@ -12,6 +12,10 @@
  static StaticTask_t    xECG_taskbuf;               // task buffer for the ECG task
  static StackType_t     xECG_stack[ECG_STACK_SIZE]; // static stack allocation for ECG task
  
+ #ifdef SEAL_DEBUG
+ static UBaseType_t uxECG_highwatermark;
+ #endif
+ 
 void ECG_isr_dataready(void)
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;  // will be set to true by notify if we are awakening a higher priority task
@@ -27,11 +31,22 @@ void ECG_isr_dataready(void)
  
  int32_t ECG_task_init(void)
  {
+     ecg_spi_init();
+     
+     
      return ERR_NONE;
  }
  
  void ECG_task(void *pvParameters)
  {
      (void)pvParameters;
+     
+     #ifdef SEAL_DEBUG
+     uxECG_highwatermark = uxTaskGetStackHighWaterMark(xECG_th);
+     #endif
+     
+     
  }
+ 
+ 
  

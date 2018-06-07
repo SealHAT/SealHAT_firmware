@@ -8,6 +8,8 @@
 #ifndef SEAL_RTOS_H_
 #define SEAL_RTOS_H_
 
+#define SEAL_DEBUG
+
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
