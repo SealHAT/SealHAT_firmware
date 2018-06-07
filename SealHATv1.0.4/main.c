@@ -1,4 +1,5 @@
 #include "seal_RTOS.h"
+#include "tasks/seal_ECG.h"
 #include "tasks/seal_ENV.h"
 #include "tasks/seal_IMU.h"
 #include "tasks/seal_CTRL.h"
@@ -37,11 +38,16 @@ int main(void)
     if(ENV_task_init(1) != ERR_NONE) {
         while(1) {;}
     }
-
-    // GPS task init
-    if(GPS_task_init(0) != ERR_NONE) {
+    
+    // start the ECG
+    if(ERR_NONE != ECG_task_init()) {
         while(1) {;}
     }
+
+    // GPS task init
+//     if(GPS_task_init(0) != ERR_NONE) {
+//         while(1) {;}
+//     }
 
     // IMU task init.
     if(IMU_task_init(ACC_SCALE_2G, ACC_HR_50_HZ, MAG_LP_50_HZ) != ERR_NONE) {

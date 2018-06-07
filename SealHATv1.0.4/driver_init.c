@@ -12,6 +12,7 @@
 #include <hal_init.h>
 
 struct crc_sync_descriptor   CRC_0;
+struct spi_m_sync_descriptor SPI_MOD;
 struct spi_m_sync_descriptor SPI_MEMORY;
 
 struct flash_descriptor FLASH_NVM;
@@ -82,6 +83,32 @@ void EXTERNAL_IRQ_init(void)
 	gpio_set_pin_function(IMU_INT2_XL, PINMUX_PA21A_EIC_EXTINT5);
 
 	// Set pin direction to input
+	gpio_set_pin_direction(MOD9, GPIO_DIRECTION_IN);
+
+	gpio_set_pin_pull_mode(MOD9,
+	                       // <y> Pull configuration
+	                       // <id> pad_pull_config
+	                       // <GPIO_PULL_OFF"> Off
+	                       // <GPIO_PULL_UP"> Pull-up
+	                       // <GPIO_PULL_DOWN"> Pull-down
+	                       GPIO_PULL_UP);
+
+	gpio_set_pin_function(MOD9, PINMUX_PB08A_EIC_EXTINT8);
+
+	// Set pin direction to input
+	gpio_set_pin_direction(MOD2, GPIO_DIRECTION_IN);
+
+	gpio_set_pin_pull_mode(MOD2,
+	                       // <y> Pull configuration
+	                       // <id> pad_pull_config
+	                       // <GPIO_PULL_OFF"> Off
+	                       // <GPIO_PULL_UP"> Pull-up
+	                       // <GPIO_PULL_DOWN"> Pull-down
+	                       GPIO_PULL_UP);
+
+	gpio_set_pin_function(MOD2, PINMUX_PB09A_EIC_EXTINT9);
+
+	// Set pin direction to input
 	gpio_set_pin_direction(VBUS_DETECT, GPIO_DIRECTION_IN);
 
 	gpio_set_pin_pull_mode(VBUS_DETECT,
@@ -131,6 +158,62 @@ void RTC_CALENDAR_init(void)
 {
 	RTC_CALENDAR_CLOCK_init();
 	calendar_init(&RTC_CALENDAR, RTC);
+}
+
+void SPI_MOD_PORT_init(void)
+{
+
+	// Set pin direction to input
+	gpio_set_pin_direction(MOD_MISO, GPIO_DIRECTION_IN);
+
+	gpio_set_pin_pull_mode(MOD_MISO,
+	                       // <y> Pull configuration
+	                       // <id> pad_pull_config
+	                       // <GPIO_PULL_OFF"> Off
+	                       // <GPIO_PULL_UP"> Pull-up
+	                       // <GPIO_PULL_DOWN"> Pull-down
+	                       GPIO_PULL_OFF);
+
+	gpio_set_pin_function(MOD_MISO, PINMUX_PA04D_SERCOM0_PAD0);
+
+	// Set pin direction to output
+	gpio_set_pin_direction(MOD_SCK, GPIO_DIRECTION_OUT);
+
+	gpio_set_pin_level(MOD_SCK,
+	                   // <y> Initial level
+	                   // <id> pad_initial_level
+	                   // <false"> Low
+	                   // <true"> High
+	                   false);
+
+	gpio_set_pin_function(MOD_SCK, PINMUX_PA05D_SERCOM0_PAD1);
+
+	// Set pin direction to output
+	gpio_set_pin_direction(MOD_MOSI, GPIO_DIRECTION_OUT);
+
+	gpio_set_pin_level(MOD_MOSI,
+	                   // <y> Initial level
+	                   // <id> pad_initial_level
+	                   // <false"> Low
+	                   // <true"> High
+	                   false);
+
+	gpio_set_pin_function(MOD_MOSI, PINMUX_PA07D_SERCOM0_PAD3);
+}
+
+void SPI_MOD_CLOCK_init(void)
+{
+	hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM0_GCLK_ID_CORE, CONF_GCLK_SERCOM0_CORE_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+	hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM0_GCLK_ID_SLOW, CONF_GCLK_SERCOM0_SLOW_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+
+	hri_mclk_set_APBCMASK_SERCOM0_bit(MCLK);
+}
+
+void SPI_MOD_init(void)
+{
+	SPI_MOD_CLOCK_init();
+	spi_m_sync_init(&SPI_MOD, SERCOM0);
+	SPI_MOD_PORT_init();
 }
 
 void I2C_GPS_PORT_init(void)
@@ -453,6 +536,20 @@ void system_init(void)
 
 	gpio_set_pin_function(MOD8, GPIO_PIN_FUNCTION_OFF);
 
+	// GPIO on PA06
+
+	// Set pin direction to output
+	gpio_set_pin_direction(MOD_CS, GPIO_DIRECTION_OUT);
+
+	gpio_set_pin_level(MOD_CS,
+	                   // <y> Initial level
+	                   // <id> pad_initial_level
+	                   // <false"> Low
+	                   // <true"> High
+	                   true);
+
+	gpio_set_pin_function(MOD_CS, GPIO_PIN_FUNCTION_OFF);
+
 	// GPIO on PA10
 
 	// Set pin direction to input
@@ -525,34 +622,6 @@ void system_init(void)
 
 	gpio_set_pin_function(LED_RED, GPIO_PIN_FUNCTION_OFF);
 
-	// GPIO on PB08
-
-	// Set pin direction to output
-	gpio_set_pin_direction(MOD9, GPIO_DIRECTION_OUT);
-
-	gpio_set_pin_level(MOD9,
-	                   // <y> Initial level
-	                   // <id> pad_initial_level
-	                   // <false"> Low
-	                   // <true"> High
-	                   false);
-
-	gpio_set_pin_function(MOD9, GPIO_PIN_FUNCTION_OFF);
-
-	// GPIO on PB09
-
-	// Set pin direction to output
-	gpio_set_pin_direction(MOD2, GPIO_DIRECTION_OUT);
-
-	gpio_set_pin_level(MOD2,
-	                   // <y> Initial level
-	                   // <id> pad_initial_level
-	                   // <false"> Low
-	                   // <true"> High
-	                   false);
-
-	gpio_set_pin_function(MOD2, GPIO_PIN_FUNCTION_OFF);
-
 	// GPIO on PB10
 
 	// Set pin direction to output
@@ -615,6 +684,8 @@ void system_init(void)
 	FLASH_NVM_init();
 
 	RTC_CALENDAR_init();
+
+	SPI_MOD_init();
 
 	I2C_GPS_init();
 

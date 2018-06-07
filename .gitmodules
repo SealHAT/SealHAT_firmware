@@ -16,3 +16,6 @@
 [submodule "SealHATv1.0.4/sam-m8q"]
 	path = SealHATv1.0.4/sam-m8q
 	url = https://github.com/SealHAT/SAM-M8Q.git
+[submodule "SealHATv1.0.4/MAX30003"]
+	path = SealHATv1.0.4/MAX30003
+	url = https://github.com/SealHAT/MAX30003.git
