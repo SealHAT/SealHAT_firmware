@@ -20,8 +20,8 @@ int32_t GPS_task_init(void *profile)
     uint32_t samplerate;
     int32_t err;    /* for catching API errors */
     
-    eeprom_data.config_settings.gps_config.gps_restRate = 30000;
-    eeprom_data.config_settings.gps_config.gps_moveRate = 10000;
+    eeprom_data.config_settings.gps_config.gps_restRate = 60000;
+    eeprom_data.config_settings.gps_config.gps_moveRate = 30000;
     
     samplerate = eeprom_data.config_settings.gps_config.gps_moveRate;
     /* initialize the GPS module */
@@ -67,15 +67,19 @@ void GPS_task(void *pvParameters)
 {
     uint16_t    activehours;        /* number of hours in a day the gps is on   */
     uint16_t    moveminutes;        /* high resolution time(m) allowed per hour */
+    uint16_t    blocktime;          /* time that the gps task will block for    */
     uint32_t    samplerate;         /* rate to collect fix and report message   */
+    uint32_t    sleeptimer;         /* tracks the ms the device has been asleep */
     uint32_t    ulNotifyValue;      /* holds the notification bits from the ISR */
     int32_t     err;                /* for catching API errors                  */
     BaseType_t  xResult;            /* holds return value of blocking function  */
     TickType_t  xMaxBlockTime;      /* max time to wait for the task to resume  */
     static GPS_MSG_t gps_msg;	    /* holds the GPS message to store in flash  */
-
+    
+    
     (void)pvParameters;
     activehours = 0;
+    sleeptimer  = 0;
     
     for(int i = 0; i < 24; i++) {   /* determine the amount of active hours per day */
         activehours += (eeprom_data.config_settings.gps_config.gps_activeHour >> i) & 1;
@@ -88,8 +92,9 @@ void GPS_task(void *pvParameters)
     samplerate = 30000;
 
     /* update the maximum blocking time to current FIFO full time + <max sensor time> */
+    blocktime     = 2000;
     xMaxBlockTime = pdMS_TO_TICKS(samplerate*GPS_LOGSIZE*4);	// TODO calculate based on registers
-    xMaxBlockTime = pdMS_TO_TICKS(10000);	// TODO calculate based on registers
+    xMaxBlockTime = pdMS_TO_TICKS(samplerate - blocktime);	                    // TODO calculate based on registers
 
     /* initialize the message header */
     dataheader_init(&gps_msg.header);
@@ -168,12 +173,14 @@ void GPS_task(void *pvParameters)
             /* check how many samples are in the FIFO */
             err = gps_checkfifo();
             
-            /* log the error based on FIFO state */
-            if (GPS_FIFOSIZE < err) {
-                err = ERR_OVERFLOW;
+            if (0 > err) { /* if the GPS doesn't respond, try again soon */
+                xMaxBlockTime = pdMS_TO_TICKS(blocktime);
+            } else if (GPS_FIFOSIZE < err) { /* if the FIFO has "overflown" */
+                err = gps_readfifo() ? ERR_TIMEOUT : ERR_NONE;
                 GPS_log(&gps_msg, err, DEVICE_ERR_OVERFLOW | DEVICE_ERR_TIMEOUT);
-                gps_readfifo();
-            } // TODO expand to handle unchanged FIFO (maybe readout and reset)
+            } else {
+                xMaxBlockTime = pdMS_TO_TICKS(samplerate);
+            }                
         }  
     } // END FOREVER LOOP
 }
