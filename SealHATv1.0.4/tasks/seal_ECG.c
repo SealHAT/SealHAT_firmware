@@ -8,6 +8,8 @@
  #include "seal_ECG.h"
  #include "seal_DATA.h"
  
+ #define ECG_DATA_READY (0x01)
+ 
  TaskHandle_t           xECG_th;                    // ECG task handle
  static StaticTask_t    xECG_taskbuf;               // task buffer for the ECG task
  static StackType_t     xECG_stack[ECG_STACK_SIZE]; // static stack allocation for ECG task
@@ -31,21 +33,69 @@ void ECG_isr_dataready(void)
  
  int32_t ECG_task_init(void)
  {
-     ecg_spi_init();
-     
-     
-     return ERR_NONE;
+    int32_t retval;
+    
+    ecg_spi_init();
+    retval = ecg_init();
+    
+    xECG_th = xTaskCreateStatic(ECG_task, "ECG", ECG_STACK_SIZE, NULL, ECG_TASK_PRI, xECG_stack, &xECG_taskbuf);
+    configASSERT(xECG_th);
+    return retval;
  }
  
  void ECG_task(void *pvParameters)
  {
-     (void)pvParameters;
+    int32_t     err = 0;                // for catching API errors
+    int32_t     count = 0;              /* track the number of samples read from FIFO */
+    uint32_t    ulNotifyValue;          // notification value from ISRs
+    BaseType_t  xResult;                // holds return value of blocking function
+    static ECG_MSG_t ecg_msg;	        /* holds the ECG message to store in flash  */
+    const TickType_t xMaxBlockTime = pdMS_TO_TICKS( 512 );
+
+
+    (void)pvParameters;
      
-     #ifdef SEAL_DEBUG
-     uxECG_highwatermark = uxTaskGetStackHighWaterMark(xECG_th);
-     #endif
+    #ifdef SEAL_DEBUG  /* test for stack usage */
+    uxECG_highwatermark = uxTaskGetStackHighWaterMark(xECG_th);
+    #endif
      
-     
+    ext_irq_register(ECG_DATA_READY, ECG_isr_dataready);
+    
+    dataheader_init(&ecg_msg.header);
+    ecg_msg.header.id   = DEVICE_ID_EKG;
+    ecg_msg.header.size = sizeof(ECG_SAMPLE_t)*ECG_LOGSIZE;
+    
+    /* main task loop */
+    for (;;){
+         xResult = xTaskNotifyWait( pdFALSE,          /* Don't clear bits on entry. */
+                                    ULONG_MAX,        /* Clear all bits on exit. */
+                                    &ulNotifyValue,   /* Stores the notified value. */
+                                    xMaxBlockTime );  /* Max time to block before writing an error packet */
+
+        if (pdPASS == xResult) {
+            /* if the watermark was hit */
+            if (ECG_DATA_READY) {
+                count = ecg_get_sample_burst(ecg_msg.log, ECG_LOGSIZE);
+                
+                timestamp_FillHeader(&ecg_msg.header);
+                if (0 < count) {
+                    ecg_msg.header.size = sizeof(ECG_SAMPLE_t)*count;
+                    ctrlLog_write((uint8_t*)&ecg_msg, sizeof(ECG_MSG_t));
+                } else {
+                    ecg_msg.header.id   |= DEVICE_ERR_COMMUNICATIONS;
+                    ecg_msg.header.size = 0;
+                    ctrlLog_write((uint8_t*)&ecg_msg, sizeof(DATA_HEADER_t));
+                    ecg_msg.header.id &= ~(DEVICE_ERR_MASK);
+                }                
+                #ifdef SEAL_DEBUG  /* test for stack usage */
+                uxECG_highwatermark = uxTaskGetStackHighWaterMark(xECG_th);
+                #endif
+            } else {
+                ecg_msg.header.id |= DEVICE_ERR_TIMEOUT;
+                ctrlLog_write((uint8_t*)&ecg_msg, sizeof(ECG_MSG_t));
+            }
+        } // END Notification response
+    } // END forever loop
  }
  
  
