@@ -1080,6 +1080,21 @@
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="max30003\ecg.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="max30003\ecg.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="max30003\max30003.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="max30003\max30003.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="max30003\max30003types.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="max44009\max44009.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1201,6 +1216,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="storage\NAND_Flash.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="tasks\seal_ECG.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="tasks\seal_ECG.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="tasks\seal_CTRL.c">
@@ -1412,6 +1433,7 @@
     <Folder Include="hri\" />
     <Folder Include="max44009" />
     <Folder Include="lsm303" />
+    <Folder Include="max30003" />
     <Folder Include="SealHATv1.0.4\" />
     <Folder Include="SealHATv1.0.4\ubx\" />
     <Folder Include="thirdparty\" />
