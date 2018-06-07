@@ -45,9 +45,9 @@ int main(void)
     }
 
     // GPS task init
-//     if(GPS_task_init(0) != ERR_NONE) {
-//         while(1) {;}
-//     }
+    if(GPS_task_init(0) != ERR_NONE) {
+        while(1) {;}
+    }
 
     // IMU task init.
     if(IMU_task_init(ACC_SCALE_2G, ACC_HR_50_HZ, MAG_LP_50_HZ) != ERR_NONE) {
