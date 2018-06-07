@@ -35,12 +35,17 @@ void ECG_isr_dataready(void)
  {
     int32_t retval;
     
-    ecg_spi_init();
-    retval = ecg_init();
+    if (ERR_NONE != ecg_spi_init()) {
+        return ERR_NOT_INITIALIZED;
+    }
+    
+    if (ERR_NONE != ecg_init()) {
+        return ERR_NOT_INITIALIZED;
+    }
     
     xECG_th = xTaskCreateStatic(ECG_task, "ECG", ECG_STACK_SIZE, NULL, ECG_TASK_PRI, xECG_stack, &xECG_taskbuf);
     configASSERT(xECG_th);
-    return retval;
+    return ERR_NONE;
  }
  
  void ECG_task(void *pvParameters)
@@ -50,7 +55,7 @@ void ECG_isr_dataready(void)
     uint32_t    ulNotifyValue;          // notification value from ISRs
     BaseType_t  xResult;                // holds return value of blocking function
     static ECG_MSG_t ecg_msg;	        /* holds the ECG message to store in flash  */
-    const TickType_t xMaxBlockTime = pdMS_TO_TICKS( 512 );
+    const TickType_t xMaxBlockTime = pdMS_TO_TICKS( 1024 );
 
 
     (void)pvParameters;
@@ -58,12 +63,23 @@ void ECG_isr_dataready(void)
     #ifdef SEAL_DEBUG  /* test for stack usage */
     uxECG_highwatermark = uxTaskGetStackHighWaterMark(xECG_th);
     #endif
-     
-    ext_irq_register(ECG_DATA_READY, ECG_isr_dataready);
     
+    /* register the data ready interrupt */
+    ext_irq_register(MOD_INT1, ECG_isr_dataready);
+    
+    /* prepare the logging header */
     dataheader_init(&ecg_msg.header);
     ecg_msg.header.id   = DEVICE_ID_EKG;
     ecg_msg.header.size = sizeof(ECG_SAMPLE_t)*ECG_LOGSIZE;
+    
+    /* enable the ecg */
+    if (CONFIG_SUCCESS != ecg_switch(ENECG_ENABLED)) {
+        gpio_toggle_pin_level(LED_RED);
+    }
+    
+    /* clear the fifo */
+    ecg_fifo_reset();
+    //gpio_set_pin_level(MOD8, true);
     
     /* main task loop */
     for (;;){
@@ -89,6 +105,7 @@ void ECG_isr_dataready(void)
                 }                
                 #ifdef SEAL_DEBUG  /* test for stack usage */
                 uxECG_highwatermark = uxTaskGetStackHighWaterMark(xECG_th);
+                os_sleep(1);
                 #endif
             } else {
                 ecg_msg.header.id |= DEVICE_ERR_TIMEOUT;

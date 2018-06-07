@@ -83,6 +83,32 @@ void EXTERNAL_IRQ_init(void)
 	gpio_set_pin_function(IMU_INT2_XL, PINMUX_PA21A_EIC_EXTINT5);
 
 	// Set pin direction to input
+	gpio_set_pin_direction(MOD9, GPIO_DIRECTION_IN);
+
+	gpio_set_pin_pull_mode(MOD9,
+	                       // <y> Pull configuration
+	                       // <id> pad_pull_config
+	                       // <GPIO_PULL_OFF"> Off
+	                       // <GPIO_PULL_UP"> Pull-up
+	                       // <GPIO_PULL_DOWN"> Pull-down
+	                       GPIO_PULL_UP);
+
+	gpio_set_pin_function(MOD9, PINMUX_PB08A_EIC_EXTINT8);
+
+	// Set pin direction to input
+	gpio_set_pin_direction(MOD2, GPIO_DIRECTION_IN);
+
+	gpio_set_pin_pull_mode(MOD2,
+	                       // <y> Pull configuration
+	                       // <id> pad_pull_config
+	                       // <GPIO_PULL_OFF"> Off
+	                       // <GPIO_PULL_UP"> Pull-up
+	                       // <GPIO_PULL_DOWN"> Pull-down
+	                       GPIO_PULL_UP);
+
+	gpio_set_pin_function(MOD2, PINMUX_PB09A_EIC_EXTINT9);
+
+	// Set pin direction to input
 	gpio_set_pin_direction(VBUS_DETECT, GPIO_DIRECTION_IN);
 
 	gpio_set_pin_pull_mode(VBUS_DETECT,
@@ -595,34 +621,6 @@ void system_init(void)
 	                   true);
 
 	gpio_set_pin_function(LED_RED, GPIO_PIN_FUNCTION_OFF);
-
-	// GPIO on PB08
-
-	// Set pin direction to output
-	gpio_set_pin_direction(MOD9, GPIO_DIRECTION_OUT);
-
-	gpio_set_pin_level(MOD9,
-	                   // <y> Initial level
-	                   // <id> pad_initial_level
-	                   // <false"> Low
-	                   // <true"> High
-	                   false);
-
-	gpio_set_pin_function(MOD9, GPIO_PIN_FUNCTION_OFF);
-
-	// GPIO on PB09
-
-	// Set pin direction to output
-	gpio_set_pin_direction(MOD2, GPIO_DIRECTION_OUT);
-
-	gpio_set_pin_level(MOD2,
-	                   // <y> Initial level
-	                   // <id> pad_initial_level
-	                   // <false"> Low
-	                   // <true"> High
-	                   false);
-
-	gpio_set_pin_function(MOD2, GPIO_PIN_FUNCTION_OFF);
 
 	// GPIO on PB10
 

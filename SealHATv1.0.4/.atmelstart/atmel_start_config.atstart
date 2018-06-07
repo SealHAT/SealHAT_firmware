@@ -474,8 +474,8 @@ drivers:
       eic_arch_enable_irq_setting5: true
       eic_arch_enable_irq_setting6: false
       eic_arch_enable_irq_setting7: false
-      eic_arch_enable_irq_setting8: false
-      eic_arch_enable_irq_setting9: false
+      eic_arch_enable_irq_setting8: true
+      eic_arch_enable_irq_setting9: true
       eic_arch_extinteo0: false
       eic_arch_extinteo1: false
       eic_arch_extinteo10: false
@@ -526,8 +526,8 @@ drivers:
       eic_arch_sense5: Rising-edge detection
       eic_arch_sense6: No detection
       eic_arch_sense7: No detection
-      eic_arch_sense8: No detection
-      eic_arch_sense9: No detection
+      eic_arch_sense8: Falling-edge detection
+      eic_arch_sense9: Falling-edge detection
     optional_signals:
     - identifier: EXTERNAL_IRQ:EXTINT/3
       pad: PA19
@@ -550,6 +550,20 @@ drivers:
       definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::optional_signal_definition::EIC.EXTINT.5
       name: EIC/EXTINT/5
       label: EXTINT/5
+    - identifier: EXTERNAL_IRQ:EXTINT/8
+      pad: PB08
+      mode: Enabled
+      configuration: null
+      definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::optional_signal_definition::EIC.EXTINT.8
+      name: EIC/EXTINT/8
+      label: EXTINT/8
+    - identifier: EXTERNAL_IRQ:EXTINT/9
+      pad: PB09
+      mode: Enabled
+      configuration: null
+      definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::optional_signal_definition::EIC.EXTINT.9
+      name: EIC/EXTINT/9
+      label: EXTINT/9
     - identifier: EXTERNAL_IRQ:EXTINT/11
       pad: PA11
       mode: Enabled
@@ -1129,13 +1143,13 @@ pads:
   MOD9:
     name: PB08
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PB08
-    mode: Digital output
+    mode: Digital input
     user_label: MOD9
     configuration: null
   MOD2:
     name: PB09
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::pad::PB09
-    mode: Digital output
+    mode: Digital input
     user_label: MOD2
     configuration: null
   MOD_MISO:
