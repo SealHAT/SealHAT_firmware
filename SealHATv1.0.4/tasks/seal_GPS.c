@@ -69,7 +69,6 @@ void GPS_task(void *pvParameters)
     uint16_t    moveminutes;        /* high resolution time(m) allowed per hour */
     uint16_t    blocktime;          /* time that the gps task will block for    */
     uint32_t    samplerate;         /* rate to collect fix and report message   */
-    uint32_t    sleeptimer;         /* tracks the ms the device has been asleep */
     uint32_t    ulNotifyValue;      /* holds the notification bits from the ISR */
     int32_t     err;                /* for catching API errors                  */
     BaseType_t  xResult;            /* holds return value of blocking function  */
@@ -79,7 +78,8 @@ void GPS_task(void *pvParameters)
     
     (void)pvParameters;
     activehours = 0;
-    sleeptimer  = 0;
+    eeprom_data.config_settings.gps_config.gps_restRate = 60000;
+    eeprom_data.config_settings.gps_config.gps_moveRate = 30000;
     
     for(int i = 0; i < 24; i++) {   /* determine the amount of active hours per day */
         activehours += (eeprom_data.config_settings.gps_config.gps_activeHour >> i) & 1;
@@ -89,7 +89,7 @@ void GPS_task(void *pvParameters)
     
     /* set the default sample rate */ // TODO: allow flexibility in message rate or fix to sample rate
     samplerate = eeprom_data.config_settings.gps_config.gps_restRate;
-    samplerate = 30000;
+    samplerate = 60000;
 
     /* update the maximum blocking time to current FIFO full time + <max sensor time> */
     blocktime     = 2000;
@@ -136,8 +136,6 @@ void GPS_task(void *pvParameters)
 
                 /* and log it, noting communication error if needed */
                 GPS_log(&gps_msg, err, DEVICE_ERR_COMMUNICATIONS);
-            } else {
-                gps_loadcfg(0xFFFF); 
             }
             
             /* if motion has been detected by the IMU */
@@ -154,6 +152,7 @@ void GPS_task(void *pvParameters)
                 if(err) {
                     xTaskNotify(xGPS_th, GPS_NOTIFY_MOTION, eSetBits);
                 } else {
+                    xMaxBlockTime = pdMS_TO_TICKS(samplerate);
                     xTimerChangePeriod(xGPS_timer, pdMS_TO_TICKS(60000), 0);
                 }
             }
@@ -167,8 +166,11 @@ void GPS_task(void *pvParameters)
                 /* try again if not successful */
                 if (err) {
                     xTaskNotify(xGPS_th, GPS_NOTIFY_REVERT, eSetBits);
+                } else {
+                    xMaxBlockTime = pdMS_TO_TICKS(samplerate);
                 }
             }
+            
         } else { /* the interrupt timed out, figure out why and log */
             /* check how many samples are in the FIFO */
             err = gps_checkfifo();
@@ -200,11 +202,10 @@ void GPS_isr_dataready(void)
 
 void GPS_movement_cb(TimerHandle_t xTimer)
 {
-    /* tell the GPS to revert to resting rate, try again if busy */
-    if (xTaskNotify(xGPS_th, GPS_NOTIFY_NONE, eSetValueWithoutOverwrite)) {
-        xTimerChangePeriod(xTimer, pdMS_TO_TICKS(1000), 0);
-    }
     xEventGroupClearBits(xSYSEVENTS_handle, EVENT_GPS_COOLDOWN);
+    
+    /* tell the GPS to revert to resting rate, try again if busy */
+    xTaskNotify(xGPS_th, GPS_NOTIFY_REVERT, eSetBits);
 }
 
 int32_t GPS_log(GPS_MSG_t *msg, const int32_t ERR, const DEVICE_ERR_CODES_t ERR_CODES)
