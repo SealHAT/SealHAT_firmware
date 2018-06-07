@@ -79,7 +79,6 @@ void ECG_isr_dataready(void)
     
     /* clear the fifo */
     ecg_fifo_reset();
-    //gpio_set_pin_level(MOD8, true);
     
     /* main task loop */
     for (;;){
@@ -110,6 +109,7 @@ void ECG_isr_dataready(void)
             } else {
                 ecg_msg.header.id |= DEVICE_ERR_TIMEOUT;
                 ctrlLog_write((uint8_t*)&ecg_msg, sizeof(ECG_MSG_t));
+                ecg_synch();
             }
         } // END Notification response
     } // END forever loop
