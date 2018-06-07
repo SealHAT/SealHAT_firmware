@@ -44,7 +44,7 @@ void vbus_detection_cb(void)
 
 void alarm_startsensors_cb(struct calendar_descriptor *const calendar)
 {
-    
+    // TODO add code to wake up all sensors here (maybe force all tasks to self-suspend during init)
 }
 
 void vHourlyTimerCallback( TimerHandle_t xTimer )
@@ -196,9 +196,9 @@ void CTRL_hourly_update()
     hour = (1 << datetime.time.hour);
     prev = hour == 0 ? 1 << 23 : hour >> 1;
     
-    // TODO add to the gps section to prevent redundant notifications
+    // TODO add to the GPS section to prevent redundant notifications
     /* reset the GPS high precision counter */
-    //xTaskNotify(xGPS_th, GPS_NOTIFY_HOUR, eSetBits);
+    xTaskNotify(xGPS_th, GPS_NOTIFY_HOUR, eSetBits);
     
     /* check the active hours for each sensor */
     sensor = eeprom_data.config_settings.accelerometer_config.xcel_activeHour;
