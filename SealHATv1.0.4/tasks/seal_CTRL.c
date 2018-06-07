@@ -128,8 +128,8 @@ void CTRL_task(void* pvParameters)
 
     if(hri_rtcmode0_read_GP_reg(RTC, 0)) {
         SYSTEM_ERROR_t systemErr;
-        dataheader_init(systemErr.header);
-        systemErr.header.id = 
+        dataheader_init(&systemErr.header);
+        //systemErr.header.id = 
     }
 
     gpio_toggle_pin_level(LED_GREEN);
