@@ -37,6 +37,6 @@ int32_t GPS_task_init(void *profile);   // TODO restrict to enumerated type or s
 void    GPS_task(void *pvParameters);
 void    GPS_isr_dataready(void);
 void    GPS_movement_cb(TimerHandle_t xTimer);
-void    GPS_log(GPS_MSG_t *msg, int32_t *err, const DEVICE_ERR_CODES_t ERR_CODES);
+int32_t GPS_log(GPS_MSG_t *msg, const int32_t ERR, const DEVICE_ERR_CODES_t ERR_CODES);
 
 #endif /* SEAL_GPS_H_ */

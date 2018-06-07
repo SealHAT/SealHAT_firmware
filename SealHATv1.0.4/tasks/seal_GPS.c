@@ -86,27 +86,17 @@ void GPS_task(void *pvParameters)
     /* set the default sample rate */ // TODO: allow flexibility in message rate or fix to sample rate
     samplerate = eeprom_data.config_settings.gps_config.gps_restRate;
     samplerate = 30000;
-//     portENTER_CRITICAL();
-//     err = gps_cfgpsmoo(samplerate) ||  gps_savecfg(0xFFFF) ? ERR_NOT_READY : ERR_NONE;
-//     portEXIT_CRITICAL();
-    
-    // TODO what to do if this fails? Should be handled in SW
-//     if (err) {
-//         gpio_toggle_pin_level(LED_RED);
-//     }
-//     
+
     /* update the maximum blocking time to current FIFO full time + <max sensor time> */
     xMaxBlockTime = pdMS_TO_TICKS(samplerate*GPS_LOGSIZE*4);	// TODO calculate based on registers
-    xMaxBlockTime = pdMS_TO_TICKS(30000);	// TODO calculate based on registers
+    xMaxBlockTime = pdMS_TO_TICKS(10000);	// TODO calculate based on registers
 
     /* initialize the message header */
     dataheader_init(&gps_msg.header);
     gps_msg.header.id           = DEVICE_ID_GPS;
 
     /* clear the GPS FIFO */
-   // portENTER_CRITICAL();
     gps_readfifo();
-   // portEXIT_CRITICAL();
 
     /* ensure the TX_RDY interrupt is deactivated */
     gpio_set_pin_level(GPS_TXD, true);
@@ -129,7 +119,6 @@ void GPS_task(void *pvParameters)
         
         if (pdPASS == xResult) { /* there was an interrupt */
             /* reload the high-res movement minutes if needed */
-            
             if (GPS_NOTIFY_HOUR & ulNotifyValue) {
                 moveminutes = GPS_MAXMOVE / activehours;
             }
@@ -141,12 +130,10 @@ void GPS_task(void *pvParameters)
                 err = gps_readfifo() ? ERR_TIMEOUT : ERR_NONE;
 
                 /* and log it, noting communication error if needed */
-                GPS_log(&gps_msg, &err, DEVICE_ERR_COMMUNICATIONS);
+                GPS_log(&gps_msg, err, DEVICE_ERR_COMMUNICATIONS);
             } else {
-                 
                 gps_loadcfg(0xFFFF); 
             }
-            
             
             /* if motion has been detected by the IMU */
             if (GPS_NOTIFY_MOTION & ulNotifyValue && moveminutes) {
@@ -184,14 +171,10 @@ void GPS_task(void *pvParameters)
             /* log the error based on FIFO state */
             if (GPS_FIFOSIZE < err) {
                 err = ERR_OVERFLOW;
-                GPS_log(&gps_msg, &err, DEVICE_ERR_OVERFLOW | DEVICE_ERR_TIMEOUT);
+                GPS_log(&gps_msg, err, DEVICE_ERR_OVERFLOW | DEVICE_ERR_TIMEOUT);
                 gps_readfifo();
-            } else {
-                err = ERR_TIMEOUT;
-                GPS_log(&gps_msg, &err, DEVICE_ERR_TIMEOUT);
             } // TODO expand to handle unchanged FIFO (maybe readout and reset)
-        }
-//        gps_loadcfg(0xFFFF);  
+        }  
     } // END FOREVER LOOP
 }
 
@@ -217,15 +200,16 @@ void GPS_movement_cb(TimerHandle_t xTimer)
     xEventGroupClearBits(xSYSEVENTS_handle, EVENT_GPS_COOLDOWN);
 }
 
-void GPS_log(GPS_MSG_t *msg, int32_t *err, const DEVICE_ERR_CODES_t ERR_CODES)
+int32_t GPS_log(GPS_MSG_t *msg, const int32_t ERR, const DEVICE_ERR_CODES_t ERR_CODES)
 {
     uint16_t    logcount;           /* how many log entries were parsed */
     uint16_t    logsize;            /* size in bytes of the log message */
 
     /* set the timestamp and any error flags to the log message */
     timestamp_FillHeader(&msg->header);
-
-    if (*err < 0) {
+    msg->header.id = DEVICE_ID_GPS;
+    
+    if (ERR < 0) {
         /* if an error occurred with the FIFO, log the error */
         msg->header.id  |= ERR_CODES;
         msg->header.size = 0;
@@ -238,8 +222,5 @@ void GPS_log(GPS_MSG_t *msg, int32_t *err, const DEVICE_ERR_CODES_t ERR_CODES)
     }
 
     /* write the message to flash */
-    *err = ctrlLog_write((uint8_t*)msg, logsize);
-    if (*err < 0) { // TODO handle incomplete logs elsewhere
-        gpio_toggle_pin_level(LED_RED);
-    }
+    return ctrlLog_write((uint8_t*)msg, logsize);
 }
