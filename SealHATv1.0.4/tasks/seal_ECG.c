@@ -72,11 +72,6 @@ void ECG_isr_dataready(void)
     ecg_msg.header.id   = DEVICE_ID_EKG;
     ecg_msg.header.size = sizeof(ECG_SAMPLE_t)*ECG_LOGSIZE;
     
-    /* enable the ecg */
-    if (CONFIG_SUCCESS != ecg_switch(ENECG_ENABLED)) {
-        gpio_toggle_pin_level(LED_RED);
-    }
-    
     /* clear the fifo */
     ecg_fifo_reset();
     
