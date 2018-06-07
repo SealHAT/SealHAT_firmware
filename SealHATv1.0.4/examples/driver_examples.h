@@ -12,6 +12,8 @@
 extern "C" {
 #endif
 
+void CRC_0_example(void);
+
 void EXTERNAL_IRQ_example(void);
 
 void FLASH_NVM_example(void);
@@ -23,6 +25,8 @@ void I2C_GPS_example(void);
 void I2C_ENV_example(void);
 
 void I2C_IMU_example(void);
+
+void WATCHDOG_example(void);
 
 #ifdef __cplusplus
 }

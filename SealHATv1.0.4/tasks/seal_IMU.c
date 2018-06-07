@@ -6,12 +6,16 @@
  */
 
 #include "seal_IMU.h"
+#include "seal_DATA.h"
 
+// bit masks for direct to task notifications
 #define ACC_DATA_READY      (0x01)
 #define MAG_DATA_READY      (0x02)
 #define MOTION_DETECT       (0x04)
 
-TaskHandle_t       xIMU_th;     // IMU task handle
+TaskHandle_t xIMU_th;                       // IMU task handle
+StaticTask_t xIMU_taskbuf;                  // task buffer for the IMU task
+StackType_t  xIMU_stack[IMU_STACK_SIZE];    // static stack allocation for IMU task
 
 void AccelerometerDataReadyISR(void)
 {
@@ -32,6 +36,7 @@ void MagnetometerDataReadyISR(void)
 
     /* Notify the IMU task that the ACCEL FIFO is ready to read */
     xTaskNotifyFromISR(xIMU_th, MAG_DATA_READY, eSetBits, &xHigherPriorityTaskWoken);
+    //gpio_toggle_pin_level(LED_GREEN);
 
     /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context switch
     should be performed to ensure the interrupt returns directly to the highest
@@ -45,6 +50,7 @@ void AccelerometerMotionISR(void)
 
     /* Notify the IMU task that there is a motion interrupt */
     xTaskNotifyFromISR(xIMU_th, MOTION_DETECT, eSetBits, &xHigherPriorityTaskWoken);
+    gpio_toggle_pin_level(LED_RED);
 
     /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context switch
     should be performed to ensure the interrupt returns directly to the highest
@@ -52,9 +58,12 @@ void AccelerometerMotionISR(void)
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
-int32_t IMU_task_init(void)
+int32_t IMU_task_init(const ACC_FULL_SCALE_t RANGE, const ACC_OPMODE_t ACCMODE, const MAG_OPMODE_t MAGMODE)
 {
-    return ( xTaskCreate(IMU_task, "IMU", IMU_STACK_SIZE, (void*)NULL, IMU_TASK_PRI, &xIMU_th) == pdPASS ? ERR_NONE : ERR_NO_MEMORY);
+    uint32_t settings = (RANGE << 24) | (ACCMODE << 16) | (MAGMODE << 8) | (0x00);
+    xIMU_th = xTaskCreateStatic(IMU_task, "IMU", IMU_STACK_SIZE, (void*)settings, IMU_TASK_PRI, xIMU_stack, &xIMU_taskbuf);
+    configASSERT(xIMU_th);
+    return ERR_NONE;
 }
 
 int32_t IMU_task_deinit(void)
@@ -70,34 +79,32 @@ int32_t IMU_task_deinit(void)
 
 void IMU_task(void* pvParameters)
 {
-//    UBaseType_t uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
-    const TickType_t xMaxBlockTime = pdMS_TO_TICKS( 3500 );     // max block time, set to slightly more than accelerometer ISR period
+    const  TickType_t  xMaxBlockTime = pdMS_TO_TICKS( 3500 );     // max block time, set to slightly more than accelerometer ISR period
+    static IMU_MSG_t   accMsg;          // data Packet for the accelerometer
+    static IMU_MSG_t   magMsg;          // data Packet for the magnetometer
     BaseType_t  xResult;                // holds return value of blocking function
     int32_t     err = 0;                // for catching API errors
     uint32_t    ulNotifyValue;          // notification value from ISRs
-    IMU_MSG_t   accMsg;                 // data Packet for the accelerometer
-    IMU_MSG_t   magMsg;                 // data Packet for the magnetometer
     (void)pvParameters;
 
     // initialize the IMU
     err = lsm303_init(&I2C_IMU);
-    err = lsm303_acc_startFIFO(ACC_SCALE_2G, ACC_HR_50_HZ);
-    //err = lsm303_mag_start(MAG_LP_50_HZ);
-    //lsm303_acc_motionDetectStart(0x03, 800, 1);
+    err = lsm303_acc_startFIFO((((int32_t)pvParameters>>24)&0xFF), (((int32_t)pvParameters>>16)&0xFF));
+    err = lsm303_mag_start((((int32_t)pvParameters>>8)&0xFF));
+    lsm303_acc_motionDetectStart(MOTION_INT_X_HIGH, 250, 1);
 
     // enable the data ready interrupts
     ext_irq_register(IMU_INT1_XL, AccelerometerDataReadyISR);
     ext_irq_register(IMU_INT_MAG, MagnetometerDataReadyISR);
     ext_irq_register(IMU_INT2_XL, AccelerometerMotionISR);
 
-    // initialize the message headers
-    accMsg.header.startSym = MSG_START_SYM;
+    // initialize the message headers. Size of accMsg set at send time
+    dataheader_init(&accMsg.header);
     accMsg.header.id       = DEVICE_ID_ACCELEROMETER;
-    magMsg.header.startSym = MSG_START_SYM;
+
+    dataheader_init(&magMsg.header);
     magMsg.header.id       = DEVICE_ID_MAGNETIC_FIELD;
     magMsg.header.size     = sizeof(AxesRaw_t)*25;
-
-//    uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
 
     for(;;) {
 
@@ -108,7 +115,7 @@ void IMU_task(void* pvParameters)
 
         if( pdPASS == xResult ) {
             if( ACC_DATA_READY & ulNotifyValue ) {
-                bool overrun;
+                bool overrun;   // TODO: set overflow flag
 
                 portENTER_CRITICAL();
                 err = lsm303_acc_FIFOread(&accMsg.data[0], IMU_DATA_SIZE, &overrun);
@@ -156,7 +163,7 @@ void IMU_task(void* pvParameters)
                 err = lsm303_acc_motionDetectRead(&detect);
 
                 if(!err) {
-                    xEventGroupSetBits(xCTRL_eg, ((detect & MOTION_INT_MASK) << EVENT_MOTION_SHIFT));
+                    xEventGroupSetBits(xSYSEVENTS_handle, ((detect & MOTION_INT_MASK) << EVENT_MOTION_SHIFT));
                 }
             }
         }

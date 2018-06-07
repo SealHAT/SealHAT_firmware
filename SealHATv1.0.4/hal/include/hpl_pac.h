@@ -1,9 +1,9 @@
 /**
  * \file
  *
- * \brief Event system related functionality declaration.
+ * \brief PAC related functionality declaration.
  *
- * Copyright (c) 2016-2018 Microchip Technology Inc. and its subsidiaries.
+ * Copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
  *
  * \asf_license_start
  *
@@ -30,65 +30,49 @@
  * \asf_license_stop
  *
  */
-
-#ifndef _HPL_EVSYS_H_INCLUDED
-#define _HPL_EVSYS_H_INCLUDED
-
-/**
- * \addtogroup HPL EVSYS
- *
- * \section hpl_eveys_rev Revision History
- * - v1.0.0 Initial Release
- *
- *@{
- */
+#ifndef _HPL_PAC_H_INCLUDED
+#define _HPL_PAC_H_INCLUDED
 
 #include <compiler.h>
+#include "hpl_irq.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
- * \brief Initialize event system.
+ * \brief Enable write protect for the given hardware module
  *
- * \return Status of operation.
+ * This function enables write protect for the given hardware module.
+ * For an overview of available PAC and hardware modules see datasheet.
+ *
+ * \param[in] module A hardware module to enable write protect for
  */
-int32_t _event_system_init(void);
+int32_t _periph_lock(const void *const module);
 
 /**
- * \brief Deinitialize event system.
+ * \brief Disable write protect for the given hardware module
  *
- * \return Status of operation.
+ * This function disables write protect for the given hardware module.
+ * For an overview of available PAC and hardware modules see datasheet.
+ *
+ * \param[in] module A hardware module to disable clock for
  */
-int32_t _event_system_deinit(void);
+int32_t _periph_unlock(const void *const module);
 
 /**
- * \brief Enable/disable event reception by the given user from the given
- *        channel
+ * \brief Get write protect state for the given hardware module
  *
- * \param[in] user A user to enable
- * \param[in] channel A channel the user is assigned to
- * \param[in] on true to enable, false to disable
+ * This function get write protect state for the given hardware module.
+ * For an overview of available PAC and hardware modules see datasheet.
  *
- * \return Status of operation.
+ * \param[in] module A hardware module to disable clock for
+ * \param[out] state The pointer to write protect state for specified module
  */
-int32_t _event_system_enable_user(const uint16_t user, const uint16_t channel, const bool on);
-
-/**
- * \brief Enable/disable event generation by the given generator for the given
- *        channel
- *
- * \param[in] generator A generator to enable
- * \param[in] channel A channel the user is assigned to
- * \param[in] on true to enable, false to disable
- *
- * \return Status of operation.
- */
-int32_t _event_system_enable_generator(const uint16_t generator, const uint16_t channel, const bool on);
+int32_t _periph_get_lock_state(const void *const module, bool *const state);
 
 #ifdef __cplusplus
 }
 #endif
-/**@}*/
-#endif /* _HPL_EVSYS_H_INCLUDED */
+
+#endif /* _HPL_PAC_H_INCLUDED */

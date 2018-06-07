@@ -2,9 +2,9 @@ format_version: '2'
 name: My Project
 versions:
   api: '1.0'
-  backend: 1.2.139
-  commit: release1.2
-  content: 1.0.943
+  backend: 1.2.141
+  commit: ef3c1854b213e6aa6e0248cc11ff619cc7b22278
+  content: 1.0.953
   content_pack_name: unknown
   format: '2'
   frontend: 1.2.1708
@@ -23,12 +23,12 @@ middlewares:
       freertos_generate_run_time_stats: false
       freertos_max_co_routine_priorities: 2
       freertos_max_priorities: 5
-      freertos_minimal_stack_size: 64
+      freertos_minimal_stack_size: 100
       freertos_pctaskgettaskname: false
       freertos_tick_rate_hz: 1000
       freertos_timer_task_priority: 2
       freertos_timer_task_stack_depth: 64
-      freertos_total_heap_size: 4096
+      freertos_total_heap_size: 10000
       freertos_use_16_bit_ticks: false
       freertos_use_application_task_tag_functions: false
       freertos_use_co_routines: false
@@ -427,6 +427,16 @@ drivers:
     variant: null
     clocks:
       domain_group: null
+  CRC_0:
+    user_label: CRC_0
+    definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::DSU::driver_config_definition::CRC~28DSU~29::HAL:Driver:CRC
+    functionality: CRC
+    api: HAL:Driver:CRC
+    configuration: {}
+    optional_signals: []
+    variant: null
+    clocks:
+      domain_group: null
   EXTERNAL_IRQ:
     user_label: EXTERNAL_IRQ
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::EIC::driver_config_definition::Default::HAL:Driver:Ext.IRQ
@@ -595,7 +605,7 @@ drivers:
       gclk_arch_gen_3_idc: false
       gclk_arch_gen_3_oe: false
       gclk_arch_gen_3_oov: false
-      gclk_arch_gen_3_runstdby: false
+      gclk_arch_gen_3_runstdby: true
       gclk_arch_gen_4_enable: false
       gclk_arch_gen_4_idc: false
       gclk_arch_gen_4_oe: false
@@ -986,19 +996,19 @@ drivers:
       dbgctrl_control: false
       dbgctrl_dbgrun: false
       drvctrl_control: false
-      evctrl_control: true
-      evctrl_evact: RETRIGGER
+      evctrl_control: false
+      evctrl_evact: 'OFF'
       evctrl_mceo0: false
       evctrl_mceo1: false
       evctrl_ovfeo: false
-      evctrl_tcei: true
+      evctrl_tcei: false
       evctrl_tcinv: false
       intenset_control: false
       intenset_err: false
       intenset_mc0: false
       intenset_mc1: false
       intenset_ovf: false
-      wave_control: true
+      wave_control: false
       wave_wavegen: NFRQ
     optional_signals: []
     variant: null
@@ -1009,206 +1019,19 @@ drivers:
           input: Generic clock generator 3
         configuration:
           tc_gclk_selection: Generic clock generator 3
-  EVENT_SYS:
-    user_label: EVENT_SYS
-    definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::EVSYS::driver_config_definition::Event.System::HAL:Driver:Event.system
-    functionality: Event_System
-    api: HAL:Driver:Event_system
+  WATCHDOG:
+    user_label: WATCHDOG
+    definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::WDT::driver_config_definition::WDT::HAL:Driver:WDT
+    functionality: WDT
+    api: HAL:Driver:WDT
     configuration:
-      evsys_channel_0: No channel output selected
-      evsys_channel_1: No channel output selected
-      evsys_channel_10: No channel output selected
-      evsys_channel_11: No channel output selected
-      evsys_channel_12: No channel output selected
-      evsys_channel_13: No channel output selected
-      evsys_channel_14: No channel output selected
-      evsys_channel_15: No channel output selected
-      evsys_channel_16: No channel output selected
-      evsys_channel_17: No channel output selected
-      evsys_channel_18: No channel output selected
-      evsys_channel_19: No channel output selected
-      evsys_channel_2: No channel output selected
-      evsys_channel_20: No channel output selected
-      evsys_channel_21: No channel output selected
-      evsys_channel_22: No channel output selected
-      evsys_channel_23: No channel output selected
-      evsys_channel_24: No channel output selected
-      evsys_channel_25: No channel output selected
-      evsys_channel_26: No channel output selected
-      evsys_channel_27: No channel output selected
-      evsys_channel_28: No channel output selected
-      evsys_channel_29: No channel output selected
-      evsys_channel_3: No channel output selected
-      evsys_channel_30: Channel 0
-      evsys_channel_31: No channel output selected
-      evsys_channel_32: No channel output selected
-      evsys_channel_33: No channel output selected
-      evsys_channel_34: No channel output selected
-      evsys_channel_35: No channel output selected
-      evsys_channel_36: No channel output selected
-      evsys_channel_37: No channel output selected
-      evsys_channel_38: No channel output selected
-      evsys_channel_39: No channel output selected
-      evsys_channel_4: No channel output selected
-      evsys_channel_40: No channel output selected
-      evsys_channel_41: No channel output selected
-      evsys_channel_43: No channel output selected
-      evsys_channel_44: No channel output selected
-      evsys_channel_5: No channel output selected
-      evsys_channel_6: No channel output selected
-      evsys_channel_7: No channel output selected
-      evsys_channel_8: No channel output selected
-      evsys_channel_9: No channel output selected
-      evsys_channel_setting_0: true
-      evsys_channel_setting_1: false
-      evsys_channel_setting_10: false
-      evsys_channel_setting_11: false
-      evsys_channel_setting_2: false
-      evsys_channel_setting_3: false
-      evsys_channel_setting_4: false
-      evsys_channel_setting_5: false
-      evsys_channel_setting_6: false
-      evsys_channel_setting_7: false
-      evsys_channel_setting_8: false
-      evsys_channel_setting_9: false
-      evsys_edgsel_0: No event output when using the resynchronized or synchronous
-        path
-      evsys_edgsel_1: No event output when using the resynchronized or synchronous
-        path
-      evsys_edgsel_10: No event output when using the resynchronized or synchronous
-        path
-      evsys_edgsel_11: No event output when using the resynchronized or synchronous
-        path
-      evsys_edgsel_2: No event output when using the resynchronized or synchronous
-        path
-      evsys_edgsel_3: No event output when using the resynchronized or synchronous
-        path
-      evsys_edgsel_4: No event output when using the resynchronized or synchronous
-        path
-      evsys_edgsel_5: No event output when using the resynchronized or synchronous
-        path
-      evsys_edgsel_6: No event output when using the resynchronized or synchronous
-        path
-      evsys_edgsel_7: No event output when using the resynchronized or synchronous
-        path
-      evsys_edgsel_8: No event output when using the resynchronized or synchronous
-        path
-      evsys_edgsel_9: No event output when using the resynchronized or synchronous
-        path
-      evsys_evd_0: false
-      evsys_evd_1: false
-      evsys_evd_10: false
-      evsys_evd_11: false
-      evsys_evd_2: false
-      evsys_evd_3: false
-      evsys_evd_4: false
-      evsys_evd_5: false
-      evsys_evd_6: false
-      evsys_evd_7: false
-      evsys_evd_8: false
-      evsys_evd_9: false
-      evsys_evgen_0: RTC period 7
-      evsys_evgen_1: No event generator
-      evsys_evgen_10: No event generator
-      evsys_evgen_11: No event generator
-      evsys_evgen_2: No event generator
-      evsys_evgen_3: No event generator
-      evsys_evgen_4: No event generator
-      evsys_evgen_5: No event generator
-      evsys_evgen_6: No event generator
-      evsys_evgen_7: No event generator
-      evsys_evgen_8: No event generator
-      evsys_evgen_9: No event generator
-      evsys_ondemand_0: false
-      evsys_ondemand_1: false
-      evsys_ondemand_10: false
-      evsys_ondemand_11: false
-      evsys_ondemand_2: false
-      evsys_ondemand_3: false
-      evsys_ondemand_4: false
-      evsys_ondemand_5: false
-      evsys_ondemand_6: false
-      evsys_ondemand_7: false
-      evsys_ondemand_8: false
-      evsys_ondemand_9: false
-      evsys_ovr_0: false
-      evsys_ovr_1: false
-      evsys_ovr_10: false
-      evsys_ovr_11: false
-      evsys_ovr_2: false
-      evsys_ovr_3: false
-      evsys_ovr_4: false
-      evsys_ovr_5: false
-      evsys_ovr_6: false
-      evsys_ovr_7: false
-      evsys_ovr_8: false
-      evsys_ovr_9: false
-      evsys_path_0: Asynchronous path
-      evsys_path_1: Synchronous path
-      evsys_path_10: Synchronous path
-      evsys_path_11: Synchronous path
-      evsys_path_2: Synchronous path
-      evsys_path_3: Synchronous path
-      evsys_path_4: Synchronous path
-      evsys_path_5: Synchronous path
-      evsys_path_6: Synchronous path
-      evsys_path_7: Synchronous path
-      evsys_path_8: Synchronous path
-      evsys_path_9: Synchronous path
-      evsys_runstdby_0: true
-      evsys_runstdby_1: false
-      evsys_runstdby_10: false
-      evsys_runstdby_11: false
-      evsys_runstdby_2: false
-      evsys_runstdby_3: false
-      evsys_runstdby_4: false
-      evsys_runstdby_5: false
-      evsys_runstdby_6: false
-      evsys_runstdby_7: false
-      evsys_runstdby_8: false
-      evsys_runstdby_9: false
+      wdt_arch_per: 4096 clock cycles
+      wdt_arch_window: 8 clock cycles
+      wdt_arch_window_en: false
     optional_signals: []
     variant: null
     clocks:
-      domain_group:
-        nodes:
-        - name: Channel 0
-          input: Generic clock generator 3
-        - name: Channel 1
-          input: Generic clock generator 0
-        - name: Channel 2
-          input: Generic clock generator 0
-        - name: Channel 3
-          input: Generic clock generator 0
-        - name: Channel 4
-          input: Generic clock generator 0
-        - name: Channel 5
-          input: Generic clock generator 0
-        - name: Channel 6
-          input: Generic clock generator 0
-        - name: Channel 7
-          input: Generic clock generator 0
-        - name: Channel 8
-          input: Generic clock generator 0
-        - name: Channel 9
-          input: Generic clock generator 0
-        - name: Channel 10
-          input: Generic clock generator 0
-        - name: Channel 11
-          input: Generic clock generator 0
-        configuration:
-          evsys_clk_selection_0: Generic clock generator 3
-          evsys_clk_selection_1: Generic clock generator 0
-          evsys_clk_selection_10: Generic clock generator 0
-          evsys_clk_selection_11: Generic clock generator 0
-          evsys_clk_selection_2: Generic clock generator 0
-          evsys_clk_selection_3: Generic clock generator 0
-          evsys_clk_selection_4: Generic clock generator 0
-          evsys_clk_selection_5: Generic clock generator 0
-          evsys_clk_selection_6: Generic clock generator 0
-          evsys_clk_selection_7: Generic clock generator 0
-          evsys_clk_selection_8: Generic clock generator 0
-          evsys_clk_selection_9: Generic clock generator 0
+      domain_group: null
   USB_DEVICE_INSTANCE:
     user_label: USB_DEVICE_INSTANCE
     definition: Atmel:SAML21_Drivers:0.0.1::SAML21G18B-MN::USB::driver_config_definition::USB.Device::HAL:Driver:USB.Device

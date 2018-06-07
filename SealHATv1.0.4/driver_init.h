@@ -21,6 +21,7 @@ extern "C" {
 #include <hal_io.h>
 #include <hal_sleep.h>
 
+#include <hal_crc_sync.h>
 #include <hal_ext_irq.h>
 
 #include <hal_flash.h>
@@ -35,9 +36,11 @@ extern "C" {
 #include <hal_spi_m_sync.h>
 #include <tc_lite.h>
 
-#include <hal_evsys.h>
+#include <hal_wdt.h>
 
 #include "hal_usb_device.h"
+
+extern struct crc_sync_descriptor CRC_0;
 
 extern struct flash_descriptor FLASH_NVM;
 
@@ -49,6 +52,8 @@ extern struct i2c_m_sync_desc I2C_ENV;
 
 extern struct i2c_m_sync_desc       I2C_IMU;
 extern struct spi_m_sync_descriptor SPI_MEMORY;
+
+extern struct wdt_descriptor WATCHDOG;
 
 void FLASH_NVM_init(void);
 void FLASH_NVM_CLOCK_init(void);
@@ -75,6 +80,9 @@ void SPI_MEMORY_init(void);
 void TIMER_MS_CLOCK_init(void);
 
 int8_t TIMER_MS_init(void);
+
+void WATCHDOG_CLOCK_init(void);
+void WATCHDOG_init(void);
 
 void USB_DEVICE_INSTANCE_CLOCK_init(void);
 void USB_DEVICE_INSTANCE_init(void);

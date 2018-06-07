@@ -4,13 +4,14 @@
  * Created: 30-Apr-18 22:40:17
  *  Author: Ethan
  */
-#include "seal_CTRL.h"
+#include "seal_RTOS.h"
+#include "seal_Types.h"
 #include "lsm303/LSM303AGR.h"
 
 #ifndef SEAL_IMU_H_
 #define SEAL_IMU_H_
 
-#define IMU_STACK_SIZE                  (1000 / sizeof(portSTACK_TYPE))
+#define IMU_STACK_SIZE                  (700 / sizeof(portSTACK_TYPE))  // high water mark of 96 on 26MAY18
 #define IMU_TASK_PRI                    (tskIDLE_PRIORITY + 3)
 
 #define IMU_DATA_SIZE       (25)
@@ -44,7 +45,7 @@ void AccelerometerMotionISR(void);
  *
  * @return system error code. ERR_NONE if successful, or negative if failure (ERR_NO_MEMORY likely).
  */
-int32_t IMU_task_init(void);
+int32_t IMU_task_init(const ACC_FULL_SCALE_t RANGE, const ACC_OPMODE_t ACCMODE, const MAG_OPMODE_t MAGMODE);
 
 /**
  * Sets the IMU (accelerometer and magnetometer) to idle/low-power mode

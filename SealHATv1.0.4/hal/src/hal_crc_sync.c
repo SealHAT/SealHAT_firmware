@@ -1,9 +1,9 @@
 /**
  * \file
  *
- * \brief HAL event system related functionality implementation.
+ * \brief CRC Cyclic Redundancy Check(Sync) functionality declaration.
  *
- * Copyright (c) 2016-2018 Microchip Technology Inc. and its subsidiaries.
+ * Copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
  *
  * \asf_license_start
  *
@@ -31,68 +31,75 @@
  *
  */
 
-#include "hal_evsys.h"
-#include <hpl_evsys.h>
+#include <hal_crc_sync.h>
 
-/**
- * \brief Driver version
- */
 #define DRIVER_VERSION 0x00000001u
 
 /**
- * \brief Initialize event system.
+ * \brief Initialize CRC.
  */
-int32_t event_system_init(void)
+int32_t crc_sync_init(struct crc_sync_descriptor *const descr, void *const hw)
 {
-	return _event_system_init();
+	ASSERT(descr && hw);
+
+	return _crc_sync_init(&descr->dev, hw);
 }
 
 /**
- * \brief Deinitialize event system.
+ * \brief Deinitialize CRC.
  */
-int32_t event_system_deinit(void)
+int32_t crc_sync_deinit(struct crc_sync_descriptor *const descr)
 {
-	return _event_system_deinit();
+	ASSERT(descr);
+
+	return _crc_sync_deinit(&descr->dev);
 }
 
 /**
- * \brief Enable event reception by the given user from the given channel
+ * \brief Enable CRC
  */
-int32_t event_system_enable_user(const uint16_t user, const uint16_t channel)
+int32_t crc_sync_enable(struct crc_sync_descriptor *const descr)
 {
-	return _event_system_enable_user(user, channel, true);
+	ASSERT(descr);
+
+	return _crc_sync_enable(&descr->dev);
 }
 
 /**
- * \brief Enable event reception by the given user from the given channel
+ * \brief Disable CRC
  */
-int32_t event_system_disable_user(const uint16_t user, const uint16_t channel)
+int32_t crc_sync_disable(struct crc_sync_descriptor *const descr)
 {
-	return _event_system_enable_user(user, channel, false);
+	ASSERT(descr);
+
+	return _crc_sync_disable(&descr->dev);
+}
+/**
+ * \brief Calculate CRC32 value of the buffer
+ */
+int32_t crc_sync_crc32(struct crc_sync_descriptor *const descr, uint32_t *const data, const uint32_t len,
+                       uint32_t *pcrc)
+{
+	ASSERT(descr && data && len && pcrc);
+
+	return _crc_sync_crc32(&descr->dev, data, len, pcrc);
 }
 
 /**
- * \brief Enable event generation by the given generator for the given channel
+ * \brief Calculate CRC16 value of the buffer
  */
-int32_t event_system_enable_generator(const uint16_t generator, const uint16_t channel)
+int32_t crc_sync_crc16(struct crc_sync_descriptor *const descr, uint16_t *const data, const uint32_t len,
+                       uint16_t *pcrc)
 {
-	return _event_system_enable_generator(generator, channel, true);
-}
+	ASSERT(descr && data && len && pcrc);
 
-/**
- * \brief Enable event generation by the given generator for the given channel
- */
-int32_t event_system_disable_generator(const uint16_t generator, const uint16_t channel)
-{
-	return _event_system_enable_generator(generator, channel, false);
+	return _crc_sync_crc16(&descr->dev, data, len, pcrc);
 }
 
 /**
  * \brief Retrieve the current driver version
- *
- * \return Current driver version
  */
-uint32_t event_system_get_version(void)
+uint32_t crc_sync_get_version(void)
 {
 	return DRIVER_VERSION;
 }
