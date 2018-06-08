@@ -1,4 +1,5 @@
 #include "seal_RTOS.h"
+#include "tasks/seal_ECG.h"
 #include "tasks/seal_ENV.h"
 #include "tasks/seal_IMU.h"
 #include "tasks/seal_CTRL.h"
@@ -18,15 +19,15 @@ int main(void)
     gpio_set_pin_level(MEM_CS1, true);
     gpio_set_pin_level(MEM_CS2, true);
 
-    // check what caused the reset and log as necessary. return value is not needed (handled in function)
-    checkResetReason();
-
     // initialize the system and set low power mode
     system_init();
     set_lowPower_mode();
 
     // enable the calendar driver. this function ALWAYS returns ERR_NONE.
     calendar_enable(&RTC_CALENDAR);
+    
+    // check what caused the reset and log as necessary. return value is not needed (handled in function)
+    checkResetReason();
 
     // start the data aggregation task
     if(DATA_task_init() != ERR_NONE) {
@@ -35,6 +36,11 @@ int main(void)
 
     // start the environmental sensors
     if(ENV_task_init(1) != ERR_NONE) {
+        while(1) {;}
+    }
+    
+    // start the ECG
+    if(ERR_NONE != ECG_task_init()) {
         while(1) {;}
     }
 

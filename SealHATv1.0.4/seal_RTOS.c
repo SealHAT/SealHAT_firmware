@@ -27,8 +27,9 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask, signed char *pcTaskName 
     msg.header.size      = snprintf((char*)msg.buff, STACK_OVERFLOW_DATA_SIZE, "OVF,%s", pcTaskName);
     msg.header.size      = (msg.header.size > STACK_OVERFLOW_DATA_SIZE ? STACK_OVERFLOW_DATA_SIZE : msg.header.size);
 
-    // TODO: write the error message to the EEPROM so that it can be logged to flash on reboot
-    //ctrlLog_write(&msg, sizeof(STACK_OVERFLOW_PACKET_t));
+    // write the task name and time that "overflown" to the RTC user register to be dealt with after reset
+    hri_rtcmode0_write_GP_reg(RTC, 0, (uint32_t)pcTaskName);
+    hri_rtcmode0_write_GP_reg(RTC, 1, _calendar_get_counter(&RTC_CALENDAR.device));
 
     // request a system reset, while(1) prevents a return just in case and should trigger watchdog
     _reset_mcu();
@@ -36,27 +37,21 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask, signed char *pcTaskName 
 }
 
 int32_t checkResetReason(void) {
-    enum reset_reason cause;
-    cause = _get_reset_reason();
+    enum reset_reason cause = _get_reset_reason();      // store the reset cause
 
     switch(cause) {
-        case RESET_REASON_WDT    : gpio_set_pin_level(LED_RED, false);
+        case RESET_REASON_SYST   : gpio_set_pin_level(LED_RED, false);  // only blink LED, data is filled in function that requested reset
                                    break;
-        case RESET_REASON_SYST   : gpio_set_pin_level(LED_RED, false);
-                                   break;
-        case RESET_REASON_POR    : gpio_set_pin_level(LED_RED, false);
-                                   break;
-        case RESET_REASON_BOD12  : gpio_set_pin_level(LED_RED, false);
-                                   break;
-        case RESET_REASON_BOD33  : gpio_set_pin_level(LED_RED, false);
-                                   break;
-        case RESET_REASON_EXT    : gpio_set_pin_level(LED_RED, false);
-                                   break;
-        case RESET_REASON_BACKUP : gpio_set_pin_level(LED_RED, false);
-                                   break;
+        case RESET_REASON_WDT    : 
+        case RESET_REASON_POR    : 
+        case RESET_REASON_BOD12  : 
+        case RESET_REASON_BOD33  : 
+        case RESET_REASON_EXT    : 
+        case RESET_REASON_BACKUP : 
         default:                   gpio_set_pin_level(LED_RED, false);
+                                   hri_rtcmode0_set_GP_reg(RTC, 0, cause);
+                                   hri_rtcmode0_write_GP_reg(RTC, 1, _calendar_get_counter(&RTC_CALENDAR.device));
     };
-
     return (int32_t)cause;
 }
 
