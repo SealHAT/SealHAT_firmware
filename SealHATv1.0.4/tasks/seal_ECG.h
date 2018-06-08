@@ -11,7 +11,7 @@
 #ifndef SEAL_ECG_H_
 #define SEAL_ECG_H_
 
-#define ECG_STACK_SIZE  (1000 / sizeof(portSTACK_TYPE))	/* number of 32-bit words to reserve for task */
+#define ECG_STACK_SIZE  (900 / sizeof(portSTACK_TYPE))	/* number of 32-bit words to reserve for task */
 #define ECG_TASK_PRI    (tskIDLE_PRIORITY + 2)
 
 typedef struct __attribute__((__packed__)) {
