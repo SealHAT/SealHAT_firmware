@@ -104,9 +104,10 @@ void ECG_isr_dataready(void)
             } else {
                 ecg_msg.header.id |= DEVICE_ERR_TIMEOUT;
                 ctrlLog_write((uint8_t*)&ecg_msg, sizeof(ECG_MSG_t));
-                ecg_synch();
             }
-        } // END Notification response
+        } else {// END Notification response
+            ecg_synch();  
+        }
     } // END forever loop
  }
  
