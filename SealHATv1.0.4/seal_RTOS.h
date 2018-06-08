@@ -58,7 +58,7 @@ typedef enum {
     EVENT_FLASH_FULL    = 0x00010000,   // mask for determining if external flash is full
     EVENT_TIME_CHANGE   = 0x00020000,   // indicates the RTC time has changed
     EVENT_TIME_HOUR     = 0x00040000,   // set at the top of every hour  -- TODO consider combining with EVENT_TIME_CHANGE
-    EVENT_UNUSED_10     = 0x00080000,
+    EVENT_GPS_COOLDOWN  = 0x00080000,   // set to prevent GPS from responding to an IMU event
     EVENT_UNUSED_11     = 0x00100000,
     EVENT_UNUSED_12     = 0x00200000,
     EVENT_UNUSED_13     = 0x00400000,

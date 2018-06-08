@@ -139,7 +139,7 @@ void SERIAL_task(void* pvParameters)
             }
             
         } /* END else */
-        
+        os_sleep(pdMS_TO_TICKS(100));
     } /* END forever loop */
 }
 
