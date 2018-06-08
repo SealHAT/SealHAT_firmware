@@ -69,11 +69,6 @@ int32_t CTRL_task_init(void)
         usb_start();
         xEventGroupSetBits(xSYSEVENTS_handle, EVENT_VBUS);
     }
-    
-    /* Read stored device settings from EEPROM and make them accessible to all devices. */
-    if (eeprom_read_configs(&eeprom_data)) {
-        return ERR_BAD_ADDRESS;
-    }
 
     /* set calendar to a default time and set alarm for some time after */
     date.year  = 2018;
@@ -163,7 +158,7 @@ void CTRL_task(void* pvParameters)
         /* check for IMU motion detection and notify the GPS (if it is ready and able to change rate) */
         if (xEventGroupGetBits(xSYSEVENTS_handle) & EVENT_MASK_IMU & ~EVENT_GPS_COOLDOWN) {
             /* wake the GPS task up and tell it to change period, try again later if GPS is busy */
-            if (xTaskNotify(xGPS_th, GPS_NOTIFY_MOTION, eSetValueWithoutOverwrite)) {
+            if (xGPS_th && xTaskNotify(xGPS_th, GPS_NOTIFY_MOTION, eSetValueWithoutOverwrite)) {
                 xEventGroupClearBits(xSYSEVENTS_handle, EVENT_MASK_IMU);
             }
         }
@@ -198,7 +193,9 @@ void CTRL_hourly_update()
     
     // TODO add to the GPS section to prevent redundant notifications
     /* reset the GPS high precision counter */
-    xTaskNotify(xGPS_th, GPS_NOTIFY_HOUR, eSetBits);
+    if (xGPS_th) {
+        xTaskNotify(xGPS_th, GPS_NOTIFY_HOUR, eSetBits);
+    }
     
     /* check the active hours for each sensor */
     sensor = eeprom_data.config_settings.accelerometer_config.xcel_activeHour;

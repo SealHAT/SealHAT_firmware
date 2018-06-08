@@ -151,6 +151,20 @@ void RTC_CALENDAR_example(void)
 	calendar_set_alarm(&RTC_CALENDAR, &alarm, alarm_cb);
 }
 
+/**
+ * Example of using SPI_MOD to write "Hello World" using the IO abstraction.
+ */
+static uint8_t example_SPI_MOD[12] = "Hello World!";
+
+void SPI_MOD_example(void)
+{
+	struct io_descriptor *io;
+	spi_m_sync_get_io_descriptor(&SPI_MOD, &io);
+
+	spi_m_sync_enable(&SPI_MOD);
+	io_write(io, example_SPI_MOD, 12);
+}
+
 void I2C_GPS_example(void)
 {
 	struct io_descriptor *I2C_GPS_io;

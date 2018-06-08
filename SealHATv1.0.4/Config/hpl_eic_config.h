@@ -390,7 +390,7 @@
 // <e> Interrupt 8 Settings
 // <id> eic_arch_enable_irq_setting8
 #ifndef CONF_EIC_ENABLE_IRQ_SETTING8
-#define CONF_EIC_ENABLE_IRQ_SETTING8 0
+#define CONF_EIC_ENABLE_IRQ_SETTING8 1
 #endif
 
 // <q> External Interrupt 8 Filter Enable
@@ -417,7 +417,7 @@
 // <i> This defines input sense trigger
 // <id> eic_arch_sense8
 #ifndef CONF_EIC_SENSE8
-#define CONF_EIC_SENSE8 EIC_NMICTRL_NMISENSE_NONE_Val
+#define CONF_EIC_SENSE8 EIC_NMICTRL_NMISENSE_FALL_Val
 #endif
 
 // <q> External Interrupt 8 Asynchronous Edge Detection Mode
@@ -432,7 +432,7 @@
 // <e> Interrupt 9 Settings
 // <id> eic_arch_enable_irq_setting9
 #ifndef CONF_EIC_ENABLE_IRQ_SETTING9
-#define CONF_EIC_ENABLE_IRQ_SETTING9 0
+#define CONF_EIC_ENABLE_IRQ_SETTING9 1
 #endif
 
 // <q> External Interrupt 9 Filter Enable
@@ -459,7 +459,7 @@
 // <i> This defines input sense trigger
 // <id> eic_arch_sense9
 #ifndef CONF_EIC_SENSE9
-#define CONF_EIC_SENSE9 EIC_NMICTRL_NMISENSE_NONE_Val
+#define CONF_EIC_SENSE9 EIC_NMICTRL_NMISENSE_FALL_Val
 #endif
 
 // <q> External Interrupt 9 Asynchronous Edge Detection Mode
@@ -723,7 +723,8 @@
 
 // </e>
 
-#define CONFIG_EIC_EXTINT_MAP {3, PIN_PA19}, {4, PIN_PA20}, {5, PIN_PA21}, {11, PIN_PA11}, {15, PIN_PA27},
+#define CONFIG_EIC_EXTINT_MAP                                                                                          \
+	{3, PIN_PA19}, {4, PIN_PA20}, {5, PIN_PA21}, {8, PIN_PB08}, {9, PIN_PB09}, {11, PIN_PA11}, {15, PIN_PA27},
 
 // <<< end of configuration section >>>
 
