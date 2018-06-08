@@ -12,7 +12,7 @@
 #define SEAL_IMU_H_
 
 #define IMU_STACK_SIZE                  (700 / sizeof(portSTACK_TYPE))  // high water mark of 96 on 26MAY18
-#define IMU_TASK_PRI                    (tskIDLE_PRIORITY + 3)
+#define IMU_TASK_PRI                    (tskIDLE_PRIORITY + 2)
 
 #define IMU_DATA_SIZE       (25)
 typedef struct __attribute__((__packed__)){

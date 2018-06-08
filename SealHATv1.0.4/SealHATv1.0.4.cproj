@@ -203,7 +203,7 @@
           <AcmeProjectActionInfo Action="File" Source="driver_init.h" IsConfig="false" Hash="1hQAgWO3Ppuy8rSHhiqeHA" />
           <AcmeProjectActionInfo Action="File" Source="atmel_start_pins.h" IsConfig="false" Hash="rWI9RWudxM6J0cR4szJ7NA" />
           <AcmeProjectActionInfo Action="File" Source="examples/driver_examples.h" IsConfig="false" Hash="sMWgPr1/DB1kh/FN51nzTw" />
-          <AcmeProjectActionInfo Action="File" Source="examples/driver_examples.c" IsConfig="false" Hash="Qon31U78xuntOTEFtdx9zg" />
+          <AcmeProjectActionInfo Action="File" Source="examples/driver_examples.c" IsConfig="false" Hash="SphPzTlTy5MD3x7yohKZfA" />
           <AcmeProjectActionInfo Action="File" Source="hal/include/hpl_calendar.h" IsConfig="false" Hash="pzF6Tsaswdj5yYB/4OPpRQ" />
           <AcmeProjectActionInfo Action="File" Source="hal/include/hpl_missing_features.h" IsConfig="false" Hash="XsAvpgfutzkw0Y5SydYFaw" />
           <AcmeProjectActionInfo Action="File" Source="hal/include/hpl_reset.h" IsConfig="false" Hash="fOcUY697JdSPBCPoS0N9MQ" />
@@ -260,27 +260,27 @@
         </AcmeActionInfos>
       </AcmeProjectConfig>
     </AcmeProjectConfig>
-    <avrtool>com.atmel.avrdbg.tool.powerdebugger</avrtool>
-    <avrtoolserialnumber>J50200001011</avrtoolserialnumber>
+    <avrtool>com.atmel.avrdbg.tool.samice</avrtool>
+    <avrtoolserialnumber>801002093</avrtoolserialnumber>
     <avrdeviceexpectedsignature>0x10810214</avrdeviceexpectedsignature>
     <avrtoolinterface>SWD</avrtoolinterface>
     <com_atmel_avrdbg_tool_samice>
       <ToolOptions>
         <InterfaceProperties>
-          <SwdClock>0</SwdClock>
+          <SwdClock>4000000</SwdClock>
         </InterfaceProperties>
         <InterfaceName>SWD</InterfaceName>
         <JlinkConfigFile>C:\Users\kmcarrin\Documents\SealHAT_Repos\SealHAT_firmware\SealHATv1.0.4\jlink.config</JlinkConfigFile>
       </ToolOptions>
       <ToolType>com.atmel.avrdbg.tool.samice</ToolType>
-      <ToolNumber>801001700</ToolNumber>
+      <ToolNumber>801002093</ToolNumber>
       <ToolName>J-Link</ToolName>
     </com_atmel_avrdbg_tool_samice>
-    <avrtoolinterfaceclock>2000000</avrtoolinterfaceclock>
+    <avrtoolinterfaceclock>4000000</avrtoolinterfaceclock>
     <com_atmel_avrdbg_tool_powerdebugger>
       <ToolOptions>
         <InterfaceProperties>
-          <SwdClock>2000000</SwdClock>
+          <SwdClock>0</SwdClock>
         </InterfaceProperties>
         <InterfaceName>SWD</InterfaceName>
       </ToolOptions>
@@ -1080,6 +1080,21 @@
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="max30003\ecg.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="max30003\ecg.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="max30003\max30003.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="max30003\max30003.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="max30003\max30003types.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="max44009\max44009.c">
       <SubType>compile</SubType>
     </Compile>
@@ -1201,6 +1216,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="storage\NAND_Flash.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="tasks\seal_ECG.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="tasks\seal_ECG.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="tasks\seal_CTRL.c">
@@ -1412,6 +1433,7 @@
     <Folder Include="hri\" />
     <Folder Include="max44009" />
     <Folder Include="lsm303" />
+    <Folder Include="max30003" />
     <Folder Include="SealHATv1.0.4\" />
     <Folder Include="SealHATv1.0.4\ubx\" />
     <Folder Include="thirdparty\" />

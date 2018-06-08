@@ -6,6 +6,7 @@
  */
 
 #include "seal_CTRL.h"
+#include "seal_GPS.h"
 #include "seal_SERIAL.h"
 #include "seal_USB.h"
 #include "sealPrint.h"
@@ -43,7 +44,7 @@ void vbus_detection_cb(void)
 
 void alarm_startsensors_cb(struct calendar_descriptor *const calendar)
 {
-    
+    // TODO add code to wake up all sensors here (maybe force all tasks to self-suspend during init)
 }
 
 void vHourlyTimerCallback( TimerHandle_t xTimer )
@@ -67,11 +68,6 @@ int32_t CTRL_task_init(void)
     if(gpio_get_pin_level(VBUS_DETECT)) {
         usb_start();
         xEventGroupSetBits(xSYSEVENTS_handle, EVENT_VBUS);
-    }
-    
-    /* Read stored device settings from EEPROM and make them accessible to all devices. */
-    if (eeprom_read_configs(&eeprom_data)) {
-        return ERR_BAD_ADDRESS;
     }
 
     /* set calendar to a default time and set alarm for some time after */
@@ -97,6 +93,7 @@ int32_t CTRL_task_init(void)
     calendar_set_baseyear(&RTC_CALENDAR, SEALHAT_BASE_YEAR);
     calendar_set_date(&RTC_CALENDAR, &date);
     calendar_set_time(&RTC_CALENDAR, &time);
+
     calendar_set_alarm(&RTC_CALENDAR, &RTC_ALARM, alarm_startsensors_cb);
     xEventGroupSetBits(xSYSEVENTS_handle, EVENT_TIME_CHANGE);
     
@@ -131,9 +128,8 @@ void CTRL_task(void* pvParameters)
     gpio_toggle_pin_level(LED_GREEN);
 
     // enable watchdog timer
-    //wdt_set_timeout_period(&WATCHDOG, 100)
-    wdt_enable(&WATCHDOG);
-
+     wdt_enable(&WATCHDOG);
+    
     /* Receive and write data forever. */
     for(;;) {
         /* feed the mangy dog */
@@ -157,6 +153,14 @@ void CTRL_task(void* pvParameters)
             /* ensure the timer is hourly */
             xTimerChangePeriod(xCTRL_timer, pdMS_TO_TICKS(3600000), 0);
             CTRL_hourly_update();
+        }
+
+        /* check for IMU motion detection and notify the GPS (if it is ready and able to change rate) */
+        if (xEventGroupGetBits(xSYSEVENTS_handle) & EVENT_MASK_IMU & ~EVENT_GPS_COOLDOWN) {
+            /* wake the GPS task up and tell it to change period, try again later if GPS is busy */
+            if (xGPS_th && xTaskNotify(xGPS_th, GPS_NOTIFY_MOTION, eSetValueWithoutOverwrite)) {
+                xEventGroupClearBits(xSYSEVENTS_handle, EVENT_MASK_IMU);
+            }
         }
         
         os_sleep(pdMS_TO_TICKS(1000));
@@ -186,6 +190,12 @@ void CTRL_hourly_update()
     calendar_get_date_time(&RTC_CALENDAR, &datetime);
     hour = (1 << datetime.time.hour);
     prev = hour == 0 ? 1 << 23 : hour >> 1;
+    
+    // TODO add to the GPS section to prevent redundant notifications
+    /* reset the GPS high precision counter */
+    if (xGPS_th) {
+        xTaskNotify(xGPS_th, GPS_NOTIFY_HOUR, eSetBits);
+    }
     
     /* check the active hours for each sensor */
     sensor = eeprom_data.config_settings.accelerometer_config.xcel_activeHour;
@@ -218,8 +228,10 @@ void CTRL_hourly_update()
     
     sensor = eeprom_data.config_settings.temperature_config.temp_activeHour;
     if ((sensor & (hour|prev)) == hour) {
-        /* wakeup */
+        /* wakeup */   
     } else if ((sensor & (hour|prev)) == prev) {
         /* sleep */
     }
+    
+    
 }
