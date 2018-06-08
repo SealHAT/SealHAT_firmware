@@ -94,6 +94,11 @@ int32_t DATA_task_init(void)
     xDATA_sb = xStreamBufferCreateStatic(DATA_QUEUE_LENGTH, PAGE_SIZE_LESS, dataQueueStorage, &xDataQueueStruct);
     configASSERT(xDATA_sb);
 
+    /* Read stored device settings from EEPROM and make them accessible to all devices. */
+    if (eeprom_read_configs(&eeprom_data)) {
+        return ERR_BAD_ADDRESS;
+    }
+
     /* Initialize flash device(s). */
     //flash_io_init(&seal_flash_descriptor, PAGE_SIZE_LESS);
 
@@ -144,7 +149,7 @@ void DATA_task(void* pvParameters)
          if((xEventGroupGetBits(xSYSEVENTS_handle) & EVENT_LOGTOFLASH) != 0)
          {
              /* Write data to external flash device. */
-             flash_io_write(&seal_flash_descriptor, usbPacket.data, PAGE_SIZE_LESS);
+             //flash_io_write(&seal_flash_descriptor, usbPacket.data, PAGE_SIZE_LESS);
          }       
     }
 }

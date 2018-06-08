@@ -69,11 +69,6 @@ int32_t CTRL_task_init(void)
         usb_start();
         xEventGroupSetBits(xSYSEVENTS_handle, EVENT_VBUS);
     }
-    
-    /* Read stored device settings from EEPROM and make them accessible to all devices. */
-    if (eeprom_read_configs(&eeprom_data)) {
-        return ERR_BAD_ADDRESS;
-    }
 
     /* set calendar to a default time and set alarm for some time after */
     date.year  = 2018;
