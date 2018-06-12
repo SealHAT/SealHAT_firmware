@@ -76,8 +76,8 @@ int32_t CTRL_task_init(void)
     date.day   = 4;
 
     time.hour = 15;
-    time.min  = 59;
-    time.sec  = 50;
+    time.min  = 0;
+    time.sec  = 0;
     
     // TODO enforce start date beyond current date
     RTC_ALARM.cal_alarm.datetime.date.year  = eeprom_data.config_settings.start_year;
